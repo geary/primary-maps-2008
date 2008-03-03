@@ -109,6 +109,7 @@ def readShapefile( filename ):
 				'bounds': [ [ 180.0, 90.0 ], [ -180.0, -90.0 ] ],
 				'shapes': []
 			}
+		maxarea = 0
 		place = places[key]
 		shapes = place['shapes']
 		for part in shape['parts']:
@@ -122,6 +123,9 @@ def readShapefile( filename ):
 			bounds = part['bounds']
 			place['bounds'] = geo.extendBounds( place['bounds'], bounds )
 			centroid = part['centroid']
+			if area > maxarea:
+				place['centroid'] = centroid
+				maxarea = area
 			points = part['points']
 			for j in xrange(n):
 				point = points[j]
@@ -168,7 +172,7 @@ def writeJSON( path, abbr, json ):
 def getPlaceJSON( places, key ):
 	place = places[key]
 	bounds = place['bounds']
-	centroid = [ 0, 0 ] # place['centroid']
+	centroid = place['centroid']
 	return '{"name":"%s","bounds":[[%.8f,%.8f],[%.8f,%.8f]],"centroid":[%.8f,%.8f],"shapes":[%s]}' %(
 		key.split(keysep)[0],
 		bounds[0][0], bounds[0][1], 
