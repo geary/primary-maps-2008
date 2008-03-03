@@ -190,6 +190,9 @@ opt.mapHeight = opt.mapHeight || 300;
 opt.mapWidth = ( '' + opt.mapWidth ).replace( /px$/, '' );
 opt.mapHeight = ( '' + opt.mapHeight ).replace( /px$/, '' );
 
+if( opt.stateSelector == null ) opt.stateSelector = true;
+if( opt.partySelector == null ) opt.partySelector = true;
+
 //opt.twitter = opt.twitter || mapplet;
 //opt.youtube = opt.youtube || mapplet;
 
