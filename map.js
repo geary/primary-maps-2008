@@ -1761,7 +1761,7 @@ function load() {
 			var place = overlay.$_place_$;
 			if( place ) {
 				if( place.parent.abbr == 'US' )
-					setState( place.name );
+					setState( place.place.name );
 			}
 		}
 		else {
