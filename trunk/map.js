@@ -149,7 +149,8 @@ GoogleElectionMap = {
 		state.places = data.places;
 		if( abbr == 'us' )
 			initStateBounds( state.places );
-		loadScript( S( opt.dataUrl, 'votes/', abbr.toLowerCase(), '_', curParty.name, '.js' ), 120 );
+		if( abbr == opt.state )
+			loadScript( S( opt.dataUrl, 'votes/', abbr.toLowerCase(), '_', curParty.name, '.js' ), 120 );
 	},
 	votesReady: function( votes ) {
 		var abbr = votes.state;
@@ -170,7 +171,10 @@ if( opt.gadget ) {
 	opt.sidebarWidth = p.getInt('sidebarwidth');
 	opt.mapWidth = window.innerWidth - opt.sidebarWidth ;
 	opt.mapHeight = window.innerHeight - 24;
+	opt.state = p.getString('state');
 	opt.party = p.getString('party');
+	opt.stateSelector = p.getBool('stateselector');
+	opt.partySelector = p.getBool('partyselector');
 	//opt.twitter = p.getBool('twitter');
 	//opt.youtube = p.getBool('youtube');
 }
@@ -805,7 +809,7 @@ function GAsync( obj ) {
 		callback();
 }
 
-var partyButtons = opt.party ? '' : [
+var partyButtons = ! opt.partySelector ? '' : [
 	'<div style="margin-top:8px;">',
 		'<b>Results:</b>',
 		'<button style="margin-left:8px; padding:0;" id="btnDem">Democratic</button>',
@@ -831,7 +835,7 @@ twitterBlurb = ! opt.twitter ? '' : S(
 		state.selectorIndex = index;
 		return option( state.abbr, state.name );
 	}
-	stateSelector = S(
+	stateSelector = ! opt.stateSelector ? '' : S(
 		'<div style="padding-bottom:4px; border-bottom:1px solid #DDD; margin-bottom:4px;">',
 			'<div>',
 				'Select a state or click the map for local results',
@@ -1061,11 +1065,6 @@ opt.state = opt.state || 'us';
 
 var state = states[opt.state];
 
-if( window.Data ) {
-	var counties = Data.counties || [], state = Data.state || {};
-	counties.index( 'name' );
-}
-
 //var allEventData = [];
 var eventMarkers = [];
 var icons = {};
@@ -1190,10 +1189,10 @@ function onVideoReady( xml ) {
 }
 
 function initMap() {
-	if( ! mapplet ) {
-		GEvent.addListener( map, 'mousemove', mousemoved/*.hover*/ );
-		//GEvent.addListener( map, 'mouseout', mousemoved.clear );
-	}
+	//if( ! mapplet ) {
+	//	GEvent.addListener( map, 'mousemove', mousemoved/*.hover*/ );
+	//	//GEvent.addListener( map, 'mouseout', mousemoved.clear );
+	//}
 	
 	//setTimeout( function() { $('#clicknote').show( 'slow' ); }, 1000 );
 }
@@ -1238,13 +1237,13 @@ function contains( shape, xy ) {
 	return inside;
 }
 
-function zoomToCounty( county ) {
-	// TODO: update for multiple polys
-	map.setCenter(
-	   new GLatLng( county.centroid[0], county.centroid[1] ),
-	   map.getBoundsZoomLevel( county.polygon.base.getBounds() )
-   );
-}
+//function zoomToCounty( county ) {
+//	// TODO: update for multiple polys
+//	map.setCenter(
+//	   new GLatLng( county.centroid[0], county.centroid[1] ),
+//	   map.getBoundsZoomLevel( county.polygon.base.getBounds() )
+//   );
+//}
 
 function initControls() {
 /*
@@ -1393,6 +1392,7 @@ function hh() {
 }
 
 function stateReady( state ) {
+	if( ! map ) return;
 	map.clearOverlays();
 	//$('script[title=jsonresult]').remove();
 	//if( json.status == 'later' ) return;
@@ -1734,10 +1734,18 @@ function makeColorIcon( color ) {
 //	republicanResults: function( json ) { showVotes( json, 'republican' ); }
 //};
 
-function setState( name ) {
-	var state = statesByName[name];
+function setStateByAbbr( abbr ) {
+	setState( stateByAbbr(abbr) );
+}
+
+function setStateByName( name ) {
+	setState( statesByName[name] );
+}
+
+function setState( state ) {
 	if( ! state ) return;
-	$('#stateSelector')[0].selectedIndex = state.selectorIndex;
+	var select = $('#stateSelector')[0];
+	select && ( select.selectedIndex = state.selectorIndex );
 	opt.state = state.abbr.toLowerCase();
 	loadState();
 }
@@ -1764,7 +1772,7 @@ function load() {
 			var place = overlay.$_place_$;
 			if( place ) {
 				if( place.parent.abbr == 'US' )
-					setState( place.place.name );
+					setStateByName( place.place.name );
 				else
 					;
 			}
@@ -1772,7 +1780,7 @@ function load() {
 		else {
 			var hit = hittest( latlng );
 			if( hit.parent .abbr == 'US' )
-				setState( hit.place.name );
+				setStateByName( hit.place.name );
 		}
 		//map.openInfoWindowHtml(
 		//	pointLatLng( shape.centroid ),
@@ -1856,8 +1864,8 @@ function load() {
 			'</table>'
 		].join('') );
 		$('#legend').html( 'Loading&#8230;' );
-		loadState( opt.state );
-		loadVotes( opt.state );
+		setStateByAbbr( opt.state );
+		//loadVotes( opt.state );
 		
 		//loadScript( 'http://mg.to/iowa/server/' + q + '_results.js' );
 		//if( testdata )
@@ -1953,47 +1961,47 @@ function loadState() {
 	}
 }
 
-function loadVotes() {
-	return;
-		//loadScript( [ opt.dataUrl, 'elections/2008/primary/states/', opt.state, '/results_', party.name, '.js' ].join('') );
-		
-	var contentBase = window.contentBase || 'http://primary-maps-2008-data.googlecode.com/svn/trunk/miniresults/';
-
-	var party = ( Math.random() < .5 ? 'dem' : 'gop' );
-	
-	setTimeout( reload, 1 );
-	
-	refresh = function( p) {
-		$('#chkFollow')[0].checked = false;
-		loadParty( p );
-	}
-	
-	changePartyIfFollowing = function( p ) {
-		if( following() )  loadParty( p );
-	}
-	
-	loadParty = function( p ) {
-		party = p || party;
-		reload();
-	}
-	
-	function reload() {
-		var url = contentBase + 'miniresults-map-' + party + '.html';
-		_IG_FetchContent( url, function( html ) {
-			var follow = following();
-			$('#resultlist').html( html );
-			$('#chkFollow')[0].checked = follow;
-			$('#spanFollow').css({ display:'inline' });
-			$('#attribution').show();
-			if( mapplet )
-				_IG_AdjustIFrameHeight();
-			setTimeout( reload, 120000 ); 
-		},
-		{
-			refreshInterval: 120
-		});
-	}
-}
+//function loadVotes() {
+//	return;
+//		//loadScript( [ opt.dataUrl, 'elections/2008/primary/states/', opt.state, '/results_', party.name, '.js' ].join('') );
+//		
+//	var contentBase = window.contentBase || 'http://primary-maps-2008-data.googlecode.com/svn/trunk/miniresults/';
+//
+//	var party = ( Math.random() < .5 ? 'dem' : 'gop' );
+//	
+//	setTimeout( reload, 1 );
+//	
+//	refresh = function( p) {
+//		$('#chkFollow')[0].checked = false;
+//		loadParty( p );
+//	}
+//	
+//	changePartyIfFollowing = function( p ) {
+//		if( following() )  loadParty( p );
+//	}
+//	
+//	loadParty = function( p ) {
+//		party = p || party;
+//		reload();
+//	}
+//	
+//	function reload() {
+//		var url = contentBase + 'miniresults-map-' + party + '.html';
+//		_IG_FetchContent( url, function( html ) {
+//			var follow = following();
+//			$('#resultlist').html( html );
+//			$('#chkFollow')[0].checked = follow;
+//			$('#spanFollow').css({ display:'inline' });
+//			$('#attribution').show();
+//			if( mapplet )
+//				_IG_AdjustIFrameHeight();
+//			setTimeout( reload, 120000 ); 
+//		},
+//		{
+//			refreshInterval: 120
+//		});
+//	}
+//}
 
 //var tileSeq = new Date().getTime();
 var tileLayerOverlay;
@@ -2432,5 +2440,10 @@ function tweetBubble( tweet ) {
 //	  }
 //	}
 //}
+
+document.write(
+	'<script type="text/javascript" src="', opt.dataUrl, 'shapes/coarse/us.js', '">',
+	'<\/script>'
+);
 
 })( jQuery );
