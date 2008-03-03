@@ -1897,7 +1897,7 @@ function loadState() {
 	}
 	else {
 		//console.log( 'loading state', abbr );
-		loadScript( S( opt.dataUrl, 'shapes/', abbr.toLowerCase(), '.js' ), 120 );
+		loadScript( S( opt.dataUrl, 'shapes/coarse/', abbr.toLowerCase(), '.js' ), 120 );
 	}
 }
 
