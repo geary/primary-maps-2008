@@ -2,6 +2,19 @@
 
 import math
 
+# z() and zz() are a quick and dirty hack to deal with the Aleutian Islands.
+# We should use a more correct algorithm for extendBounds like the one
+# in the Maps API, but this is good enough to fix the immediate problem.
+def z( n ):
+	if n > 0.0:
+		return n - 360.0
+	return n
+
+def zz( n ):
+	if n < -180.0:
+		return n + 360.0
+	return n
+
 class Geo:
 	
 	def __init__( self, zoom=0, tilesize=256 ):
@@ -10,8 +23,8 @@ class Geo:
 	
 	def extendBounds( self, a, b ):
 		return [
-			[ min( a[0][0] , b[0][0] ), min( a[0][1] , b[0][1] ) ],
-			[ max( a[1][0] , b[1][0] ), max( a[1][1] , b[1][1] ) ]
+			[ zz( min( z(a[0][0]), z(b[0][0]) ) ), min( a[0][1] , b[0][1] ) ],
+			[ zz( max( z(a[1][0]), z(b[1][0]) ) ), max( a[1][1] , b[1][1] ) ]
 		]
 	
 	def inflateBounds( self, a, n ):
