@@ -838,12 +838,12 @@ twitterBlurb = ! opt.twitter ? '' : S(
 			'</div>',
 			'<div>',
 				'<select id="stateSelector">',
-					'<option value="us">Entire USA</option>',
-					'<option value="" style="color:#AAA; font-style:italic; font-weight:bold;">March 4</option>',
+					option( 'us', 'Entire USA' ),
+					option( '', 'March 4', 'color:#AAA; font-style:italic; font-weight:bold;' ),
 					hotStates.map( function( abbr ) {
 						return stateOption( statesByAbbr[abbr] );
 					}).join(''),
-					'<option value="" style="color:#AAA; font-style:italic; font-weight:bold;">All States</option>',
+					option( '', 'All States', 'color:#AAA; font-style:italic; font-weight:bold;' ),
 					states.map( function( state ) {
 						return /*hotStates.by[state.abbr] ? '' :*/ stateOption(state);
 					}).join(''),
@@ -1219,6 +1219,24 @@ polyMethod( 'contains', function( latlng ) {
 	}
 	return inside;
 });
+
+function contains( shape, xy ) {
+	var inside = false;
+	var x = xy[0], y = xy[1];
+	var points = shape.points, n = points.length;
+	var v = points[n-1], x1 = v[0], y1 = v[1];
+
+	for( var i = 0;  i < n;  ++i ) {
+		var v = points[i], x2 = v[0], y2 = v[1];
+		
+		if( ( y1 < y  &&  y2 >= y ) || ( y2 < y  &&  y1 >= y ) )
+			if ( x1 + ( y - y1 ) / ( y2 - y1 ) * ( x2 - x1 ) < x )
+				inside = ! inside;
+		
+		x1 = x2, y1 = y2;
+	}
+	return inside;
+}
 
 function zoomToCounty( county ) {
 	// TODO: update for multiple polys
@@ -1613,12 +1631,12 @@ function showPolys( state, party ) {
 		//place.color = randomColor();
 		place.color = randomGray();
 		//place.opacity = Math.random();
-		place.opacity = .2;
+		place.opacity = .15;
 		
 		//place.color = 'black';
 		//place.opacity = 0;
 		
-		if( tallies ) {
+		if( tallies && tallies.locals ) {
 			var tally = tallies.locals[place.name];
 			if( tally ) {
 				place.precincts = tally.precincts;
@@ -1668,7 +1686,7 @@ function showPolys( state, party ) {
 			//		base: new GPolygon( vertices, border, 1, .5, place.color, .8 )
 			//	};
 			//}
-			shape.polygon.base.$_place_$ = place;
+			shape.polygon.base.$_place_$ = { parent:state, place:place };
 			map.addOverlay( shape.polygon.base );
 			//GEvent.addListener( shape.polygon.base, 'click', function() {
 			//	map.openInfoWindowHtml(
@@ -1713,6 +1731,14 @@ function makeColorIcon( color ) {
 //	republicanResults: function( json ) { showVotes( json, 'republican' ); }
 //};
 
+function setState( name ) {
+	var state = statesByName[name];
+	if( ! state ) return;
+	$('#stateSelector')[0].selectedIndex = state.selectorIndex;
+	opt.state = state.abbr.toLowerCase();
+	loadState();
+}
+
 function load() {
 	if( mapplet ) {
 		map = new GMap2;
@@ -1734,16 +1760,14 @@ function load() {
 		if( overlay ) {
 			var place = overlay.$_place_$;
 			if( place ) {
-				alert( 'click place ' + place.name );
-				//debugger;
-				//selectorIndex
-			}
-			else {
-				alert( 'click no place' );
+				if( place.parent.abbr == 'US' )
+					setState( place.name );
 			}
 		}
 		else {
-			alert( 'click latlng ' + latlng );
+			var hit = hittest( latlng );
+			if( hit.parent .abbr == 'US' )
+				setState( hit.place.name );
 		}
 		//map.openInfoWindowHtml(
 		//	pointLatLng( shape.centroid ),
@@ -1880,6 +1904,29 @@ var mousemoved = function( latlng ) {
 				return;
 			}
 		}
+	}
+}
+
+function hittest( latlng ) {
+	var state = stateByAbbr( opt.state );
+	if( opt.state == 'us' ) {
+		return test( state );
+	}
+	else {
+		return test( state ) || test( stateUS );
+	}
+	
+	function test( entity ) {
+		// Old fashioned loops for speed
+		var places = entity.places;
+		for( var i = 0, nI = places.length;  i < nI;  ++i ) {
+			var place = places[i];
+			var shapes = place.shapes;
+			for( var j = 0, nJ = shapes.length;  j < nJ;  ++j )
+				if( contains( shapes[j], [ latlng.lng(), latlng.lat() ] ) )
+					return { parent:entity, place:place };
+		}
+		return null;
 	}
 }
 
