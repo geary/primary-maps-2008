@@ -965,9 +965,9 @@ function writeMappletHTML() {
 			//'<div id="votesbar">',
 			//	'<div id="votestitle">',
 			//	'</div>',
-			//	'<div id="legend">',
-			//		'Loading&#8230;',
-			//	'</div>',
+				'<div id="legend">',
+					'Loading&#8230;',
+				'</div>',
 			//'</div>',
 			'<div id="videos" style="margin-top:8px;">',
 			'</div>',
@@ -1419,6 +1419,7 @@ function stateReady( state ) {
 	function polys() {
 		// Let map display before drawing polys
 		setTimeout( function() {
+			showStateSidebar( state, curParty );
 			if( opt.tileUrl )
 				loadTiles( state, curParty );
 			else
@@ -1518,11 +1519,13 @@ function showStateProjector( json, party ) {
 	}
 }
 
-function showStateSidebar( json, party ) {
-	var state = json.state, tallies = state[party], precincts = state.precincts;
+function showStateSidebar( state, party ) {
+	var totals = state.votes[party.name].totals;
+	var precincts = totals.precincts;
+	var tallies = totals.votes;
 	tallies.index('name');
 	var rows = [];
-	var cands = candidates[party];
+	var cands = candidates[party.name];
 	addRows();
 	
 	var html = [
@@ -1762,6 +1765,8 @@ function load() {
 			if( place ) {
 				if( place.parent.abbr == 'US' )
 					setState( place.place.name );
+				else
+					;
 			}
 		}
 		else {
