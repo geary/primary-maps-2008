@@ -1523,23 +1523,25 @@ function showStateProjector( json, party ) {
 }
 
 function showStateSidebar( state, party ) {
+	var html = '';
 	var totals = state.votes[party.name].totals;
-	var precincts = totals.precincts;
-	var tallies = totals.votes;
-	tallies.index('name');
-	var rows = [];
-	var cands = candidates[party.name];
-	addRows();
-	
-	var html = [
-		'<table>',
-			rows.join(''),
-		'</table>',
-		'<div class="legendreporting">',
-			precincts.reporting, ' of ', precincts.total, ' precincts reporting',
-		'</div>'
-	].join('');
-	
+	if( totals ) {
+		var precincts = totals.precincts;
+		var tallies = totals.votes;
+		tallies.index('name');
+		var rows = [];
+		var cands = candidates[party.name];
+		addRows();
+		
+		var html = [
+			'<table>',
+				rows.join(''),
+			'</table>',
+			'<div class="legendreporting">',
+				precincts.reporting, ' of ', precincts.total, ' precincts reporting',
+			'</div>'
+		].join('');
+	}	
 	$('#legend').html( html );
 	
 	function addRows() {
@@ -2444,9 +2446,11 @@ function tweetBubble( tweet ) {
 //	}
 //}
 
-document.write(
-	'<script type="text/javascript" src="', opt.dataUrl, 'shapes/coarse/us.js', '">',
-	'<\/script>'
-);
+if( opt.state  &&  opt.state != 'us' ) {
+	document.write(
+		'<script type="text/javascript" src="', opt.dataUrl, 'shapes/coarse/us.js', '">',
+		'<\/script>'
+	);
+}
 
 })( jQuery );
