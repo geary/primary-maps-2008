@@ -64,7 +64,7 @@ def filterCONUS( features ):
 	return result
 
 def featuresBounds( features ):
-	bounds = [ [ 180.0, 90.0 ], [ -180.0, -90.0 ] ]
+	bounds = [ [ None, None ], [ None, None ] ]
 	for feature in features:
 		shape = feature['shape']
 		if shape['type'] == 5:
@@ -106,7 +106,7 @@ def readShapefile( filename ):
 			places[key] = {
 				'name': name,
 				'state': state,
-				'bounds': [ [ 180.0, 90.0 ], [ -180.0, -90.0 ] ],
+				'bounds': [ [ None, None ], [ None, None ] ],
 				'shapes': []
 			}
 		maxarea = 0

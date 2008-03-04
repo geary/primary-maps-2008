@@ -15,6 +15,22 @@ def zz( n ):
 		return n + 360.0
 	return n
 
+def minlat( a, b ):
+	if a == None: return b
+	return min( a, b )
+
+def maxlat( a, b ):
+	if a == None: return b
+	return max( a, b )
+
+def minlng( a, b ):
+	if a == None: return b
+	return zz( min( z(a), z(b) ) )
+
+def maxlng( a, b ):
+	if a == None: return b
+	return zz( max( z(a), z(b) ) )
+
 class Geo:
 	
 	def __init__( self, zoom=0, tilesize=256 ):
@@ -23,8 +39,8 @@ class Geo:
 	
 	def extendBounds( self, a, b ):
 		return [
-			[ zz( min( z(a[0][0]), z(b[0][0]) ) ), min( a[0][1] , b[0][1] ) ],
-			[ zz( max( z(a[1][0]), z(b[1][0]) ) ), max( a[1][1] , b[1][1] ) ]
+			[ minlng( a[0][0], b[0][0] ), minlat( a[0][1] , b[0][1] ) ],
+			[ maxlng( a[1][0], b[1][0] ), maxlat( a[1][1] , b[1][1] ) ]
 		]
 	
 	def inflateBounds( self, a, n ):
