@@ -528,6 +528,9 @@ var states = [
 		'abbr': 'PR',
 		'name': 'Puerto Rico',
 		'parties': {
+			'dem': { 'date': '06-07' },
+			//'gop': { 'date': '02-24' }
+			'gop': { 'date': 'n/a' }
 		}
 	},
 	{
@@ -837,6 +840,14 @@ twitterBlurb = ! opt.twitter ? '' : S(
 	'</div>'
 );
 
+var shortMonths = 'Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec'.split(' ');
+
+function fmtDate( date ) {
+	var d = date.split('-');
+	if( d.length != 2 ) return date;
+	return shortMonths[ d[0] - 1 ] + ' ' + (+d[1]);
+}
+
 (function() {
 	var hotStates = [ 'OH', 'RI', 'TX', 'VT' ]/*.index()*/;
 	var index = 0;
@@ -844,25 +855,33 @@ twitterBlurb = ! opt.twitter ? '' : S(
 		++index;
 		return S( '<option value="', value, '" style="', style || '', '">', name, '</option>' );
 	}
-	function stateOption( state ) {
+	function stateOption( state, dated ) {
 		state.selectorIndex = index;
-		return option( state.abbr, state.name );
+		var dates = '';
+		if( dated ) {
+			var dem = state.parties.dem.date, gop = state.parties.gop.date;
+			dates = ' (' + ( dem == gop ? fmtDate(dem) : S( 'D:', fmtDate(dem), ', R:', fmtDate(gop) ) ) + ')';
+		}
+		return option( state.abbr, state.name + dates );
 	}
 	stateSelector = ! opt.stateSelector ? '' : S(
 		'<div style="padding-bottom:4px; border-bottom:1px solid #DDD; margin-bottom:4px;">',
 			'<div>',
-				'Select a state or click the map for local results',
+				'Click the map for state results.',
+			'</div>',
+			'<div>',
+				'Select a state from the list for local results:',
 			'</div>',
 			'<div>',
 				'<select id="stateSelector">',
 					option( 'us', 'Entire USA' ),
 					option( '', 'March 4', 'color:#AAA; font-style:italic; font-weight:bold;' ),
 					hotStates.map( function( abbr ) {
-						return stateOption( statesByAbbr[abbr] );
+						return stateOption( statesByAbbr[abbr], false );
 					}).join(''),
 					option( '', 'All States', 'color:#AAA; font-style:italic; font-weight:bold;' ),
 					states.map( function( state ) {
-						return /*hotStates.by[state.abbr] ? '' :*/ stateOption(state);
+						return /*hotStates.by[state.abbr] ? '' :*/ stateOption( state, true );
 					}).join(''),
 				'</select>',
 			'</div>',
@@ -950,7 +969,7 @@ function writeMappletHTML() {
 				'<a href="http://www.boston.com/" target="_blank">Boston&nbsp;Globe</a>',
 			'</div>',
 			'<div style="padding-bottom:4px; border-bottom:1px solid #DDD; margin-bottom:4px;">',
-				//'<span style="color:red;">New!</span> ',
+				'<span style="color:red;">New!</span> ',
 				'<a href="http://gmodules.com/ig/creator?synd=open&url=http://primary-maps-2008.googlecode.com/svn/trunk/map.xml" target="_blank">Get this map for your website</a>',
 			'</div>',
 			stateSelector,
@@ -1707,7 +1726,7 @@ function showPolys( state, party ) {
 			//GEvent.addListener( shape.polygon.base, 'click', function() {
 			//	map.openInfoWindowHtml(
 			//		pointLatLng( shape.centroid ),
-			//		voteBalloon( json, place ),
+			//		voteBalloon( place ),
 			//		{ maxWidth:300 } );
 			//});
 		});
@@ -1716,7 +1735,7 @@ function showPolys( state, party ) {
 	initMap();
 }
 
-function voteBalloon( json, county ) {
+function voteBalloon( county ) {
 	return [
 		'<div style="font-size:10pt;">',
 			countyTable( county, null, true ),
@@ -1763,6 +1782,18 @@ function setState( state ) {
 	loadState();
 }
 
+function openInfo( place ) {
+	if( place.parent.abbr == 'US' ) {
+		var state = statesByName[place.place.name];
+	}
+	else {
+	}
+	map.openInfoWindowHtml(
+		pointLatLng( shape.centroid ),
+		voteBalloon( place ),
+		{ maxWidth:300 } );
+}
+
 function load() {
 	if( mapplet ) {
 		map = new GMap2;
@@ -1780,26 +1811,10 @@ function load() {
 		map.addControl( new GSmallMapControl() );
 	}
 	
-	function clicker( clicks, overlay, latlng ) {
-		var place = overlay ? overlay.$_place_$ : hittest( latlng );
-		if( place.parent.abbr == 'US' ) {
-			if( clicks == 1 )
-				setStateByName( place.place.name );
-		}
-		else {
-		}
-		//map.openInfoWindowHtml(
-		//	pointLatLng( shape.centroid ),
-		//	voteBalloon( json, place ),
-		//	{ maxWidth:300 } );
-	}
-	
 	GEvent.addListener( map, 'click', function( overlay, latlng ) {
-		clicker( 1, overlay, latlng );
-	});
-	
-	GEvent.addListener( map, 'dblclick', function( overlay, latlng ) {
-		clicker( 2, overlay, latlng );
+		var place = overlay ? overlay.$_place_$ : hittest( latlng );
+		//alert( place.place.name );
+		//openInfo( place );
 	});
 	
 	makeIcons();
@@ -1869,7 +1884,7 @@ function load() {
 				'<tr>',
 					'<td style="text-align:left;">',
 						//'<b>', party.fullName, '</b>',
-						'<b>Nationwide Results</b>',
+						'<b>Total voting results</b>',
 					'</td>',
 					'<td id="votesattrib" style="text-align:right;">',
 						attrib,
