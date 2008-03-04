@@ -654,6 +654,11 @@ function stateByAbbr( abbr ) {
 	return statesByAbbr[abbr.toUpperCase()] || stateUS;
 }
 
+function adjustHeight() {
+	if( mapplet )
+		_IG_AdjustIFrameHeight();
+}
+
 function loadScript( url, cache ) {
 	var script = document.createElement( 'script' );
 	script.type = 'text/javascript';
@@ -716,7 +721,9 @@ var candidates = {
 		{ 'name': 'brownback', 'lastName': 'Brownback', 'fullName': 'Sam Brownback', 'color': '#8080FF', 'feed': 'lm63qmbqunob5gbvratl1bo974' },
 		{ 'name': 'cort', 'lastName': 'Cort', 'fullName': 'Hugh Cort', 'color': '#8080FF' },
 		{ 'name': 'cox', 'lastName': 'Cox', 'fullName': 'John Cox', 'color': '#808040' },
+		{ 'name': 'curry', 'lastName': 'Curry', 'fullName': 'Jerry Curry', 'color': '#808040' },
 		{ 'name': 'fendig', 'lastName': 'Fendig', 'fullName': 'Cap Fendig', 'color': '#408080' },
+		{ 'name': 'gilbert', 'lastName': 'Gilbert', 'fullName': 'Daniel Gilbert', 'color': '#408080' },
 		{ 'name': 'giuliani', 'lastName': 'Giuliani', 'fullName': 'Rudy Giuliani', 'color': '#336633', 'feed': 'g0tkl52ft6nhrlm2e6v6his400' },
 		{ 'name': 'huckabee', 'lastName': 'Huckabee', 'fullName': 'Mike Huckabee', 'color': '#1700E8', 'feed': 'h32i31ojgo9vvb3vnggmq1qrh8' },
 		{ 'name': 'hunter', 'lastName': 'Hunter', 'fullName': 'Duncan Hunter', 'color': '#8A5C2E', 'feed': '' },
@@ -1148,8 +1155,7 @@ function onNewsReady( xml ) {
 	
 	$('#news').html( html );
 	
-	if( mapplet )
-		_IG_AdjustIFrameHeight();
+	adjustHeight();
 }
 
 function onVideoReady( xml ) {
@@ -1195,8 +1201,7 @@ function onVideoReady( xml ) {
 	
 	$('#videos').html( html );
 	
-	if( mapplet )
-		_IG_AdjustIFrameHeight();
+	adjustHeight();
 }
 
 function initMap() {
@@ -1446,8 +1451,7 @@ function showVotes( json, party ) {
 	if( json.status == 'later' ) return;
 	showState( json, party );
 	showCounties( json, party );
-	if( mapplet )
-		_IG_AdjustIFrameHeight();
+	adjustHeight();
 }
 
 function showState( json, party ) {
@@ -1551,6 +1555,7 @@ function showStateSidebar( state, party ) {
 		].join('');
 	}	
 	$('#legend').html( html );
+	adjustHeight();
 	
 	function addRows() {
 		var cols = [];
@@ -1780,25 +1785,26 @@ function load() {
 		map.addControl( new GSmallMapControl() );
 	}
 	
-	GEvent.addListener( map, 'click', function( overlay, latlng ) {
-		if( overlay ) {
-			var place = overlay.$_place_$;
-			if( place ) {
-				if( place.parent.abbr == 'US' )
-					setStateByName( place.place.name );
-				else
-					;
-			}
+	function clicker( clicks, overlay, latlng ) {
+		var place = overlay ? overlay.$_place_$ : hittest( latlng );
+		if( place.parent.abbr == 'US' ) {
+			if( clicks == 1 )
+				setStateByName( place.place.name );
 		}
 		else {
-			var hit = hittest( latlng );
-			if( hit.parent .abbr == 'US' )
-				setStateByName( hit.place.name );
 		}
 		//map.openInfoWindowHtml(
 		//	pointLatLng( shape.centroid ),
 		//	voteBalloon( json, place ),
 		//	{ maxWidth:300 } );
+	}
+	
+	GEvent.addListener( map, 'click', function( overlay, latlng ) {
+		clicker( 1, overlay, latlng );
+	});
+	
+	GEvent.addListener( map, 'dblclick', function( overlay, latlng ) {
+		clicker( 2, overlay, latlng );
 	});
 	
 	makeIcons();
@@ -1897,8 +1903,7 @@ function load() {
 	
 	
 	//initControls();
-	if( mapplet )
-		_IG_AdjustIFrameHeight();
+	adjustHeight();
 }
 
 var mousemoved = function( latlng ) {
@@ -2006,8 +2011,7 @@ function loadState() {
 //			$('#chkFollow')[0].checked = follow;
 //			$('#spanFollow').css({ display:'inline' });
 //			$('#attribution').show();
-//			if( mapplet )
-//				_IG_AdjustIFrameHeight();
+//			adjustHeight();
 //			setTimeout( reload, 120000 ); 
 //		},
 //		{
@@ -2158,8 +2162,7 @@ function showRegionNews( region ) {
 			'</div>'
 		].join('') );
 	
-	if( mapplet )
-		_IG_AdjustIFrameHeight();
+	adjustHeight();
 }
 */
 
