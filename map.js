@@ -2073,7 +2073,22 @@ function stateTable( state, place, balloon ) {
 	var fontsize = 'font-size:10pt;';
 	var pad = balloon ? '8px' : '4px';
 	var party = state.parties[curParty.name];
+	var header = S(
+		'<div style="font-size:120%">',
+			state.name, ' ', curParty.shortName,
+			party.type == 'caucus' ? ' Caucus ' : ' Primary ',
+		'</div>',
+		'<div style="font-size:115%">',
+			party.date, '-2008',
+		'</div>'
+	);
 	var votes = stateUS.votes[curParty.name].locals[state.name];
+	if( ! votes ) return S(
+		header,
+		'<div>',
+			'No votes reported',
+		'</div>'
+	);
 	var lines = [];
 	var tallies = votes.votes;
 	var leader = tallies[0];
@@ -2108,7 +2123,7 @@ function stateTable( state, place, balloon ) {
 						'</div>',
 					'</td>',
 					'<td style="', fontsize, 'text-align:right; width:2em; padding-right:', pad, ';">',
-						'<div>',
+						'<div style="font-size:80%; color:red;">',
 							percent( tally.votes / total ),
 						'</div>',
 					'</td>',
@@ -2135,10 +2150,9 @@ function stateTable( state, place, balloon ) {
 	//].join('');
 	
 	return [
+		header,
 		//'<div style="', fontsize, 'font-weight:bold;">', countyName(county), '</div>',
 		//'<div>',	wikilink, '</div>',
-		'<div>',
-		'</div>',
 		'<table style="width: 350px; margin-top:8px;">',
 			'<thead>',
 				'<th colspan="2">',
