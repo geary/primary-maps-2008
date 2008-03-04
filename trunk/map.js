@@ -179,6 +179,11 @@ if( opt.gadget ) {
 	//opt.youtube = p.getBool('youtube');
 }
 
+// TEMP
+opt.stateSelector = true;
+opt.partySelector = true;
+
+
 opt.twitter = false;
 opt.youtube = false;
 
