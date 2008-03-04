@@ -43,6 +43,7 @@ def feedCSV( feed ):
 	return '%s/%s' %( votespath, feed['file'] )
 
 def fetchData( feed ):
+	if 'url' not in feed: return
 	url = feed['url']
 	file = feedCSV(feed)
 	print 'Retrieving %s from:\n%s' %( file, url )
@@ -90,6 +91,9 @@ def getPrecincts( row ):
 		'total': int(row[2])
 	}
 
+fixcols = { 'trancredo': 'tancredo' }
+ignorecols = { 'total-d':1, 'total-r':1, 'Uncommitted-D':1, 'Uncommitted-R':1, 'Uninstructed-D':1, 'Uninstructed-R':1 }
+
 def setVotes( entity, header, row ):
 	counties = entity['counties']
 	countyname = row[1]
@@ -100,8 +104,8 @@ def setVotes( entity, header, row ):
 	for col in xrange( 4, len(header) ):
 		if col >= len(row) or row[col] == '': continue
 		name = header[col]
-		if name == 'total-d' or name == 'total-r': continue
-		if name == 'trancredo': name = 'tancredo'
+		name = fixcols.get( name, name )
+		if name in ignorecols: continue
 		candidate = candidates['byname'][name]
 		party = candidate['party']
 		p = entity['parties'][party]
@@ -188,7 +192,7 @@ def write( name, text ):
 	
 def update():
 	for feed in private.feeds:
-		#fetchData( feed )
+		fetchData( feed )
 		readVotes( feed )
 	print 'Creating votes JSON...'
 	makeJson( 'dem' )
