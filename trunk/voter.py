@@ -78,6 +78,10 @@ def readVotes( feed ):
 	for row in reader:
 		if len(row) < 2: continue
 		if state: row.insert( 0, state )
+		# Maine hack
+		if row[2] == ' S.D.':
+			row[1] += ',' + row[2]
+			row.pop( 2 )
 		setData( feed, header, row )
 
 def setData( feed, header, row ):
@@ -92,7 +96,7 @@ def getPrecincts( row ):
 	}
 
 fixcols = { 'trancredo': 'tancredo' }
-ignorecols = { 'total-d':1, 'total-r':1, 'Uncommitted-D':1, 'Uncommitted-R':1, 'Uninstructed-D':1, 'Uninstructed-R':1 }
+ignorecols = { 'other-d':1, 'other-r':1, 'total-d':1, 'total-r':1, 'undecided-d':1, 'undecided-r':1, 'Uncommitted-D':1, 'Uncommitted-R':1, 'Uninstructed-D':1, 'Uninstructed-R':1, 'write-ins-d':1, 'write-ins-r':1 }
 
 def setVotes( entity, header, row ):
 	counties = entity['counties']

@@ -5,6 +5,7 @@
 import math
 import os
 import random
+import re
 import shutil
 import stat
 import sys
@@ -20,11 +21,14 @@ geo = Geo()
 keysep = '|'
 states.byNumber = {}
 
-useTowns = {
-	'CT': 80,
-	'MA': 80,
-	'NH': 94,
-	'VT': 80
+useOther = {
+	'CT': ( 'towns', 'cs09_d00' ),
+	'MA': ( 'towns', 'cs25_d00' ),
+	'NH': ( 'towns', 'cs33_d00' ),
+	'VT': ( 'towns', 'cs50_d00' ),
+	
+	'KS': ( 'congressional', 'cd20_110' ),
+	'NE': ( 'congressional', 'cd31_110' ),
 }
 
 def loadshapefile( filename ):
@@ -100,6 +104,7 @@ def readShapefile( filename ):
 		if shape['type'] != 5: continue
 		info = feature['info']
 		name = info['NAME']
+		name = re.sub( '^(\d+)\x00.*$', 'CD\\1', name )  # congressional district
 		state = info['STATE']
 		key = name + keysep + state
 		if key not in places:
@@ -149,6 +154,11 @@ def writeUS( places, path ):
 	writeJSON( path, 'us', json )
 
 def writeStates( places, path ):
+	p = {}
+	for k in places:
+		if places[k] != None:
+			p[k] = places[k]
+	places = p
 	keys = places.keys()
 	keys.sort()
 	for key in keys:
@@ -171,6 +181,7 @@ def writeJSON( path, abbr, json ):
 
 def getPlaceJSON( places, key ):
 	place = places[key]
+	if not place: return ''
 	bounds = place['bounds']
 	centroid = place['centroid']
 	return '{"name":"%s","bounds":[[%.8f,%.8f],[%.8f,%.8f]],"centroid":[%.8f,%.8f],"shapes":[%s]}' %(
@@ -182,7 +193,7 @@ def getPlaceJSON( places, key ):
 	)
 
 def generateUS( detail, path='' ):
-	shapefile, places = readShapefile( 'states/st99_d00_shp-90/st99_d00.shp' )
+	shapefile, places = readShapefile( 'states/st99_d00_shp-%s/st99_d00.shp' % detail )
 	for key in places:
 		name, number = key.split(keysep)
 		state = states.byName[name]
@@ -198,17 +209,20 @@ def generateStates( detail, path ):
 		name, number = key.split(keysep)
 		state = states.byNumber[number]
 		abbr = state['abbr']
-		if abbr not in useTowns:
+		if abbr not in useOther:
 			state['counties'].append( place )
-	for abbr, simplify in useTowns.iteritems():
+		else:
+			places[key] = None
+	for abbr, file in useOther.iteritems():
 		state = states.byAbbr[abbr]
 		number = state['number']
-		townshapefile, townplaces = readShapefile(
-			'towns/cs%(number)s_d00_shp-%(simplify)s/cs%(number)s_d00.shp' %{
-				'number':number,
-				'simplify':simplify
+		othershapefile, otherplaces = readShapefile(
+			'%(base)s/%(name)s_shp-%(detail)s/%(name)s.shp' %{
+				'base': file[0],
+				'name': file[1],
+				'detail': detail
 			} )
-		for key, place in townplaces.iteritems():
+		for key, place in otherplaces.iteritems():
 			name, number = key.split(keysep)
 			state = states.byNumber[number]
 			state['counties'].append( place )
