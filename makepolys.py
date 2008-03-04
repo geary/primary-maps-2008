@@ -111,10 +111,10 @@ def readShapefile( filename ):
 			places[key] = {
 				'name': name,
 				'state': state,
+				'maxarea': 0.0,
 				'bounds': [ [ None, None ], [ None, None ] ],
 				'shapes': []
 			}
-		maxarea = 0
 		place = places[key]
 		shapes = place['shapes']
 		for part in shape['parts']:
@@ -128,9 +128,9 @@ def readShapefile( filename ):
 			bounds = part['bounds']
 			place['bounds'] = geo.extendBounds( place['bounds'], bounds )
 			centroid = part['centroid']
-			if area > maxarea:
+			if area > place['maxarea']:
 				place['centroid'] = centroid
-				maxarea = area
+				place['maxarea'] = area
 			points = part['points']
 			for j in xrange(n):
 				point = points[j]
