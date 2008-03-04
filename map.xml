@@ -75,11 +75,13 @@
 	<EnumValue value="wi" display_value="Wisconsin"/>
 	<EnumValue value="wy" display_value="Wyoming"/>
 </UserPref>
+<UserPref name="stateselector" default_value="true" datatype="bool" display_name="State&#160;selector"/>
 <UserPref name="party" default_value="" datatype="enum" display_name="Party">
 	<EnumValue value="" display_value="Both"/>
 	<EnumValue value="dem" display_value="Democratic"/>
 	<EnumValue value="gop" display_value="Republican"/>
 </UserPref>
+<UserPref name="partyselector" default_value="true" datatype="bool" display_name="Party&#160;selector"/>
 <!--<UserPref name="twitter" default_value="true" datatype="bool" display_name="Twitter&#160;updates"/>-->
 <!--<UserPref name="youtube" default_value="false" datatype="bool" display_name="YouTube&#160;videos"/>-->
 
