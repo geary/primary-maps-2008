@@ -7,6 +7,7 @@ import os
 import re
 import time
 import urllib
+import urllib2
 
 from candidates import candidates
 #from template import *
@@ -126,9 +127,37 @@ def sortVotes( party ):
 	if not party.get('votes'): party['votes'] = {}
 	tally = []
 	for name, votes in party['votes'].iteritems():
-		tally.append({ 'name':name, 'votes':votes })
+		delegates = 0
+		if 'delegatelist' in party:
+			if name in party['delegatelist']:
+				delegates = party['delegatelist'][name]
+		if delegates:
+			tally.append({ 'name':name, 'votes':votes, 'delegates':delegates })
+		else:
+			tally.append({ 'name':name, 'votes':votes })
 	tally.sort( lambda a, b: b['votes'] - a['votes'] )
 	party['votes'] = tally
+	if 'delegatehtml' in party: del party['delegatehtml']
+	if 'delegatelist' in party: del party['delegatelist']
+
+def addDelegates( partyname, party ):
+	if 'delegatehtml' not in party: return
+	row = party['delegatehtml']
+	party['delegates'] = re.sub( '[^0-9]', '', row[1] )
+	party['delegatelist'] = {}
+	votes = party['votes']
+	def set( col, name ):
+		n = re.sub( '[^0-9]', '', row[col] )
+		if n:
+			party['delegatelist'][name] = n
+	if partyname == 'dem':
+		set( 3, 'obama' )
+		set( 4, 'clinton' )
+	else:
+		set( 2, 'mccain' )
+		set( 3, 'romney' )
+		set( 4, 'huckabee' )
+		set( 5, 'paul' )
 
 def makeJson( party ):
 	ustotal = 0
@@ -143,6 +172,7 @@ def makeJson( party ):
 		stateparty = state['parties'][party]
 		stateparty['name'] = state['name']
 		if 'votes' not in stateparty: continue
+		addDelegates( party, stateparty )
 		sortVotes( stateparty )
 		statevotes[ state['name'] ] = stateparty
 		print 'Loading %s %s' %( state['name'], party )
@@ -188,6 +218,25 @@ def makeJson( party ):
 		}) )
 	#print '%s of %s precincts reporting' %( state['precincts']['reporting'], state['precincts']['total'] )
 
+def getDelegates( party, urlparty ):
+	url = 'http://www.realclearpolitics.com/epolls/2008/president/%s_delegate_count.html' % urlparty
+	#print 'processing URL'
+	giRet = urllib2.urlopen(url).read()
+	iterator = re.finditer('<td bgcolor=""(.*?)</td>',giRet)
+	for match in iterator:
+		if re.search('href.*strong', match.group()) != None:
+			lastkey = cleankey(re.search('(href.*strong)', match.group()))
+			print lastkey
+			if lastkey in states.byName: states.byName[lastkey]['parties'][party]['delegatehtml'] = []
+		else:
+			if lastkey in states.byName: states.byName[lastkey]['parties'][party]['delegatehtml'].append(cleanvalue(match.group()))
+
+def cleanvalue(value):
+	return re.search('>(.*?)</td>', value).group(1)
+	
+def cleankey(key):
+	return re.search('<strong>(.*?)</strong',key.group()).group(1)
+
 def write( name, text ):
 	print 'Writing %s' % name
 	f = open( name, 'w' )
@@ -195,6 +244,8 @@ def write( name, text ):
 	f.close()
 	
 def update():
+	getDelegates( 'dem', 'democratic' );
+	getDelegates( 'gop', 'republican' );
 	for feed in private.feeds:
 		fetchData( feed )
 		readVotes( feed )
