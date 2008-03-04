@@ -949,7 +949,7 @@ function writeMappletHTML() {
 			'</div>',
 			'<div style="padding-bottom:4px; border-bottom:1px solid #DDD; margin-bottom:4px;">',
 				//'<span style="color:red;">New!</span> ',
-				'<a href="http://gmodules.com/ig/creator?synd=open&url=http://gmaps-samples.googlecode.com/svn/trunk/elections/2008/primary/supermap2.xml" target="_blank">Get this map for your website</a>',
+				'<a href="http://gmodules.com/ig/creator?synd=open&url=http://primary-maps-2008.googlecode.com/svn/trunk/map.xml" target="_blank">Get this map for your website</a>',
 			'</div>',
 			stateSelector,
 			//twitterBlurb,
@@ -1080,35 +1080,35 @@ var state = states[opt.state];
 var eventMarkers = [];
 var icons = {};
 
-function onEventsReady( xml ) {
-	var items = {
-		eventtitle:1, eventid:1, eventdate:1, eventtimestart:1, eventendtime:1,
-		venueid:1, venuename:1, venueaddress:1, venuecity:1, venuelat:1, venuelng:1,
-		party:1, feclist:1, etidlist:1, candnamelist:1, iscurrent:1, eventdetailslink:1
-	};
-	
-	$('marker',xml).each( function() {
-		var event = {};
-		for( var item in items ) event[item] = this.getAttribute(item);
-		event.latlng = new GLatLng( +event.venuelat, +event.venuelng );
-		event.marker = addEventMarker( event );
-		//allEventData.push( event );
-	});
-	
-	initMap();
-}
+//function onEventsReady( xml ) {
+//	var items = {
+//		eventtitle:1, eventid:1, eventdate:1, eventtimestart:1, eventendtime:1,
+//		venueid:1, venuename:1, venueaddress:1, venuecity:1, venuelat:1, venuelng:1,
+//		party:1, feclist:1, etidlist:1, candnamelist:1, iscurrent:1, eventdetailslink:1
+//	};
+//	
+//	$('marker',xml).each( function() {
+//		var event = {};
+//		for( var item in items ) event[item] = this.getAttribute(item);
+//		event.latlng = new GLatLng( +event.venuelat, +event.venuelng );
+//		event.marker = addEventMarker( event );
+//		//allEventData.push( event );
+//	});
+//	
+//	initMap();
+//}
 
-function addEventMarker( event ) {
-	var color = { b:'white', d:'blue', r:'red' }[event.party] || 'white';
-	var icon = icons[color];
-	var marker = new GMarker( event.latlng, { icon:icons[color] } );
-	GEvent.addListener( marker, 'click', function() {
-		marker.openInfoWindowHtml( formatEvent(event), { maxWidth:500 } );
-	});
-	eventMarkers.push( marker );
-	map.addOverlay( marker );
-	return marker;
-}
+//function addEventMarker( event ) {
+//	var color = { b:'white', d:'blue', r:'red' }[event.party] || 'white';
+//	var icon = icons[color];
+//	var marker = new GMarker( event.latlng, { icon:icons[color] } );
+//	GEvent.addListener( marker, 'click', function() {
+//		marker.openInfoWindowHtml( formatEvent(event), { maxWidth:500 } );
+//	});
+//	eventMarkers.push( marker );
+//	map.addOverlay( marker );
+//	return marker;
+//}
 
 function onNewsReady( xml ) {
 	var videos = [];
