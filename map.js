@@ -177,6 +177,10 @@ if( opt.gadget ) {
 	opt.partySelector = p.getBool('partyselector');
 	//opt.twitter = p.getBool('twitter');
 	//opt.youtube = p.getBool('youtube');
+	if( window.innerWidth < 550 ) {
+		opt.mapWidth = opt.sidebarWidth = window.innerWidth;
+		opt.mapHeight = opt.sidebarHeight = ( window.innerHeight - 24 ) / 2;
+	}
 }
 
 opt.twitter = false;
@@ -1016,6 +1020,30 @@ function writeMappletHTML() {
 function writeApiMapHTML() {
 	var mapWidth = opt.mapWidth ? opt.mapWidth + 'px' : '100%';
 	var mapHeight = opt.mapHeight ? opt.mapHeight + 'px' : '100%';
+	var mapHTML = S(
+		'<div id="map" style="width:', mapWidth, '; height:', mapHeight, ';">',
+		'</div>'
+	);
+	var sidebarHTML = S(
+		'<div id="resultlist">',
+		'</div>',
+		stateSelector,
+		partyButtons,
+		'<div id="votesbar">',
+			'<div id="votestitle">',
+			'</div>',
+			//'<div style="font-weight:bold;">Statewide Results</div>',
+			'<div id="legend">',
+				'Loading&#8230;',
+			'</div>',
+			'<div id="results">',
+				//'Roll the mouse over the map for county-by-county results.<br /><br />',
+				//'Roll the mouse over the map for state-by-state results.<br />',
+				//'Zoom in for county-by-county results.<br /><br />',
+				//'Scroll down for statewide details',
+			'</div>',
+		'</div>'
+	);
 	document.write(
 		'<style type="text/css">',
 			'body { margin:0; padding:0; }',
@@ -1051,38 +1079,39 @@ function writeApiMapHTML() {
 			'#legend .legendclear { clear:left; }',
 			'#legend .legendreporting { margin-bottom:8px; }',
 			'#legend .legendreporting * { xfont-size:20px; }',
-		'</style>',
-		'<table>',
-			'<tr valign="top">',
-				'<td>',
-					'<div id="map" style="width:', mapWidth, '; height:', mapHeight, ';">',
-					'</div>',
-				'</td>',
-				'<td valign="top" style="width:', opt.sidebarWidth, 'px;">',
-					'<div id="resultlist">',
-					'</div>',
-					stateSelector,
-					partyButtons,
-					'<div id="votesbar">',
-						'<div id="votestitle">',
-						'</div>',
-						//'<div style="font-weight:bold;">Statewide Results</div>',
-						'<div id="legend">',
-							'Loading&#8230;',
-						'</div>',
-						'<div id="results">',
-							//'Roll the mouse over the map for county-by-county results.<br /><br />',
-							//'Roll the mouse over the map for state-by-state results.<br />',
-							//'Zoom in for county-by-county results.<br /><br />',
-							//'Scroll down for statewide details',
-						'</div>',
-					'</div>',
-				'</td>',
-			'</tr>',
-		'</table>',
-		'<div id="fullstate">',
-		'</div>'
+		'</style>'
 	);
+	
+	if( opt.sidebarHeight ) {
+		document.write(
+			mapHTML,
+			'<div style="margin-top:4px; width:', opt.sidebarWidth, 'px; height:', opt.sidebarHeight, 'px; overflow:auto;">',
+				'<div style="width:99%;">',
+					sidebarHTML,
+				'</div>',
+			'</td>',
+				'</tr>',
+			'</table>',
+			'<div id="fullstate">',
+			'</div>'
+		);
+	}
+	else {
+		document.write(
+			'<table>',
+				'<tr valign="top">',
+					'<td>',
+						mapHTML,
+					'</td>',
+					'<td valign="top" style="width:', opt.sidebarWidth, 'px;">',
+						sidebarHTML,
+					'</td>',
+				'</tr>',
+			'</table>',
+			'<div id="fullstate">',
+			'</div>'
+		);
+	}
 }
 
 var feed = {
@@ -1582,6 +1611,13 @@ function showStateSidebar( state, party ) {
 							formatNumber(tally.votes),
 						'</div>',
 					'</td>',
+/*
+					'<td class="legenddelegatestd">',
+						'<div class="legenddelegates">',
+							percent( tally.delegates || '' ),
+						'</div>',
+					'</td>',
+*/
 					'<td class="legendpercenttd">',
 						'<div class="legendpercent">',
 							percent( tally.votes / state.total ),
@@ -1704,7 +1740,7 @@ function showPolys( state, party ) {
 			
 			var border = '#000080';
 			shape.polygon = {
-				base: new GPolygon( vertices, border, 1, .5, place.color, place.opacity )
+				base: new GPolygon( vertices, border, 1, .5, place.color, place.opacity, { clickable:false } )
 			};
 			
 			//if( json ) {
