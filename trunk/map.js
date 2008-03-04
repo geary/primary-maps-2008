@@ -1328,7 +1328,7 @@ function initControls() {
 //}
 
 function pointLatLng( point ) {
-	return new GLatLng( point[0], point[1] );
+	return new GLatLng( point[1], point[0] );
 }
 
 function formatEvent( event ) {
@@ -1735,6 +1735,14 @@ function showPolys( state, party ) {
 	initMap();
 }
 
+function stateBalloon( state, place ) {
+	return [
+		'<div style="font-size:10pt;">',
+			stateTable( state, place, true ),
+		'</div>'
+	].join('');
+}
+
 function voteBalloon( county ) {
 	return [
 		'<div style="font-size:10pt;">',
@@ -1785,13 +1793,14 @@ function setState( state ) {
 function openInfo( place ) {
 	if( place.parent.abbr == 'US' ) {
 		var state = statesByName[place.place.name];
+		map.openInfoWindowHtml(
+			pointLatLng( place.place.centroid ),
+			stateBalloon( state, place.place ),
+			{ maxWidth:300 } );
 	}
 	else {
+		return;  // todo
 	}
-	map.openInfoWindowHtml(
-		pointLatLng( shape.centroid ),
-		voteBalloon( place ),
-		{ maxWidth:300 } );
 }
 
 function load() {
@@ -1813,8 +1822,7 @@ function load() {
 	
 	GEvent.addListener( map, 'click', function( overlay, latlng ) {
 		var place = overlay ? overlay.$_place_$ : hittest( latlng );
-		//alert( place.place.name );
-		//openInfo( place );
+		openInfo( place );
 	});
 	
 	makeIcons();
@@ -2059,6 +2067,95 @@ function countyName( county ) {
 	if( ! name.match(/ City/) )
 		name += ' ' + state.votesby;
 	return name + ', ' + state.name;
+}
+
+function stateTable( state, place, balloon ) {
+	var fontsize = 'font-size:10pt;';
+	var pad = balloon ? '8px' : '4px';
+	var party = state.parties[curParty.name];
+	var votes = stateUS.votes[curParty.name].locals[state.name];
+	var lines = [];
+	var tallies = votes.votes;
+	var leader = tallies[0];
+	if( leader ) {
+		var total = 0;
+		tallies.forEach( function( tally ) {
+			total += tally.votes;
+		});
+		tallies.forEach( function( tally, i ) {
+			if( i >= 3 ) return;
+			var candidate = candidates.all.by.name[tally.name];
+			lines.push( [
+				'<tr>',
+					'<td style="width:1%;">',
+						'<div style="width:20px; height:20px; margin:0 4px 2px 0; border:1px solid #888888; background-color:', candidate.color, ';">',
+							'&nbsp;',
+						'</div>',
+					'</td>',
+					'<td style="', fontsize, 'xpadding-right:8px; white-space:pre;">',
+						'<div>',
+							candidate.fullName,
+						'</div>',
+					'</td>',
+					'<td style="', fontsize, 'text-align:right; xwidth:5em; padding-right:', pad, ';">',
+						'<div>',
+							formatNumber( tally.delegates || '' ),
+						'</div>',
+					'</td>',
+					'<td style="', fontsize, 'text-align:right; xwidth:5em; padding-right:', pad, ';">',
+						'<div>',
+							formatNumber(tally.votes),
+						'</div>',
+					'</td>',
+					'<td style="', fontsize, 'text-align:right; width:2em; padding-right:', pad, ';">',
+						'<div>',
+							percent( tally.votes / total ),
+						'</div>',
+					'</td>',
+					//'<td style="', fontsize, 'padding-right:8px;">',
+					//	'<img class="favicon" src="', imgUrl(tally.name), '" />',
+					//'</td>',
+				'</tr>'
+			].join('') );
+		});
+	}
+	//else if( ! county.precincts ) {
+	//	//lines.push( '<tr><td>' + county.name + ' residents vote in a nearby town.</td></tr>' );
+	//}
+	else {
+		lines.push( '<tr><td>No votes reported</td></tr>' );
+	}
+	
+	//var wikilink = ! balloon ? '' : [
+	//	'<a href="http://en.wikipedia.org/wiki/',
+	//			countyName(county).replace( / /g, '_' ),
+	//			'" target="_blank">',
+	//		'County information',
+	//	'</a>'
+	//].join('');
+	
+	return [
+		//'<div style="', fontsize, 'font-weight:bold;">', countyName(county), '</div>',
+		//'<div>',	wikilink, '</div>',
+		'<div>',
+		'</div>',
+		'<table style="width: 350px; margin-top:8px;">',
+			'<thead>',
+				'<th colspan="2">',
+					'Candidate',
+				'</th>',
+				'<th>',
+					'Delegates',
+				'</th>',
+				'<th colspan="2">',
+					'Votes',
+				'</th>',
+			'</thead>',
+			'<tbody>',
+				lines.join(''),
+			'</tbody>',
+		'</table>'
+	].join('');
 }
 
 function countyTable( county, party, balloon ) {
