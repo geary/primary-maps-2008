@@ -52,6 +52,7 @@ array = [
 	{
 		'abbr': 'CT',
 		'name': 'Connecticut',
+		'votesby': 'town',
 		'parties': {
 			'dem': { 'date': '02-05' },
 			'gop': { 'date': '02-05' }
@@ -132,6 +133,7 @@ array = [
 	{
 		'abbr': 'KS',
 		'name': 'Kansas',
+		'votesby': 'district',
 		'parties': {
 			'dem': { 'date': '02-05', 'type': 'caucus' },
 			'gop': { 'date': '02-09', 'type': 'caucus' }
@@ -172,6 +174,7 @@ array = [
 	{
 		'abbr': 'MA',
 		'name': 'Massachusetts',
+		'votesby': 'town',
 		'parties': {
 			'dem': { 'date': '02-05' },
 			'gop': { 'date': '02-05' }
@@ -236,6 +239,7 @@ array = [
 	{
 		'abbr': 'NH',
 		'name': 'New Hampshire',
+		'votesby': 'town',
 		'parties': {
 			'dem': { 'date': '01-08' },
 			'gop': { 'date': '01-08' }
@@ -372,6 +376,7 @@ array = [
 	{
 		'abbr': 'VT',
 		'name': 'Vermont',
+		'votesby': 'town',
 		'parties': {
 			'dem': { 'date': '03-04' },
 			'gop': { 'date': '03-04' }

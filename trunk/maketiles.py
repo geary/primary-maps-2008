@@ -2,9 +2,11 @@
 
 # maketiles.py
 
-shapespath = '../../../election-data/shapes/detailed'
-tilespath = '../../../election-tiles/election-tiles-1/tiles'
+shapespath = '../election-data/shapes/detailed'
+tilespath = '../election-tiles/tiles'
+votespath = '../election-data/votes'
 
+from candidates import candidates
 import magick
 import math
 import os
@@ -19,17 +21,15 @@ from geo import Geo
 import shpUtils
 import states
 
-def loadshapefile( filename ):
-	print 'Loading shapefile %s' % filename
-	t1 = time.time()
-	shapefile = shpUtils.loadShapefile( filename )
-	t2 = time.time()
-	print '%0.3f seconds load time' %( t2 - t1 )
-	return shapefile
-	
 def randomColor():
-	def hh(): return '%02X' %( random.random() *128 + 96 )
 	return hh() + hh() + hh()
+
+def randomGray():
+	h = hh()
+	return '#' + h + h + h
+
+def hh():
+	return '%02X' %( random.random() *128 + 96 )
 
 placesByName = {}
 def placeByName( place ):
@@ -68,7 +68,11 @@ def writeFile( filename, data ):
 	f.write( data )
 	f.close()
 
-def generate( state, zoom ):
+def generateAll( state, zoom ):
+	generate( state, zoom, 'dem' );
+	generate( state, zoom, 'gop' );
+	
+def generate( state, zoom, party ):
 	global geo, scaleoffset
 	print '----------------------------------------'
 	print 'Generating %s zoom %d' %( state, zoom )
@@ -81,6 +85,12 @@ def generate( state, zoom ):
 	json = readFile( '%s/%s.js' %( shapespath, state ) )
 	exec re.sub( '^.+\(', 'data = (', json )
 	places = data['places']
+	
+	json = readFile( '%s/%s_%s.js' %( votespath, state, party ) )
+	json = re.sub( '^.+\(', 'data = (', json )
+	json = re.sub( '[\r\n]', '', json )
+	exec json
+	votes = data['locals']
 	
 	#t1 = time.time()
 	
@@ -97,7 +107,7 @@ def generate( state, zoom ):
 	draw = [ 'scale .1,.1\n' ]
 	
 	draw.append( 'stroke-width 10\n' )
-	drawPlaces( draw, places, getRandomColor )
+	drawPlaces( draw, places, votes )
 	
 	writeFile( 'draw.cmd', ''.join(draw) )
 	
@@ -110,7 +120,7 @@ def generate( state, zoom ):
 	else:
 		cropcmd = ''
 	blank = magick.blank( gridsize )
-	base = '%s/%s/tile-%d' %( tilespath, state, zoom )
+	base = '%s/%s_%s/tile-%d' %( tilespath, state, party, zoom )
 	command = ( '%s -draw "@draw.cmd" %s ' + base + '.png' )%( blank, cropcmd )
 	#command = ( '%s -draw "@draw.cmd" %s -depth 8 -type Palette -floodfill 0x0 white -background white -transparent-color white ' + base + '.png' )%( blank, cropcmd )
 	#command = ( 'null: -resize %dx%d! -floodfill 0x0 white -draw "@draw.cmd" %s -depth 8 -type Palette -background white -transparent white -transparent-color white ' + base + '.png' )%( gridsize[0], gridsize[1], cropcmd )
@@ -159,23 +169,28 @@ def generate( state, zoom ):
 		t2 = time.time()
 		print '%0.3f seconds to move files' %( t2 - t1 )
 
-def drawPlaces( draw, places, getColor ):
+def drawPlaces( draw, places, votes ):
 	global geo, scaleoffset
 	nPolys = nPoints = 0
 	for place in places:
-		color = placeByName( place )['color']
+		placename = place['name']
+		if placename in votes:
+			vote = votes[placename]
+			leader = vote['votes'][0]
+			candidate = candidates['byname'][ leader['name'] ]
+			color = candidate['color']
+			precincts = vote['precincts']
+			opacity = float(precincts['reporting']/precincts['total']) * .65
+		else:
+			color = randomGray()
+			opacity = .15
+		alpha = '%02X' % int( opacity * 255.0 )
 		for shape in place['shapes']:
 			nPolys += 1
-			if getColor:
-				draw += '''
-fill  #%s80
+			draw += '''
+fill  %s%s
 stroke #00000040
-polygon''' % getColor(place)
-			else:
-				draw += '''
-fill  #00000000
-stroke #00000060
-polygon'''
+polygon''' %( color, alpha )
 			points = shape['points']
 			n = len(points) # - 1
 			nPoints += n
@@ -184,15 +199,12 @@ polygon'''
 				draw += ' %d,%d' %( point[0] - scaleoffset[0], point[1] - scaleoffset[1] )
 	print '%d points in %d polygons' %( nPoints, nPolys )
 
-def getRandomColor( feature ):
-	return randomColor()
-
 for z in xrange(0,5):
-	generate( 'us', z )
+	generateAll( 'us', z )
 	
 for z in xrange(5,9):
 	for state in states.array:
-		if state['name'] != 'Alaska':  # temp
-			generate( state['abbr'].lower(), z )
+		#if state['name'] != 'Alaska':  # temp
+			generateAll( state['abbr'].lower(), z )
 
 print 'Done!'
