@@ -52,7 +52,7 @@ def filterCONUS( places ):
 	return result
 
 def placesBounds( places ):
-	bounds = [ [ 180.0, 90.0 ], [ -180.0, -90.0 ] ]
+	bounds = [ [ None, None ], [None, None ] ]
 	for place in places:
 		bounds = geo.extendBounds( bounds, place['bounds'] )
 	return bounds
