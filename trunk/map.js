@@ -177,7 +177,7 @@ if( opt.gadget ) {
 	opt.partySelector = p.getBool('partyselector');
 	//opt.twitter = p.getBool('twitter');
 	//opt.youtube = p.getBool('youtube');
-	if( window.innerWidth < 550 ) {
+	if( window.innerWidth < 500 ) {
 		opt.mapWidth = opt.sidebarWidth = window.innerWidth;
 		opt.mapHeight = opt.sidebarHeight = ( window.innerHeight - 24 ) / 2;
 	}
@@ -1857,6 +1857,7 @@ function load() {
 	}
 	
 	GEvent.addListener( map, 'click', function( overlay, latlng ) {
+		debugger;
 		var place = overlay ? overlay.$_place_$ : hittest( latlng );
 		openInfo( place );
 	});
