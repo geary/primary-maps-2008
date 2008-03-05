@@ -140,30 +140,38 @@ def sortVotes( party ):
 	if 'delegatehtml' in party: del party['delegatehtml']
 	if 'delegatelist' in party: del party['delegatelist']
 
-def addDelegates( partyname, party ):
+def cleanNum( n ):
+	return int( re.sub( '[^0-9]', '', n ) or 0 )
+
+def addDelegates( usparty, partyname, party ):
 	if 'delegatehtml' not in party: return
 	row = party['delegatehtml']
-	party['delegates'] = re.sub( '[^0-9]', '', row[1] )
+	party['delegates'] = cleanNum( row[1] )
 	party['delegatelist'] = {}
 	votes = party['votes']
 	def set( col, name ):
-		n = re.sub( '[^0-9]', '', row[col] )
+		n = cleanNum( row[col] )
 		if n:
 			party['delegatelist'][name] = n
+			if name in usparty['delegatelist']:
+				usparty['delegatelist'][name] += n
+			else:
+				usparty['delegatelist'][name] = n
 	if partyname == 'dem':
-		set( 3, 'obama' )
-		set( 4, 'clinton' )
+		set( -2, 'obama' )
+		set( -1, 'clinton' )
 	else:
-		set( 2, 'mccain' )
-		set( 3, 'romney' )
-		set( 4, 'huckabee' )
-		set( 5, 'paul' )
+		set( -4, 'mccain' )
+		set( -3, 'romney' )
+		set( -2, 'huckabee' )
+		set( -1, 'paul' )
 
 def makeJson( party ):
 	ustotal = 0
 	usvotes = {}
+	usdelegatelist = {}
 	usprecincts = { 'total': 0, 'reporting': 0 }
-	usparty = { 'votes': usvotes, 'precincts': usprecincts }
+	usparty = { 'votes': usvotes, 'precincts': usprecincts, 'delegatelist': usdelegatelist }
 	statevotes = {}
 	for state in states.array:
 		statetotal = 0
@@ -172,7 +180,7 @@ def makeJson( party ):
 		stateparty = state['parties'][party]
 		stateparty['name'] = state['name']
 		if 'votes' not in stateparty: continue
-		addDelegates( party, stateparty )
+		addDelegates( usparty, party, stateparty )
 		sortVotes( stateparty )
 		statevotes[ state['name'] ] = stateparty
 		print 'Loading %s %s' %( state['name'], party )
@@ -252,8 +260,8 @@ def update():
 	print 'Creating votes JSON...'
 	makeJson( 'dem' )
 	makeJson( 'gop' )
-	#print 'Checking in votes JSON...'
-	#os.system( 'svn ci -m "Vote update" %s' % votespath )
+	print 'Checking in votes JSON...'
+	os.system( 'svn ci -m "Vote update" %s' % votespath )
 	print 'Done!'
 
 def main():
