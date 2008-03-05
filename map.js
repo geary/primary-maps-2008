@@ -1894,6 +1894,7 @@ function setState( state ) {
 }
 
 function openInfo( place ) {
+	if( ! place ) return;
 	var state = stateByAbbr(place.place.state);
 	if( state.abbr.toLowerCase() != opt.state  &&  opt.state != 'us' ) {
 		opt.state = 'us';
@@ -2055,6 +2056,7 @@ var mousemoved = function( latlng ) {
 }
 
 function hittest( latlng ) {
+	if( ! latlng ) return null;
 	var state = stateByAbbr( opt.state );
 	if( opt.state == 'us' ) {
 		return test( state );
