@@ -2118,18 +2118,19 @@ function stateTable( state, place, balloon ) {
 			party.date, '-2008',
 		'</div>'
 	);
-	var votes = stateUS.votes[curParty.name].locals[state.name];
-	if( ! votes ) return S(
+	var none = S(
 		header,
 		'<div>',
 			'No votes reported',
 		'</div>'
 	);
+	var votes = stateUS.votes[curParty.name].locals[state.name];
+	if( ! votes ) return none;
 	var lines = [];
 	var tallies = votes.votes;
+	var total = 0;
 	var leader = tallies[0];
 	if( leader ) {
-		var total = 0;
 		tallies.forEach( function( tally ) {
 			total += tally.votes;
 		});
@@ -2173,9 +2174,6 @@ function stateTable( state, place, balloon ) {
 	//else if( ! county.precincts ) {
 	//	//lines.push( '<tr><td>' + county.name + ' residents vote in a nearby town.</td></tr>' );
 	//}
-	else {
-		lines.push( '<tr><td>No votes reported</td></tr>' );
-	}
 	
 	//var wikilink = ! balloon ? '' : [
 	//	'<a href="http://en.wikipedia.org/wiki/',
@@ -2185,7 +2183,7 @@ function stateTable( state, place, balloon ) {
 	//	'</a>'
 	//].join('');
 	
-	return [
+	return ! total ? none : S(
 		header,
 		//'<div style="', fontsize, 'font-weight:bold;">', countyName(county), '</div>',
 		//'<div>',	wikilink, '</div>',
@@ -2209,7 +2207,7 @@ function stateTable( state, place, balloon ) {
 				lines.join(''),
 			'</tbody>',
 		'</table>'
-	].join('');
+	);
 }
 
 function countyTable( county, party, balloon ) {
