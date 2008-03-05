@@ -1829,29 +1829,13 @@ function showPolys( state, party ) {
 			//GEvent.addListener( shape.polygon.base, 'click', function() {
 			//	map.openInfoWindowHtml(
 			//		pointLatLng( shape.centroid ),
-			//		voteBalloon( place ),
+			//		placeBalloon( place ),
 			//		{ maxWidth:300 } );
 			//});
 		});
 	});
 	
 	initMap();
-}
-
-function placeBalloon( state, place ) {
-	return [
-		'<div style="font-size:10pt;">',
-			placeTable( state, place, true ),
-		'</div>'
-	].join('');
-}
-
-function voteBalloon( county ) {
-	return [
-		'<div style="font-size:10pt;">',
-			countyTable( county, null, true ),
-		'</div>'
-	].join('');
 }
 
 function makeIcons() {
@@ -2023,37 +2007,37 @@ function load() {
 	adjustHeight();
 }
 
-var mousemoved = function( latlng ) {
-	//$('#test').html( latlng.lng() + ' : ' + latlng.lat() );
-	
-/*
-	for( var i = 0, n = regions.length;  i < n;  ++i ) {
-		var region = regions[i];
-		if( region.polygon.base.contains( latlng ) ) {
-			//$('#test').css({ color: region.color });
-			break;
-		}
-	}
-	
-	if( i == n ) i = -1;
-	region = regions[i];
-	
-	selectRegion( region );
-*/
-	
-	// Old fashioned loops for speed
-	for( var i = 0, nI = counties.length;  i < nI;  ++i ) {
-		var county = counties[i];
-		var shapes = county.shapes;
-		for( var j = 0, nJ = shapes.length;  j < nJ;  ++j ) {
-			if( shapes[j].polygon.base.contains( latlng ) ) {
-				//$('#test').css({ color: region.color });
-				$('#results').html( countyTable( county ) );
-				return;
-			}
-		}
-	}
-}
+//var mousemoved = function( latlng ) {
+//	//$('#test').html( latlng.lng() + ' : ' + latlng.lat() );
+//	
+///*
+//	for( var i = 0, n = regions.length;  i < n;  ++i ) {
+//		var region = regions[i];
+//		if( region.polygon.base.contains( latlng ) ) {
+//			//$('#test').css({ color: region.color });
+//			break;
+//		}
+//	}
+//	
+//	if( i == n ) i = -1;
+//	region = regions[i];
+//	
+//	selectRegion( region );
+//*/
+//	
+//	// Old fashioned loops for speed
+//	for( var i = 0, nI = counties.length;  i < nI;  ++i ) {
+//		var county = counties[i];
+//		var shapes = county.shapes;
+//		for( var j = 0, nJ = shapes.length;  j < nJ;  ++j ) {
+//			if( shapes[j].polygon.base.contains( latlng ) ) {
+//				//$('#test').css({ color: region.color });
+//				$('#results').html( countyTable( county ) );
+//				return;
+//			}
+//		}
+//	}
+//}
 
 function hittest( latlng ) {
 	if( ! latlng ) return null;
@@ -2162,6 +2146,14 @@ function loadTiles( state, party ) {
 	map.addOverlay( tileLayerOverlay );
 }
 
+function placeBalloon( state, place ) {
+	return [
+		'<div style="font-size:10pt;">',
+			placeTable( state, place, true ),
+		'</div>'
+	].join('');
+}
+
 function placeTable( state, place, balloon ) {
 	function localityName() {
 		var name = place.name.replace( / County$/, '' );
@@ -2193,6 +2185,20 @@ function placeTable( state, place, balloon ) {
 			'No votes reported',
 		'</div>'
 	);
+	var delegateHeader = place.type != 'state' ? '' : S(
+		'<th>',
+			'Delegates',
+		'</th>'
+	);
+	function delegateCol( delegates ) {
+		return place.type != 'state' ? '' : S(
+			'<td style="', fontsize, 'text-align:center;">',
+				'<div>',
+					formatNumber( delegates || '' ),
+				'</div>',
+			'</td>'
+		);
+	}
 	var votes = ( place.type == 'state' ? stateUS : state ).votes[curParty.name].locals[place.name];
 	if( ! votes ) return none;
 	var lines = [];
@@ -2218,16 +2224,12 @@ function placeTable( state, place, balloon ) {
 							candidate.fullName,
 						'</div>',
 					'</td>',
-					'<td style="', fontsize, 'text-align:center;">',
-						'<div>',
-							formatNumber( tally.delegates || '' ),
-						'</div>',
-					'</td>',
 					'<td style="', fontsize, 'text-align:right; xwidth:5em; padding-right:', pad, ';">',
 						'<div>',
 							formatNumber(tally.votes),
 						'</div>',
 					'</td>',
+					delegateCol(tally.delegates),
 					'<td style="', fontsize, 'text-align:right; width:2em; padding-right:', pad, ';">',
 						'<div style="font-size:80%; color:red;">',
 							percent( tally.votes / total ),
@@ -2263,10 +2265,8 @@ function placeTable( state, place, balloon ) {
 				'<th style="text-align:left;">',
 					'Candidate',
 				'</th>',
-				'<th>',
-					'Delegates',
-				'</th>',
-				'<th>',
+				delegateHeader,
+				'<th style="text-align:right;">',
 					'Votes',
 				'</th>',
 				'<th>',
