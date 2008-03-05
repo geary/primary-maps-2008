@@ -1617,6 +1617,12 @@ function showStateSidebar( state, party ) {
 		var cands = candidates[party.name];
 		addRows();
 		
+		var reporting = ! precincts.total ? '' : S(
+			'<div class="legendreporting">',
+				precincts.reporting, ' of ', precincts.total, ' precincts reporting',
+			'</div>'
+		);
+		
 		var html = [
 			'<table>',
 				'<thead>',
@@ -1637,9 +1643,7 @@ function showStateSidebar( state, party ) {
 					rows.join(''),
 				'</tbody>',
 			'</table>',
-			//'<div class="legendreporting">',
-			//	precincts.reporting, ' of ', precincts.total, ' precincts reporting',
-			//'</div>'
+			reporting
 		].join('');
 	}	
 	$('#legend').html( html );
