@@ -829,14 +829,43 @@ function GAsync( obj ) {
 		callback();
 }
 
-var partyButtons = ! opt.partySelector ? '' : [
-	'<div style="margin-top:8px;">',
-		'<b>Results:</b>',
-		'<button style="margin-left:8px; padding:0;" id="btnDem">Democratic</button>',
-		'<button style="margin-left:8px; padding:0;" id="btnRep">Republican</button>',
-		//'<button style="margin-left:8px;" id="btnTest">Reload</button>',
-		'</div>'
-].join('');
+var partyButtons = '<div id="partyButtons"></div>';
+
+function setPartyButtons() {
+	if( ! opt.partySelector ) return;
+	$('#partyButtons').html(
+		curParty.name == 'dem' ? S(
+			'<div style="margin-top:8px;">',
+				'Results: ',
+				'<b>Democratic</b>',
+				'<a href="#" style="margin-left:8px;" id="btnRep">Republican</a>',
+				'<button style="margin-left:8px;" id="btnReload">Refresh</button>',
+			'</div>'
+		) : S(
+			'<div style="margin-top:8px;">',
+				'Results: ',
+				'<a href="#" style="margin-right:8px;" id="btnDem">Democratic</a>',
+				'<b>Republican</b>',
+				'<button style="margin-left:8px;" id="btnReload">Refresh</button>',
+			'</div>'
+		)
+	);
+	
+	$('#btnDem').click( function() {
+		loadResults( parties.by.name['dem'] );
+		return false;
+	});
+
+	$('#btnRep').click( function() {
+		loadResults( parties.by.name['gop'] );
+		return false;
+	});
+	
+	$('#btnReload').click( function() {
+		loadResults();
+		return false;
+	});
+}
 
 twitterBlurb = ! opt.twitter ? '' : S(
 	'<div style="padding-bottom:4px; border-bottom:1px solid #DDD; margin-bottom:4px;">',
@@ -1592,9 +1621,9 @@ function showStateSidebar( state, party ) {
 			'<table>',
 				rows.join(''),
 			'</table>',
-			'<div class="legendreporting">',
-				precincts.reporting, ' of ', precincts.total, ' precincts reporting',
-			'</div>'
+			//'<div class="legendreporting">',
+			//	precincts.reporting, ' of ', precincts.total, ' precincts reporting',
+			//'</div>'
 		].join('');
 	}	
 	$('#legend').html( html );
@@ -1611,13 +1640,11 @@ function showStateSidebar( state, party ) {
 							formatNumber(tally.votes),
 						'</div>',
 					'</td>',
-/*
-					'<td class="legenddelegatestd">',
-						'<div class="legenddelegates">',
-							percent( tally.delegates || '' ),
-						'</div>',
-					'</td>',
-*/
+					//'<td class="legenddelegatestd">',
+					//	'<div class="legenddelegates">',
+					//		formatNumber( tally.delegates || '' ),
+					//	'</div>',
+					//'</td>',
 					'<td class="legendpercenttd">',
 						'<div class="legendpercent">',
 							percent( tally.votes / state.total ),
@@ -1839,7 +1866,54 @@ function openInfo( place ) {
 	}
 }
 
+var attribution = S(
+	'<span>AP</span>',
+	'<span>/</span>',
+	'<a href="http://www.boston.com/" target="_blank">Boston&nbsp;Globe</a>',
+	'<br />',
+	'<a href="http://www.realclearpolitics.com/" target="_blank">RealClearPolitics</a>'
+);
+
+
 function load() {
+
+	loadResults = function( party ) {
+		if( party ) curParty = party;  // vs. opt.party?
+		else party = curParty;
+		setPartyButtons();
+		//map.clearOverlays();
+		$('#votestitle').html( [
+			'<table  cellspacing="0" style="width:100%;">',
+				'<tr>',
+					'<td style="text-align:left;">',
+						//'<b>', party.fullName, '</b>',
+						'<b>', party.shortName, ' results</b>',
+					'</td>',
+					'<td id="votesattrib" style="text-align:right;">',
+						attribution,
+					'</td>',
+				'</tr>',
+			'</table>'
+		].join('') );
+		$('#legend').html( 'Loading&#8230;' );
+		setStateByAbbr( opt.state );
+		//loadVotes( opt.state );
+		
+		//loadScript( 'http://mg.to/iowa/server/' + q + '_results.js' );
+		//if( testdata )
+		//	loadScript( 'http://gigapad/iowa/server/test.' + party + '_results.js' );
+		//else
+			//loadScript( 'http://gmaps-samples.googlecode.com/svn/trunk/elections/iowa/caucus/live/' + party.name + '_results.js' );
+		//var kmlBaseUrl = 'http://mg.to/', opt.state, '/';
+		//var kmlBaseUrl = 'http://gmaps-samples.googlecode.com/svn/trunk/elections/2008/primary/', opt.state, '/';
+		//var kml = new GGeoXml( kmlBaseUrl + 'maps-', opt.state, '-' + party.name + '.kml?t=' + new Date().getTime() );
+		//map.addOverlay( kml );
+		//GEvent.addListener( kml, 'click', function( overlay, latlng ) {
+		//	console.log( 'kml', overlay, latlng );
+		//	//marker.openInfoWindowHtml( formatEvent(event), { maxWidth:500 } );
+		//});
+	}
+
 	if( mapplet ) {
 		map = new GMap2;
 		//zoomRegion();
@@ -1891,16 +1965,6 @@ function load() {
 	//	return false;
 	//});
 
-	$('#btnDem').click( function() {
-		loadResults( parties.by.name['dem'] );
-		return false;
-	});
-
-	$('#btnRep').click( function() {
-		loadResults( parties.by.name['gop'] );
-		return false;
-	});
-	
 	$('#stateSelector').change( function() {
 		var value = this.value.toLowerCase();
 		if( ! value ) {
@@ -1914,47 +1978,6 @@ function load() {
 	setParty = function( party ) {
 		if( party != curParty ) loadResults( party );
 	}
-	
-	function loadResults( party ) {
-		curParty = party;  // vs. opt.party?
-		//map.clearOverlays();
-		var attrib = location.href.match( /boston\.com/ ) ? '' : [
-			'<span>AP</span>',
-			'<span>/</span>',
-			'<a href="http://www.boston.com/" target="_blank">Boston&nbsp;Globe</a>'
-		].join('');
-		$('#votestitle').html( [
-			'<table  cellspacing="0" style="width:100%;">',
-				'<tr>',
-					'<td style="text-align:left;">',
-						//'<b>', party.fullName, '</b>',
-						'<b>', party.shortName, ' results</b>',
-					'</td>',
-					'<td id="votesattrib" style="text-align:right;">',
-						attrib,
-					'</td>',
-				'</tr>',
-			'</table>'
-		].join('') );
-		$('#legend').html( 'Loading&#8230;' );
-		setStateByAbbr( opt.state );
-		//loadVotes( opt.state );
-		
-		//loadScript( 'http://mg.to/iowa/server/' + q + '_results.js' );
-		//if( testdata )
-		//	loadScript( 'http://gigapad/iowa/server/test.' + party + '_results.js' );
-		//else
-			//loadScript( 'http://gmaps-samples.googlecode.com/svn/trunk/elections/iowa/caucus/live/' + party.name + '_results.js' );
-		//var kmlBaseUrl = 'http://mg.to/', opt.state, '/';
-		//var kmlBaseUrl = 'http://gmaps-samples.googlecode.com/svn/trunk/elections/2008/primary/', opt.state, '/';
-		//var kml = new GGeoXml( kmlBaseUrl + 'maps-', opt.state, '-' + party.name + '.kml?t=' + new Date().getTime() );
-		//map.addOverlay( kml );
-		//GEvent.addListener( kml, 'click', function( overlay, latlng ) {
-		//	console.log( 'kml', overlay, latlng );
-		//	//marker.openInfoWindowHtml( formatEvent(event), { maxWidth:500 } );
-		//});
-	}
-	
 	
 	//initControls();
 	adjustHeight();
