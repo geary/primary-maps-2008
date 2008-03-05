@@ -2115,7 +2115,7 @@ function stateTable( state, place, balloon ) {
 			party.type == 'caucus' ? ' Caucus ' : ' Primary ',
 		'</div>',
 		'<div style="font-size:115%">',
-			party.date, '-2008',
+			fmtDate(party.date), ', 2008',
 		'</div>'
 	);
 	var none = S(
