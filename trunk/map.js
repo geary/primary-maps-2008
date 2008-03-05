@@ -1744,16 +1744,34 @@ function showStateTable( json, party ) {
 }
 
 function showPolys( state, party ) {
+	function tallyColor( place, tally ) {
+		if( ! tally ) return;
+		place.precincts = tally.precincts;
+		//place.total = tally.total;
+		var leader = tally.votes && tally.votes[0];
+		if( ! leader ) return;
+		var votes = leader.votes;
+		var candidate = candidates[party.name].by.name[leader.name];
+		//var icon = candidate.icon;
+		place.color = candidate.color;
+		place.opacity = place.precincts.reporting / place.precincts.total * .5 + .1;
+	}
+	
 	var tallies = state.votes && state.votes[party.name] || {};
+	
+	statecolor = {};
+	if( state.abbr != 'US' )
+		tallyColor( statecolor, tallies.totals );
 	state.places.forEach( function( place ) {
 		//place.color = randomColor();
-		place.color = randomGray();
+		place.color = statecolor.color || randomGray();
 		//place.opacity = Math.random();
-		place.opacity = .15;
+		place.opacity = statecolor.opacity || .15;
 		
 		//place.color = 'black';
 		//place.opacity = 0;
 		
+		// TODO: refactor this with tallyColor() - it broke when I tried it :-)
 		if( tallies && tallies.locals ) {
 			var tally = tallies.locals[place.name];
 			if( tally ) {
