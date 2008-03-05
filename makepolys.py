@@ -29,6 +29,7 @@ useOther = {
 	
 	'KS': ( 'congressional', 'cd20_110' ),
 	'NE': ( 'congressional', 'cd31_110' ),
+	'NM': ( 'congressional', 'cd35_110' ),
 }
 
 def loadshapefile( filename ):
