@@ -32,6 +32,13 @@ useOther = {
 	'NM': ( 'congressional', 'cd35_110' ),
 }
 
+districtNames = {
+	'CD1': 'First Congressional District',
+	'CD2': 'Second Congressional District',
+	'CD3': 'Third Congressional District',
+	'CD4': 'Fourth Congressional District',
+}
+
 def loadshapefile( filename ):
 	print 'Loading shapefile %s' % filename
 	t1 = time.time()
@@ -106,6 +113,7 @@ def readShapefile( filename ):
 		info = feature['info']
 		name = info['NAME']
 		name = re.sub( '^(\d+)\x00.*$', 'CD\\1', name )  # congressional district
+		name = districtNames.get( name, name )
 		state = info['STATE']
 		key = name + keysep + state
 		if key not in places:
@@ -151,7 +159,7 @@ def writeUS( places, path ):
 	keys = places.keys()
 	keys.sort()
 	for key in keys:
-		json.append( getPlaceJSON( places, key, 'us' ) )
+		json.append( getPlaceJSON( places, key, states.byNumber[ places[key]['state'] ]['abbr'].lower(), 'state' ) )
 	writeJSON( path, 'us', json )
 
 def writeStates( places, path ):
@@ -165,7 +173,7 @@ def writeStates( places, path ):
 	for key in keys:
 		name, number = key.split(keysep)
 		state = states.byNumber[number]
-		state['json'].append( getPlaceJSON( places, key, state['abbr'].lower() ) )
+		state['json'].append( getPlaceJSON( places, key, state['abbr'].lower(), 'county' ) )
 	for state in states.array:
 		writeJSON( path, state['abbr'].lower(), state['json'] )
 
@@ -179,14 +187,14 @@ def writeJSON( path, abbr, json ):
 })
 ''' %( abbr, ','.join(json) ) )
 
-def getPlaceJSON( places, key, state ):
+def getPlaceJSON( places, key, state, type ):
 	place = places[key]
 	if not place: return ''
 	bounds = place['bounds']
 	centroid = place['centroid']
-	return '{"name":"%s","state":"%s","bounds":[[%.8f,%.8f],[%.8f,%.8f]],"centroid":[%.8f,%.8f],"shapes":[%s]}' %(
+	return '{"name":"%s", "type":"%s","state":"%s","bounds":[[%.8f,%.8f],[%.8f,%.8f]],"centroid":[%.8f,%.8f],"shapes":[%s]}' %(
 		key.split(keysep)[0],
-		state,
+		type, state,
 		bounds[0][0], bounds[0][1], 
 		bounds[1][0], bounds[1][1], 
 		centroid[0], centroid[1],
