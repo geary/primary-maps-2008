@@ -836,7 +836,7 @@ function setPartyButtons() {
 	$('#partyButtons').html(
 		curParty.name == 'dem' ? S(
 			'<div style="margin-top:8px;">',
-				'Results: ',
+				mapplet ? 'Results: ' : '',
 				'<b>Democratic</b>',
 				'<a href="#" style="margin-left:8px;" id="btnRep">Republican</a>',
 				'<button style="margin-left:8px;" id="btnReload">Refresh</button>',
