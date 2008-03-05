@@ -151,7 +151,7 @@ def writeUS( places, path ):
 	keys = places.keys()
 	keys.sort()
 	for key in keys:
-		json.append( getPlaceJSON( places, key ) )
+		json.append( getPlaceJSON( places, key, 'us' ) )
 	writeJSON( path, 'us', json )
 
 def writeStates( places, path ):
@@ -165,9 +165,8 @@ def writeStates( places, path ):
 	for key in keys:
 		name, number = key.split(keysep)
 		state = states.byNumber[number]
-		state['json'].append( getPlaceJSON( places, key ) )
+		state['json'].append( getPlaceJSON( places, key, state['abbr'].lower() ) )
 	for state in states.array:
-		abbr = state['abbr'].lower()
 		writeJSON( path, state['abbr'].lower(), state['json'] )
 
 def writeJSON( path, abbr, json ):
@@ -180,13 +179,14 @@ def writeJSON( path, abbr, json ):
 })
 ''' %( abbr, ','.join(json) ) )
 
-def getPlaceJSON( places, key ):
+def getPlaceJSON( places, key, state ):
 	place = places[key]
 	if not place: return ''
 	bounds = place['bounds']
 	centroid = place['centroid']
-	return '{"name":"%s","bounds":[[%.8f,%.8f],[%.8f,%.8f]],"centroid":[%.8f,%.8f],"shapes":[%s]}' %(
+	return '{"name":"%s","state":"%s","bounds":[[%.8f,%.8f],[%.8f,%.8f]],"centroid":[%.8f,%.8f],"shapes":[%s]}' %(
 		key.split(keysep)[0],
+		state,
 		bounds[0][0], bounds[0][1], 
 		bounds[1][0], bounds[1][1], 
 		centroid[0], centroid[1],
