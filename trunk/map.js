@@ -1850,7 +1850,7 @@ function load() {
 		//zoomRegion();
 		map.enableContinuousZoom();
 		map.enableDoubleClickZoom();
-		map.enableGoogleBar();
+		//map.enableGoogleBar();
 		map.enableScrollWheelZoom();
 		//map.addControl( new GLargeMapControl() );
 		map.addControl( new GSmallMapControl() );
