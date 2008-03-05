@@ -99,9 +99,20 @@ def getPrecincts( row ):
 fixcols = { 'trancredo': 'tancredo' }
 ignorecols = { 'other-d':1, 'other-r':1, 'total-d':1, 'total-r':1, 'undecided-d':1, 'undecided-r':1, 'Uncommitted-D':1, 'Uncommitted-R':1, 'Uninstructed-D':1, 'Uninstructed-R':1, 'write-ins-d':1, 'write-ins-r':1 }
 
+def fixCountyName( name ):
+	name = re.sub( ' County$', '', name )
+	fixNames = {
+		"Harts Location": "Hart's Location",
+		"Waterville": "Waterville Valley"
+	}
+	if( name in fixNames ):
+		name = fixNames[name]
+	#print 'County: %s' % name
+	return name
+
 def setVotes( entity, header, row ):
 	counties = entity['counties']
-	countyname = row[1]
+	countyname = fixCountyName( row[1] )
 	if countyname != '*':
 		if countyname not in counties:
 			counties[countyname] = { 'parties':{ 'dem':{}, 'gop':{} } }
