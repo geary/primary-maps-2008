@@ -434,6 +434,7 @@ var states = [
 	{
 		'abbr': 'NE',
 		'name': 'Nebraska',
+		'votesby': 'district',
 		'parties': {
 			'dem': { 'date': '02-09', 'type': 'caucus' },
 			'gop': { 'date': '05-13' }
@@ -467,6 +468,7 @@ var states = [
 	{
 		'abbr': 'NM',
 		'name': 'New Mexico',
+		'votesby': 'district',
 		'parties': {
 			'dem': { 'date': '02-05', 'type': 'caucus' },
 			'gop': { 'date': '06-03' }
@@ -1836,10 +1838,10 @@ function showPolys( state, party ) {
 	initMap();
 }
 
-function stateBalloon( state, place ) {
+function placeBalloon( state, place ) {
 	return [
 		'<div style="font-size:10pt;">',
-			stateTable( state, place, true ),
+			placeTable( state, place, true ),
 		'</div>'
 	].join('');
 }
@@ -1892,16 +1894,15 @@ function setState( state ) {
 }
 
 function openInfo( place ) {
-	if( place.parent.abbr == 'US' ) {
-		var state = statesByName[place.place.name];
-		map.openInfoWindowHtml(
-			pointLatLng( place.place.centroid ),
-			stateBalloon( state, place.place ),
-			{ maxWidth:300 } );
+	var state = stateByAbbr(place.place.state);
+	if( state.abbr.toLowerCase() != opt.state  &&  opt.state != 'us' ) {
+		opt.state = 'us';
+		loadState();
 	}
-	else {
-		return;  // todo
-	}
+	map.openInfoWindowHtml(
+		pointLatLng( place.place.centroid ),
+		placeBalloon( state, place.place ),
+		{ maxWidth:300 } );
 }
 
 var attribution = S(
@@ -2159,14 +2160,12 @@ function loadTiles( state, party ) {
 	map.addOverlay( tileLayerOverlay );
 }
 
-function countyName( county ) {
-	var name = county.name.replace( / County$/, '' );
-	if( ! name.match(/ City/) )
-		name += ' ' + state.votesby;
-	return name + ', ' + state.name;
-}
-
-function stateTable( state, place, balloon ) {
+function placeTable( state, place, balloon ) {
+	function localityName() {
+		var name = place.name.replace( / County$/, '' );
+		if( ! state.votesby  &&  ! name.match(/ City$/) ) name += ' County';
+		return name;
+	}
 	var fontsize = 'font-size:10pt;';
 	var pad = balloon ? '8px' : '4px';
 	var party = state.parties[curParty.name];
@@ -2175,17 +2174,24 @@ function stateTable( state, place, balloon ) {
 			state.name, ' ', curParty.shortName,
 			party.type == 'caucus' ? ' Caucus ' : ' Primary ',
 		'</div>',
-		'<div style="font-size:115%">',
+		'<div style="font-size:110%">',
 			fmtDate(party.date), ', 2008',
 		'</div>'
 	);
+	if( place.type != 'state' ) {
+		header += S(
+			'<div style="font-size:120%">',
+				localityName(place.name),
+			'</div>'
+		);
+	}
 	var none = S(
 		header,
 		'<div>',
 			'No votes reported',
 		'</div>'
 	);
-	var votes = stateUS.votes[curParty.name].locals[state.name];
+	var votes = ( place.type == 'state' ? stateUS : state ).votes[curParty.name].locals[place.name];
 	if( ! votes ) return none;
 	var lines = [];
 	var tallies = votes.votes;
@@ -2269,67 +2275,6 @@ function stateTable( state, place, balloon ) {
 			'</tbody>',
 		'</table>'
 	);
-}
-
-function countyTable( county, party, balloon ) {
-	//var fontsize = balloon ? 'font-size:10pt;' : '';
-	var fontsize = 'font-size:10pt;';
-	var pad = balloon ? '8px' : '4px';
-	party = party || opt.party;
-	var lines = [];
-	if( county.total ) {
-		var tallies = county.tallies;
-		tallies.forEach( function( tally ) {
-			var candidate = candidates.all.by.name[tally.name];
-			lines.push( [
-				'<tr>',
-					'<td style="', fontsize, 'text-align:right; width:5em; padding-right:', pad, ';">',
-						'<div>',
-							formatNumber(tally.votes),
-						'</div>',
-					'</td>',
-					'<td style="', fontsize, 'text-align:right; width:2em; padding-right:', pad, ';">',
-						'<div>',
-							percent( tally.votes / county.total ),
-						'</div>',
-					'</td>',
-					'<td style="width:1%;">',
-						'<div style="width:24px; height:24px; margin:0 4px 2px 0; border:1px solid #888888; background-color:', candidate.color, ';">',
-							'&nbsp;',
-						'</div>',
-					'</td>',
-					//'<td style="', fontsize, 'padding-right:8px;">',
-					//	'<img class="favicon" src="', imgUrl(tally.name), '" />',
-					//'</td>',
-					'<td style="', fontsize, 'xpadding-right:8px; white-space:pre;">',
-						'<div>',
-							candidate.fullName,
-						'</div>',
-					'</td>',
-				'</tr>'
-			].join('') );
-		});
-	}
-	else if( ! county.precincts ) {
-		//lines.push( '<tr><td>' + county.name + ' residents vote in a nearby town.</td></tr>' );
-	}
-	else {
-		lines.push( '<tr><td>No votes reported</td></tr>' );
-	}
-	
-	var wikilink = ! balloon ? '' : [
-		'<a href="http://en.wikipedia.org/wiki/',
-				countyName(county).replace( / /g, '_' ),
-				'" target="_blank">',
-			'County information',
-		'</a>'
-	].join('');
-	
-	return [
-		'<div style="', fontsize, 'font-weight:bold;">', countyName(county), '</div>',
-		'<div>',	wikilink, '</div>',
-		'<table style="margin-top:8px;">', lines.join(''), '</table>'
-	].join('');
 }
 
 //if( ! mapplet ) mousemoved = hoverize( mousemoved );
@@ -2416,88 +2361,87 @@ function download( url, ready ) {
 
 $(window).bind( 'load', load ).bind( 'onunload', GUnload );
 
-function loadTwitter() {
-	var url = 'http://primary-maps-2008-data.googlecode.com/svn/trunk/tweets/tweets.js?t=' + new Date().getTime();
-	_IG_FetchContent( url, function( t ) {
-		window.tweets = eval( '(' + t + ')' );
-		//var list = [], markers = [];
-		//tweets.forEach( function( tweet ) {
-		//	markers.push();
-		//});
-		showTweet();
-	});
-}
-
-function showTweet() {
-	var tweet = tweets.shift();
-	if( tweet )
-		addTweetMarker( tweet );
-	else
-		loadTwitter();
-}
-
-var demRE = /hillary|clinton|barack|obama|democrat/i;
-var gopRE = /huckabee|mccain|paul|romney|gop|republican/i;
-
-var tweetMarker;
-function addTweetMarker( tweet ) {
-	//debugger;
-	//if( tweetMarker ) {
-	//	//map.closeInfoWindow();
-	//	map.removeOverlay( tweetMarker );
-	//	tweetMarker = null;
-	//}
-	
-	//var dem = tweet.message.match( demRE );
-	//var gop = tweet.message.match( gopRE );
-	//if( dem && ! gop )
-	//	changePartyIfFollowing( 'dem' );
-	//else if( gop && ! dem )
-	//	changePartyIfFollowing( 'gop' );
-	
-	var latlng = new GLatLng( tweet.lat, tweet.lon );
-	if( ! tweetMarker ) {
-		tweetMarker = new GMarker( latlng/*, { icon:icons[color] }*/ );
-		map.addOverlay( tweetMarker );
-	}
-	else {
-		if( mapplet )
-			tweetMarker.setPoint( latlng );
-		else
-			tweetMarker.setLatLng( latlng );
-	}
-	//marker.openInfoWindowHtml( tweetBubble(tweet) );
-	var bubble = tweetBubble(tweet);
-	tweetMarker.openInfoWindowHtml( bubble, { maxWidth:300, disableGoogleLinks:true } );
-	
-	setTimeout( showTweet, 15000 );
-}
-
-function tweetBubble( tweet ) {
-	var img = ! tweet.image ? '' : S(
-		'<img ',
-			'style="border:1px solid black; float:left; width:48px; height:48px; margin:0 6px 6px 0; vertical-align:top;" ',
-			'src="', tweet.image || '', '" />'
-	);
-	var author = ! tweet.author || tweet.author == tweet.user ? '' : S( '<div>', htmlEscape(tweet.author), '</div>' );
-	return S(
-		'<div style="font-family: Arial,sans-serif; font-size: 10pt;">',
-			img,
-			'<div style="font-weight:bold;">',
-				'<a target="_new" href="http://twitter.com/', htmlEscape(tweet.user), '">', htmlEscape(tweet.user), '</a>',
-			'</div>',
-			author,
-			'<div>',
-				htmlEscape( tweet.where || '' ),
-			'</div>',
-			'<div style="display: inline;">',
-				httpLinks( htmlEscape(tweet.message) ),
-				//atLinks( httpLinks( htmlEscape(tweet.message) ) ),
-			'</div>',
-			//'<div id="statusupdated">less than a minute ago in WWW</div>
-		'</div>'
-	);
-}
+//function loadTwitter() {
+//	var url = 'http://primary-maps-2008-data.googlecode.com/svn/trunk/tweets/tweets.js?t=' + new Date().getTime();
+//	_IG_FetchContent( url, function( t ) {
+//		window.tweets = eval( '(' + t + ')' );
+//		//var list = [], markers = [];
+//		//tweets.forEach( function( tweet ) {
+//		//	markers.push();
+//		//});
+//		showTweet();
+//	});
+//}
+//
+//function showTweet() {
+//	var tweet = tweets.shift();
+//	if( tweet )
+//		addTweetMarker( tweet );
+//	else
+//		loadTwitter();
+//}
+//
+//var demRE = /hillary|clinton|barack|obama|democrat/i;
+//var gopRE = /huckabee|mccain|paul|romney|gop|republican/i;
+//
+//var tweetMarker;
+//function addTweetMarker( tweet ) {
+//	//if( tweetMarker ) {
+//	//	//map.closeInfoWindow();
+//	//	map.removeOverlay( tweetMarker );
+//	//	tweetMarker = null;
+//	//}
+//	
+//	//var dem = tweet.message.match( demRE );
+//	//var gop = tweet.message.match( gopRE );
+//	//if( dem && ! gop )
+//	//	changePartyIfFollowing( 'dem' );
+//	//else if( gop && ! dem )
+//	//	changePartyIfFollowing( 'gop' );
+//	
+//	var latlng = new GLatLng( tweet.lat, tweet.lon );
+//	if( ! tweetMarker ) {
+//		tweetMarker = new GMarker( latlng/*, { icon:icons[color] }*/ );
+//		map.addOverlay( tweetMarker );
+//	}
+//	else {
+//		if( mapplet )
+//			tweetMarker.setPoint( latlng );
+//		else
+//			tweetMarker.setLatLng( latlng );
+//	}
+//	//marker.openInfoWindowHtml( tweetBubble(tweet) );
+//	var bubble = tweetBubble(tweet);
+//	tweetMarker.openInfoWindowHtml( bubble, { maxWidth:300, disableGoogleLinks:true } );
+//	
+//	setTimeout( showTweet, 15000 );
+//}
+//
+//function tweetBubble( tweet ) {
+//	var img = ! tweet.image ? '' : S(
+//		'<img ',
+//			'style="border:1px solid black; float:left; width:48px; height:48px; margin:0 6px 6px 0; vertical-align:top;" ',
+//			'src="', tweet.image || '', '" />'
+//	);
+//	var author = ! tweet.author || tweet.author == tweet.user ? '' : S( '<div>', htmlEscape(tweet.author), '</div>' );
+//	return S(
+//		'<div style="font-family: Arial,sans-serif; font-size: 10pt;">',
+//			img,
+//			'<div style="font-weight:bold;">',
+//				'<a target="_new" href="http://twitter.com/', htmlEscape(tweet.user), '">', htmlEscape(tweet.user), '</a>',
+//			'</div>',
+//			author,
+//			'<div>',
+//				htmlEscape( tweet.where || '' ),
+//			'</div>',
+//			'<div style="display: inline;">',
+//				httpLinks( htmlEscape(tweet.message) ),
+//				//atLinks( httpLinks( htmlEscape(tweet.message) ) ),
+//			'</div>',
+//			//'<div id="statusupdated">less than a minute ago in WWW</div>
+//		'</div>'
+//	);
+//}
 
 //function loadYouTubeMap() {
 //	
