@@ -1002,13 +1002,13 @@ function writeMappletHTML() {
 			//	'<a href="http://www.desmoinesregister.com/apps/pbcs.dll/section?Category=caucus" target="_blank">Des Moines Register</a>',
 			//'</div>',
 			partyButtons,
-			//'<div id="votesbar">',
-			//	'<div id="votestitle">',
-			//	'</div>',
+			'<div id="votesbar">',
+				'<div id="votestitle">',
+				'</div>',
 				'<div id="legend">',
 					'Loading&#8230;',
 				'</div>',
-			//'</div>',
+			'</div>',
 			'<div id="videos" style="margin-top:8px;">',
 			'</div>',
 			'<div id="news" style="margin-top:6px;">',
@@ -1857,7 +1857,6 @@ function load() {
 	}
 	
 	GEvent.addListener( map, 'click', function( overlay, latlng ) {
-		debugger;
 		var place = overlay ? overlay.$_place_$ : hittest( latlng );
 		openInfo( place );
 	});
@@ -1929,7 +1928,7 @@ function load() {
 				'<tr>',
 					'<td style="text-align:left;">',
 						//'<b>', party.fullName, '</b>',
-						'<b>Total voting results</b>',
+						'<b>', party.shortName, ' results</b>',
 					'</td>',
 					'<td id="votesattrib" style="text-align:right;">',
 						attrib,
