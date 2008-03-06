@@ -4,9 +4,7 @@
 
 shapespath = '../election-data/shapes/detailed'
 tilespath = '../election-tiles/tiles'
-votespath = '../election-data/votes'
 
-from candidates import candidates
 import magick
 import math
 import os
@@ -68,11 +66,7 @@ def writeFile( filename, data ):
 	f.write( data )
 	f.close()
 
-def generateAll( state, zoom ):
-	generate( state, zoom, 'dem' );
-	generate( state, zoom, 'gop' );
-	
-def generate( state, zoom, party ):
+def generate( state, zoom ):
 	global geo, scaleoffset
 	print '----------------------------------------'
 	print 'Generating %s zoom %d' %( state, zoom )
@@ -85,12 +79,6 @@ def generate( state, zoom, party ):
 	json = readFile( '%s/%s.js' %( shapespath, state ) )
 	exec re.sub( '^.+\(', 'data = (', json )
 	places = data['places']
-	
-	json = readFile( '%s/%s_%s.js' %( votespath, state, party ) )
-	json = re.sub( '^.+\(', 'data = (', json )
-	json = re.sub( '[\r\n]', '', json )
-	exec json
-	votes = data['locals']
 	
 	#t1 = time.time()
 	
@@ -107,9 +95,10 @@ def generate( state, zoom, party ):
 	draw = [ 'scale .1,.1\n' ]
 	
 	draw.append( 'stroke-width 10\n' )
-	drawPlaces( draw, places, votes )
+	drawPlaces( draw, places )
 	
-	writeFile( 'draw.cmd', ''.join(draw) )
+	cmdfile = 'draw.tmp'
+	writeFile( cmdfile, ''.join(draw) )
 	
 	#t2 = time.time()
 	#print '%0.3f seconds to generate commands' %( t2 - t1 )
@@ -120,8 +109,8 @@ def generate( state, zoom, party ):
 	else:
 		cropcmd = ''
 	blank = magick.blank( gridsize )
-	base = '%s/%s_%s/tile-%d' %( tilespath, state, party, zoom )
-	command = ( '%s -draw "@draw.cmd" %s ' + base + '.png' )%( blank, cropcmd )
+	base = '%s/%s/tile-%d' %( tilespath, state, zoom )
+	command = ( '%s -draw "@%s" %s ' + base + '.png' )%( blank, cmdfile, cropcmd )
 	#command = ( '%s -draw "@draw.cmd" %s -depth 8 -type Palette -floodfill 0x0 white -background white -transparent-color white ' + base + '.png' )%( blank, cropcmd )
 	#command = ( 'null: -resize %dx%d! -floodfill 0x0 white -draw "@draw.cmd" %s -depth 8 -type Palette -background white -transparent white -transparent-color white ' + base + '.png' )%( gridsize[0], gridsize[1], cropcmd )
 	#command = 'null: -resize %(cx)dx%(cy)d! -draw "@draw.cmd" %(crop)s tile%(zoom)d.png' %({
@@ -169,21 +158,13 @@ def generate( state, zoom, party ):
 		t2 = time.time()
 		print '%0.3f seconds to move files' %( t2 - t1 )
 
-def drawPlaces( draw, places, votes ):
+def drawPlaces( draw, places ):
 	global geo, scaleoffset
 	nPolys = nPoints = 0
 	for place in places:
 		placename = place['name']
-		if placename in votes:
-			vote = votes[placename]
-			leader = vote['votes'][0]
-			candidate = candidates['byname'][ leader['name'] ]
-			color = candidate['color']
-			precincts = vote['precincts']
-			opacity = float(precincts['reporting']/precincts['total']) * .65
-		else:
-			color = randomGray()
-			opacity = .15
+		color = randomGray()
+		opacity = .15
 		alpha = '%02X' % int( opacity * 255.0 )
 		for shape in place['shapes']:
 			nPolys += 1
@@ -200,11 +181,28 @@ polygon''' %( color, alpha )
 	print '%d points in %d polygons' %( nPoints, nPolys )
 
 for z in xrange(0,5):
-	generateAll( 'us', z )
+	generate( 'us', z )
 	
 for z in xrange(5,9):
 	for state in states.array:
 		#if state['name'] != 'Alaska':  # temp
-			generateAll( state['abbr'].lower(), z )
+			generate( state['abbr'].lower(), z )
+
+for z in xrange(9,10):
+	generate( 'hi', z )
+	generate( 'nj', z )
+
+for z in xrange(9,11):
+	generate( 'ct', z )
+	generate( 'de', z )
+	generate( 'ma', z )
+	generate( 'md', z )
+	generate( 'nh', z )
+	generate( 'pr', z )
+	generate( 'ri', z )
+	generate( 'vt', z )
+
+for z in xrange(9,12):
+	generate( 'dc', z )
 
 print 'Done!'
