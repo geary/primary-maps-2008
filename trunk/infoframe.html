@@ -1,0 +1,61 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN">
+<html lang="en">
+<head>
+	<title></title>
+	<script type="text/javascript">
+		var timer;
+		var values = location.search.slice(1).split('%3F')[1].split('%7C');
+		var type = values[0];
+		var method = values[1];
+		var abbr = values[2];
+		var linktext = unescape( values[3] ).replace( /\+/g, ' ' );
+		
+		function getHash() {
+			return location.href.split('?')[1];
+		}
+		
+		function callMapplet( objname, method, args ) {
+			var frames = window.top.frames;
+			for( var i = 0, n = frames.length;  i < n;  ++i ) {
+				try {
+					var frame = frames[i];
+					var obj = frame[objname];
+					if( obj ) return obj[method].apply( obj, args );
+				}
+				catch( e ) {
+				}
+			}
+		}
+		
+		if( type == 'timer' ) {
+			timer = setInterval( function() {
+				if( location.hash ) {
+					clear();
+					clicker();
+				}
+			}, 1000 );
+		}
+		
+		function clear() {
+			clearInterval( timer );
+			timer = null;
+		}
+		
+		function clicker() {
+			callMapplet( 'GoogleElectionMap', method, [ abbr ] );
+			return false;
+		}
+	</script>
+</head>
+<body onunload="clear();">
+	<script type="text/javascript">
+		if( ! timer ) {
+			document.write(
+				'<div style="font-family:Arial,sans-serif; font-size:10pt;">',
+					'<a href="#" onclick="return clicker();">', linktext, '</a>',
+				'</div>'
+			);
+		}
+	</script>
+</body>
+</html>
