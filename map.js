@@ -157,6 +157,10 @@ GoogleElectionMap = {
 		var state = stateByAbbr( abbr );
 		( state.votes = state.votes || {} )[curParty.name] = votes;
 		stateReady( state );
+	},
+	zoomToState: function( abbr ) {
+		opt.state = abbr;
+		loadState();
 	}
 };
 
@@ -1878,10 +1882,8 @@ function setState( state ) {
 function openInfo( place ) {
 	if( ! place ) return;
 	var state = stateByAbbr(place.place.state);
-	if( state.abbr.toLowerCase() != opt.state  &&  opt.state != 'us' ) {
-		opt.state = 'us';
-		loadState();
-	}
+	var abbr = state.abbr.toLowerCase();
+	
 	map.openInfoWindowHtml(
 		pointLatLng( place.place.centroid ),
 		placeBalloon( state, place.place ),
@@ -2145,9 +2147,52 @@ function loadTiles( state, party ) {
 }
 
 function placeBalloon( state, place ) {
+	var method = 'zoomToState';
+	var base = 'http://primary-maps-2008.googlecode.com/svn/trunk/infoframe.html';
+	var id = 'LinkFrameForMapplet';
+	if( place.type == 'state' ) {
+		var abbr = state.abbr.toLowerCase();
+		var linktext = 'View ' + state.name + ' local results';
+	}
+	else {
+		var abbr = 'us';
+		var linktext = 'View nationwide results';
+	}
+	
+	function makeUrl( type ) {
+		return 'http://gmodules.com' +
+		_IG_GetCachedUrl(
+			S( base, '?', type, '|', method, '|', abbr, '|', linktext.replace( / /g, '+' ) ),
+			{ refreshInterval:0 } );
+	}
+	
+	function makeFrame( type, style ) {
+		return S(
+			'<iframe id="', id, '" name="', id, '" frameborder="0" style="', style, '" src="', makeUrl(type), '">',
+			'</iframe>'
+		);
+	}
+	
+	if( ! mapplet ) {
+		var link = S( '<a href="#" onclick="', method, '(\'', abbr, '">', linktext, '</a>' );
+		var iframe = '';
+	}
+	else if( $.browser.mozilla ) {
+		var link = S( '<a href="', makeUrl('timer') + '#go', '" target="', id, '">', linktext, '</a>' );
+		var iframe =makeFrame( 'timer', 'display:none;' );
+	}
+	else {  // IE, Safari
+		var link = '';
+		var iframe =makeFrame( 'link', 'height:3.2em; width:20em;' );
+	}
+	
 	return [
 		'<div style="font-size:10pt;">',
 			placeTable( state, place, true ),
+			'<div style="margin-top:10px;">',
+				link,
+				iframe,
+			'</div>',
 		'</div>'
 	].join('');
 }
