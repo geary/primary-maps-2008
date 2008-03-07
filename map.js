@@ -2174,7 +2174,7 @@ function placeBalloon( state, place ) {
 	}
 	
 	if( ! mapplet ) {
-		var link = S( '<a href="#" onclick="', method, '(\'', abbr, '\');">', linktext, '</a>' );
+		var link = S( '<a href="#" onclick="GoogleElectionMap.', method, '(\'', abbr, '\');">', linktext, '</a>' );
 		var iframe = '';
 	}
 	else if( $.browser.mozilla ) {
