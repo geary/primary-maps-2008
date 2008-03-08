@@ -2242,7 +2242,11 @@ function placeTable( state, place, balloon ) {
 			'</td>'
 		);
 	}
-	var votes = ( place.type == 'state' ? stateUS : state ).votes[curParty.name].locals[place.name];
+	try {
+		var votes = ( place.type == 'state' ? stateUS : state ).votes[curParty.name].locals[place.name];
+	}
+	catch( e ) {
+	}
 	if( ! votes ) return none;
 	var lines = [];
 	var tallies = votes.votes;
