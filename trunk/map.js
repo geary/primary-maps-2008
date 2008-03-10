@@ -1,4 +1,4 @@
-var IconFactory = {};
+var IconFactory = { icons:{} };
 
 IconFactory.createMarkerIcon = function(opts) {
 	var width = opts.width || 32;
@@ -6,11 +6,15 @@ IconFactory.createMarkerIcon = function(opts) {
 	var primaryColor = opts.primaryColor || "#ff0000";
 	var strokeColor = opts.strokeColor || "#000000";
 	var cornerColor = opts.cornerColor || "#ffffff";
-	 
+	
+	var key = [ width, height, primaryColor, strokeColor, cornerColor ].join('|');
+	var icon = IconFactory.icons[key];
+	if( icon ) return icon;
+	
 	var baseUrl = "http://chart.apis.google.com/chart?cht=mm";
 	var iconUrl = baseUrl + "&chs=" + width + "x" + height + 
 		"&chco=" + cornerColor.replace("#", "") + "," + primaryColor.replace("#", "") + "," + strokeColor.replace("#", "") + "&ext=.png";
-	var icon = new GIcon(G_DEFAULT_ICON);
+	icon = new GIcon(G_DEFAULT_ICON);
 	icon.image = iconUrl;
 	icon.iconSize = new GSize(width, height);
 	icon.shadowSize = new GSize(Math.floor(width*1.6), height);
@@ -37,7 +41,9 @@ IconFactory.createMarkerIcon = function(opts) {
 	for (var i = 0; i < icon.imageMap.length; i++) {
 		icon.imageMap[i] = parseInt(icon.imageMap[i]);
 	}
-
+	
+	IconFactory.icons[key] = icon;
+	
 	return icon;
 }
 
@@ -1918,15 +1924,16 @@ function showPolys( state, party ) {
 }
 
 function createStateMarker( place, size ) {
-	var state = statesByName[place.name];
+	var state = stateByAbbr(place.state);
 	var iconOptions = { width:size, height:size, primaryColor:place.color, cornerColor:place.color };
 	var icon = IconFactory.createMarkerIcon( iconOptions );
-	var marker = new GMarker( pointLatLng(place.centroid), { icon:icon } );
-	if( place.type == 'state' ) {
-		GEvent.addListener( marker, "click", function() {
-			marker.openInfoWindowHtml( placeBalloon(state,place), { maxWidth:300, disableGoogleLinks:true } );
-		});
-	}
+	var marker = new GMarker( pointLatLng(place.centroid), {
+		icon: icon,
+		title: 'Click for ' + localityName( state, place ) + ' results'
+	});
+	GEvent.addListener( marker, "click", function() {
+		marker.openInfoWindowHtml( placeBalloon(state,place), { maxWidth:300, disableGoogleLinks:true } );
+	});
 	return marker;
 }
 
@@ -2287,12 +2294,13 @@ function placeBalloon( state, place ) {
 	].join('');
 }
 
+function localityName( state, place ) {
+	var name = place.name.replace( / County$/, '' );
+	if( place.type == 'county'  &&  ! state.votesby  &&  ! name.match(/ City$/) ) name += ' County';
+	return name;
+}
+
 function placeTable( state, place, balloon ) {
-	function localityName() {
-		var name = place.name.replace( / County$/, '' );
-		if( ! state.votesby  &&  ! name.match(/ City$/) ) name += ' County';
-		return name;
-	}
 	var fontsize = 'font-size:10pt;';
 	var pad = balloon ? '8px' : '4px';
 	var party = state.parties[curParty.name];
@@ -2308,7 +2316,7 @@ function placeTable( state, place, balloon ) {
 	if( place.type != 'state' ) {
 		header += S(
 			'<div style="font-size:120%">',
-				localityName(place.name),
+				localityName( state, place ), ', ', state.abbr,
 			'</div>'
 		);
 	}
