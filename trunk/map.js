@@ -1652,10 +1652,21 @@ function showStateProjector( json, party ) {
 	}
 }
 
+function getLeaders( locals ) {
+	var leaders = {};
+	for( var localname in locals ) {
+		var leader = locals[localname].votes[0].name;
+		leaders[leader] = true;
+	}
+	return leaders;
+}
+
 function showStateSidebar( state, party ) {
 	var html = '';
-	var totals = state.votes[party.name].totals;
-	if( totals ) {
+	var votes = state.votes[party.name];
+	var totals = votes.totals, locals = votes.locals;
+	if( totals && locals ) {
+		var leaders = getLeaders( locals );
 		var precincts = totals.precincts;
 		var tallies = totals.votes;
 		tallies.index('name');
@@ -1699,35 +1710,37 @@ function showStateSidebar( state, party ) {
 		var cols = [];
 		tallies.forEach( function( tally ) {
 			var candidate = candidates.all.by.name[tally.name];
-			rows.push( [
-				'<tr>',
-					'<td class="legendvotestd">',
-						'<div class="legendvotes">',
-							formatNumber(tally.votes),
-						'</div>',
-					'</td>',
-					'<td class="legenddelegatestd" style="text-align:center; padding-right:8px;">',
-						'<div class="legenddelegates">',
-							formatNumber( tally.delegates || '' ),
-						'</div>',
-					'</td>',
-					//'<td class="legendpercenttd">',
-					//	'<div class="legendpercent">',
-					//		percent( tally.votes / state.total ),
-					//	'</div>',
-					//'</td>',
-					'<td class="legendboxtd">',
-						'<div class="legendbox" style="border:1px solid #888888; background-color:', candidate.color, ';">',
-							'&nbsp;',
-						'</div>',
-					'</td>',
-					'<td class="legendnametd">',
-						'<div class="legendname">',
-							candidate.fullName,
-						'</div>',
-					'</td>',
-				'</tr>'
-			].join('') );
+			if( leaders[tally.name] ) {
+				rows.push( S(
+					'<tr>',
+						'<td class="legendvotestd">',
+							'<div class="legendvotes">',
+								formatNumber(tally.votes),
+							'</div>',
+						'</td>',
+						'<td class="legenddelegatestd" style="text-align:center; padding-right:8px;">',
+							'<div class="legenddelegates">',
+								formatNumber( tally.delegates || '' ),
+							'</div>',
+						'</td>',
+						//'<td class="legendpercenttd">',
+						//	'<div class="legendpercent">',
+						//		percent( tally.votes / state.total ),
+						//	'</div>',
+						//'</td>',
+						'<td class="legendboxtd">',
+							'<div class="legendbox" style="border:1px solid #888888; background-color:', candidate.color, ';">',
+								'&nbsp;',
+							'</div>',
+						'</td>',
+						'<td class="legendnametd">',
+							'<div class="legendname">',
+								candidate.fullName,
+							'</div>',
+						'</td>',
+					'</tr>'
+				) );
+			}
 		});
 	}
 }
