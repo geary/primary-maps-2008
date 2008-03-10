@@ -1,3 +1,46 @@
+var IconFactory = {};
+
+IconFactory.createMarkerIcon = function(opts) {
+	var width = opts.width || 32;
+	var height = opts.height || 32;
+	var primaryColor = opts.primaryColor || "#ff0000";
+	var strokeColor = opts.strokeColor || "#000000";
+	var cornerColor = opts.cornerColor || "#ffffff";
+	 
+	var baseUrl = "http://chart.apis.google.com/chart?cht=mm";
+	var iconUrl = baseUrl + "&chs=" + width + "x" + height + 
+		"&chco=" + cornerColor.replace("#", "") + "," + primaryColor.replace("#", "") + "," + strokeColor.replace("#", "") + "&ext=.png";
+	var icon = new GIcon(G_DEFAULT_ICON);
+	icon.image = iconUrl;
+	icon.iconSize = new GSize(width, height);
+	icon.shadowSize = new GSize(Math.floor(width*1.6), height);
+	icon.iconAnchor = new GPoint(width/2, height);
+	icon.infoWindowAnchor = new GPoint(width/2, Math.floor(height/12));
+	icon.printImage = iconUrl + "&chof=gif";
+	icon.mozPrintImage = iconUrl + "&chf=bg,s,ECECD8" + "&chof=gif";
+	var iconUrl = baseUrl + "&chs=" + width + "x" + height + 
+		"&chco=" + cornerColor.replace("#", "") + "," + primaryColor.replace("#", "") + "," + strokeColor.replace("#", "");
+	icon.transparent = iconUrl + "&chf=a,s,ffffff11&ext=.png";
+
+	icon.imageMap = [
+		width/2, height,
+		(7/16)*width, (5/8)*height,
+		(5/16)*width, (7/16)*height,
+		(7/32)*width, (5/16)*height,
+		(5/16)*width, (1/8)*height,
+		(1/2)*width, 0,
+		(11/16)*width, (1/8)*height,
+		(25/32)*width, (5/16)*height,
+		(11/16)*width, (7/16)*height,
+		(9/16)*width, (5/8)*height
+	];
+	for (var i = 0; i < icon.imageMap.length; i++) {
+		icon.imageMap[i] = parseInt(icon.imageMap[i]);
+	}
+
+	return icon;
+}
+
 if( ! Array.prototype.forEach ) {
 	Array.prototype.forEach = function( fun /*, thisp*/ ) {
 		if( typeof fun != 'function' )
@@ -1514,8 +1557,7 @@ function stateReady( state ) {
 			showStateSidebar( state, curParty );
 			if( opt.tileUrl )
 				loadTiles( state, curParty );
-			else
-				showPolys( state, curParty );
+			showPolys( state, curParty );
 		}, 250 );
 	}
 }
@@ -1798,46 +1840,81 @@ function showPolys( state, party ) {
 			}
 		}
 		
-		place.shapes.forEach( function( shape ) {
-			var points = shape.points;
-			var vertices = shape.vertices = [];
-			// Old fashioned loop for speed
-			for( var i = 0, n = points.length;  i < n;  ++i ) {
-				var point = points[i];
-				vertices.push( new GLatLng( point[1], point[0] ) );
+		//place.shapes.forEach( function( shape ) {
+		//	var points = shape.points;
+		//	var vertices = shape.vertices = [];
+		//	// Old fashioned loop for speed
+		//	for( var i = 0, n = points.length;  i < n;  ++i ) {
+		//		var point = points[i];
+		//		vertices.push( new GLatLng( point[1], point[0] ) );
+		//	}
+		//	
+		//	var border = '#000080';
+		//	shape.polygon = {
+		//		base: new GPolygon( vertices, border, 1, .5, place.color, place.opacity, { clickable:false } )
+		//	};
+		//	
+		//	//if( json ) {
+		//	//	shape.polygon = {
+		//	//		base:
+		//	//			opt.projector ? new GPolygon( vertices, border, 1, .5, color, .9 )  :
+		//	//			votes ? new GPolygon( vertices, border, 1, .5, color, .7 ) :
+		//	//			new GPolygon( vertices, border, 1, .5 ) //,
+		//	//		//select: new GPolygon( vertices, color2, 1, .75, color2, .15 )
+		//	//	};
+		//	//}
+		//	//else {
+		//	//	shape.polygon = {
+		//	//		base: new GPolygon( vertices, border, 1, .5, place.color, .8 )
+		//	//	};
+		//	//}
+		//	shape.polygon.base.$_place_$ = { parent:state, place:place };
+		//	map.addOverlay( shape.polygon.base );
+		//	//GEvent.addListener( shape.polygon.base, 'click', function() {
+		//	//	map.openInfoWindowHtml(
+		//	//		pointLatLng( shape.centroid ),
+		//	//		placeBalloon( place ),
+		//	//		{ maxWidth:300 } );
+		//	//});
+		//});
+		
+		if( opt.pins ) {
+			if( place.type == 'state' ) {
+				var size = 12;
+				if (leader) {
+					if (leader.votes > 800000) { size = 38; }
+					else if (leader.votes > 500000) { size = 32;} 
+					else if (leader.votes > 300000) { size = 24;}
+					else { size = 18;}
+				} 
+			} else {
+				var size = 12;
+				if (leader) {
+					if (leader.votes > 15000) { size = 38; }
+					else if (leader.votes > 5000) { size = 32;} 
+					else if (leader.votes > 500) { size = 24;}
+					else { size = 18;}
+				} 
 			}
-			
-			var border = '#000080';
-			shape.polygon = {
-				base: new GPolygon( vertices, border, 1, .5, place.color, place.opacity, { clickable:false } )
-			};
-			
-			//if( json ) {
-			//	shape.polygon = {
-			//		base:
-			//			opt.projector ? new GPolygon( vertices, border, 1, .5, color, .9 )  :
-			//			votes ? new GPolygon( vertices, border, 1, .5, color, .7 ) :
-			//			new GPolygon( vertices, border, 1, .5 ) //,
-			//		//select: new GPolygon( vertices, color2, 1, .75, color2, .15 )
-			//	};
-			//}
-			//else {
-			//	shape.polygon = {
-			//		base: new GPolygon( vertices, border, 1, .5, place.color, .8 )
-			//	};
-			//}
-			shape.polygon.base.$_place_$ = { parent:state, place:place };
-			map.addOverlay( shape.polygon.base );
-			//GEvent.addListener( shape.polygon.base, 'click', function() {
-			//	map.openInfoWindowHtml(
-			//		pointLatLng( shape.centroid ),
-			//		placeBalloon( place ),
-			//		{ maxWidth:300 } );
-			//});
-		});
+			place.marker = createStateMarker( place, size );
+			map.addOverlay( place.marker );
+		}
 	});
 	
 	initMap();
+}
+
+function createStateMarker( place, size ) {
+	var state = statesByName[place.name];
+	var iconOptions = { width:size, height:size, primaryColor:place.color, cornerColor:place.color };
+	var icon = IconFactory.createMarkerIcon( iconOptions );
+	var marker = new GMarker( pointLatLng(place.centroid), { icon:icon } );
+	if( place.type == 'state' ) {
+		GEvent.addListener( marker, "click", function() {
+			marker.openInfoWindowHtml( placeBalloon(state,place), { maxWidth:300, disableGoogleLinks:true } );
+		});
+	}
+	return marker;
 }
 
 function makeIcons() {
