@@ -97,7 +97,7 @@ def getPrecincts( row ):
 	}
 
 fixcols = { 'trancredo': 'tancredo' }
-ignorecols = { 'other-d':1, 'other-r':1, 'total-d':1, 'total-r':1, 'undecided-d':1, 'undecided-r':1, 'Uncommitted-D':1, 'Uncommitted-R':1, 'Uninstructed-D':1, 'Uninstructed-R':1, 'write-ins-d':1, 'write-ins-r':1 }
+ignorecols = { 'other':1, 'other-d':1, 'other-r':1, 'total-d':1, 'total-r':1, 'undecided-d':1, 'undecided-r':1, 'Uncommitted-D':1, 'Uncommitted-R':1, 'Uninstructed-D':1, 'Uninstructed-R':1, 'write-ins-d':1, 'write-ins-r':1 }
 
 def fixCountyName( name ):
 	name = re.sub( ' County$', '', name )
@@ -154,20 +154,22 @@ def sortVotes( party ):
 def cleanNum( n ):
 	return int( re.sub( '[^0-9]', '', n ) or 0 )
 
-def addDelegates( usparty, partyname, party ):
+def addDelegates( usparty, partyname, party, state ):
 	if 'delegatehtml' not in party: return
 	row = party['delegatehtml']
 	party['delegates'] = cleanNum( row[1] )
 	party['delegatelist'] = {}
 	votes = party['votes']
 	def set( col, name ):
+		if len(row) + col < 2: return
 		n = cleanNum( row[col] )
-		if n:
-			party['delegatelist'][name] = n
-			if name in usparty['delegatelist']:
-				usparty['delegatelist'][name] += n
-			else:
-				usparty['delegatelist'][name] = n
+		if not n: return
+		print state['name'], 'delegates:', name, n
+		party['delegatelist'][name] = n
+		if name in usparty['delegatelist']:
+			usparty['delegatelist'][name] += n
+		else:
+			usparty['delegatelist'][name] = n
 	if partyname == 'dem':
 		set( -2, 'obama' )
 		set( -1, 'clinton' )
@@ -191,7 +193,7 @@ def makeJson( party ):
 		stateparty = state['parties'][party]
 		stateparty['name'] = state['name']
 		if 'votes' not in stateparty: continue
-		addDelegates( usparty, party, stateparty )
+		addDelegates( usparty, party, stateparty, state )
 		sortVotes( stateparty )
 		statevotes[ state['name'] ] = stateparty
 		print 'Loading %s %s' %( state['name'], party )
