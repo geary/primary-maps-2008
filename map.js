@@ -18,13 +18,14 @@ IconFactory.createMarkerIcon = function(opts) {
 	icon.image = iconUrl;
 	icon.iconSize = new GSize(width, height);
 	icon.shadowSize = new GSize(Math.floor(width*1.6), height);
+	//icon.shadowSize = new GSize( 0, 0 );
 	icon.iconAnchor = new GPoint(width/2, height);
 	icon.infoWindowAnchor = new GPoint(width/2, Math.floor(height/12));
 	icon.printImage = iconUrl + "&chof=gif";
 	icon.mozPrintImage = iconUrl + "&chf=bg,s,ECECD8" + "&chof=gif";
 	var iconUrl = baseUrl + "&chs=" + width + "x" + height + 
 		"&chco=" + cornerColor.replace("#", "") + "," + primaryColor.replace("#", "") + "," + strokeColor.replace("#", "");
-	icon.transparent = iconUrl + "&chf=a,s,ffffff11&ext=.png";
+	icon.transparent = iconUrl + "&chf=a,s,ffffff01&ext=.png";
 
 	icon.imageMap = [
 		width/2, height,
@@ -1716,37 +1717,42 @@ function showStateSidebar( state, party ) {
 		var cols = [];
 		tallies.forEach( function( tally ) {
 			var candidate = candidates.all.by.name[tally.name];
-			if( leaders[tally.name] ) {
-				rows.push( S(
-					'<tr>',
-						'<td class="legendvotestd">',
-							'<div class="legendvotes">',
-								formatNumber(tally.votes),
-							'</div>',
-						'</td>',
-						'<td class="legenddelegatestd" style="text-align:center; padding-right:8px;">',
-							'<div class="legenddelegates">',
-								formatNumber( tally.delegates || '' ),
-							'</div>',
-						'</td>',
-						//'<td class="legendpercenttd">',
-						//	'<div class="legendpercent">',
-						//		percent( tally.votes / state.total ),
-						//	'</div>',
-						//'</td>',
-						'<td class="legendboxtd">',
-							'<div class="legendbox" style="border:1px solid #888888; background-color:', candidate.color, ';">',
-								'&nbsp;',
-							'</div>',
-						'</td>',
-						'<td class="legendnametd">',
-							'<div class="legendname">',
-								candidate.fullName,
-							'</div>',
-						'</td>',
-					'</tr>'
-				) );
-			}
+			var box = leaders[tally.name] ? S(
+				'<div class="legendbox" style="border:1px solid #888888; background-color:', candidate.color, ';">',
+					'&nbsp;',
+				'</div>'
+			) : S(
+				'<div class="legendbox" style="margin:1px;">',
+					'&nbsp;',
+				'</div>'
+			);
+			rows.push( S(
+				'<tr>',
+					'<td class="legendvotestd">',
+						'<div class="legendvotes">',
+							formatNumber(tally.votes),
+						'</div>',
+					'</td>',
+					'<td class="legenddelegatestd" style="text-align:center; padding-right:8px;">',
+						'<div class="legenddelegates">',
+							formatNumber( tally.delegates || '' ),
+						'</div>',
+					'</td>',
+					//'<td class="legendpercenttd">',
+					//	'<div class="legendpercent">',
+					//		percent( tally.votes / state.total ),
+					//	'</div>',
+					//'</td>',
+					'<td class="legendboxtd">',
+						box,
+					'</td>',
+					'<td class="legendnametd">',
+						'<div class="legendname">',
+							candidate.fullName,
+						'</div>',
+					'</td>',
+				'</tr>'
+			) );
 		});
 	}
 }
