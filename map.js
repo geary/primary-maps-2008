@@ -1726,6 +1726,7 @@ function showStateSidebar( state, party ) {
 					'&nbsp;',
 				'</div>'
 			);
+			if( ! tally.votes ) return;
 			rows.push( S(
 				'<tr>',
 					'<td class="legendvotestd">',
