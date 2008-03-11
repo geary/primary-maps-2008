@@ -1575,7 +1575,7 @@ function stateReady( state ) {
 			if( opt.tileUrl )
 				loadTiles( state, curParty );
 			setTimeout( function() {
-				showPolys( state, curParty );
+				showPins( state, curParty );
 			}, 250 );
 		}, 250 );
 	}
@@ -1674,8 +1674,8 @@ function showStateProjector( json, party ) {
 function getLeaders( locals ) {
 	var leaders = {};
 	for( var localname in locals ) {
-		var leader = locals[localname].votes[0].name;
-		leaders[leader] = true;
+		var votes = locals[localname].votes[0];
+		if( votes ) leaders[votes.name] = true;
 	}
 	return leaders;
 }
@@ -1827,33 +1827,48 @@ function showStateTable( json, party ) {
 	}
 }
 
-function showPolys( state, party ) {
-	function tallyColor( place, tally ) {
-		if( ! tally ) return;
-		place.precincts = tally.precincts;
-		//place.total = tally.total;
-		var leader = tally.votes && tally.votes[0];
-		if( ! leader ) return;
-		var votes = leader.votes;
-		var candidate = candidates[party.name].by.name[leader.name];
-		//var icon = candidate.icon;
-		place.color = candidate.color;
-		place.opacity = place.precincts.reporting / place.precincts.total * .5 + .1;
-	}
+function showPins( state, party ) {
+	//function tallyColor( place, tally ) {
+	//	if( ! tally ) return;
+	//	place.precincts = tally.precincts;
+	//	//place.total = tally.total;
+	//	var leader = tally.votes && tally.votes[0];
+	//	if( ! leader ) return;
+	//	var votes = leader.votes;
+	//	var candidate = candidates[party.name].by.name[leader.name];
+	//	//var icon = candidate.icon;
+	//	place.color = candidate.color;
+	//	place.opacity = place.precincts.reporting / place.precincts.total * .5 + .1;
+	//}
 	
 	var tallies = state.votes && state.votes[party.name] || {};
 	
-	statecolor = {};
-	if( state.abbr != 'US' )
-		tallyColor( statecolor, tallies.totals );
-	state.places.forEach( function( place ) {
-		//place.color = randomColor();
-		place.color = statecolor.color || randomGray();
-		//place.opacity = Math.random();
-		place.opacity = statecolor.opacity || .15;
-		
-		//place.color = 'black';
-		//place.opacity = 0;
+	//var statecolor = {};
+	//if( state.abbr != 'US' )
+	//	tallyColor( statecolor, tallies.totals );
+	
+	// TODO - do this in voter.py instead
+	var min = Infinity, max = -Infinity;
+	var places = state.places;
+	places.forEach( function( place ) {
+		if( tallies && tallies.locals ) {
+			var tally = tallies.locals[place.name];
+			if( tally ) {
+				var leader = tally.votes && tally.votes[0];
+				if( leader ) {
+					var votes = leader.votes;
+					if( votes ) {
+						min = Math.min( min, votes );
+						max = Math.max( max, votes );
+					}
+				}
+			}
+		}
+	});
+	
+	places.forEach( function( place ) {
+		//place.color = statecolor.color || randomGray();
+		place.color = '#DDDDDD';
 		
 		// TODO: refactor this with tallyColor() - it broke when I tried it :-)
 		if( tallies && tallies.locals ) {
@@ -1866,14 +1881,7 @@ function showPolys( state, party ) {
 					var votes = leader.votes;
 					var candidate = candidates[party.name].by.name[leader.name];
 					var icon = candidate.icon;
-					
-					//if( ! opt.projector  &&  ! mapplet ) {
-					//	var marker = new GMarker( new GLatLng( place.centroid[0], place.centroid[1] ), { icon:icon } );
-					//	map.addOverlay( marker );
-					//}
-					
 					place.color = candidate.color;
-					place.opacity = place.precincts.reporting / place.precincts.total * .5 + .1;
 				}
 			}
 		}
@@ -1917,23 +1925,12 @@ function showPolys( state, party ) {
 		//});
 		
 		if( opt.pins ) {
-			if( place.type == 'state' ) {
-				var size = 12;
-				if (leader) {
-					if (leader.votes > 800000) { size = 38; }
-					else if (leader.votes > 500000) { size = 32;} 
-					else if (leader.votes > 300000) { size = 24;}
-					else { size = 18;}
-				} 
-			} else {
-				var size = 12;
-				if (leader) {
-					if (leader.votes > 15000) { size = 38; }
-					else if (leader.votes > 5000) { size = 32;} 
-					else if (leader.votes > 500) { size = 24;}
-					else { size = 18;}
-				} 
+			var size = 20;
+			if( leader  &&  min < max ) {
+				var fraction = ( leader.votes - min ) / ( max - min ) * ( place.precincts.reporting / place.precincts.total );
+				size = Math.floor( 20 + fraction * 24 );
 			}
+			
 			place.marker = createStateMarker( place, size );
 			map.addOverlay( place.marker );
 		}
