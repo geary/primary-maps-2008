@@ -946,7 +946,7 @@ function fmtDate( date ) {
 }
 
 (function() {
-	var hotStates = [ 'OH', 'RI', 'TX', 'VT' ]/*.index()*/;
+	var hotStates = [ 'MS' ]/*.index()*/;
 	var index = 0;
 	function option( value, name, style ) {
 		++index;
@@ -972,7 +972,7 @@ function fmtDate( date ) {
 			'<div>',
 				'<select id="stateSelector">',
 					option( 'us', 'Entire USA' ),
-					option( '', 'March 4', 'color:#AAA; font-style:italic; font-weight:bold;' ),
+					option( '', 'March 11', 'color:#AAA; font-style:italic; font-weight:bold;' ),
 					hotStates.map( function( abbr ) {
 						return stateOption( statesByAbbr[abbr], false );
 					}).join(''),
