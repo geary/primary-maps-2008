@@ -186,6 +186,10 @@ def makeJson( party ):
 	usprecincts = { 'total': 0, 'reporting': 0 }
 	usparty = { 'votes': usvotes, 'precincts': usprecincts, 'delegatelist': usdelegatelist }
 	statevotes = {}
+	leaders = {}
+	def addLeader( party ):
+		if len(party['votes']):
+			leaders[ party['votes'][0]['name'] ] = True
 	for state in states.array:
 		statetotal = 0
 		parties = state['parties']
@@ -211,6 +215,7 @@ def makeJson( party ):
 			countyparty = county['parties'][party]
 			countyparty['name'] = countyname
 			sortVotes( countyparty )
+			addLeader( countyparty )
 			countytotal = 0
 			for vote in countyparty['votes']:
 				countytotal += vote['votes']
@@ -238,6 +243,9 @@ def makeJson( party ):
 				'locals': statevotes
 		}) )
 	#print '%s of %s precincts reporting' %( state['precincts']['reporting'], state['precincts']['total'] )
+	print '%s leaders:' % party
+	for leader in leaders.iterkeys():
+		print leader
 
 def getDelegates( party, urlparty ):
 	url = 'http://www.realclearpolitics.com/epolls/2008/president/%s_delegate_count.html' % urlparty
