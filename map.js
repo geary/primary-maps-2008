@@ -48,6 +48,14 @@ IconFactory.createMarkerIcon = function(opts) {
 	return icon;
 }
 
+// TODO: combine this with code above
+
+function getPinImage( color ) {
+	color = color.replace( /#/, '' );
+	var width = 24, height = 24;
+	return S( 'http://chart.apis.google.com/chart?cht=mm&chs=', width, 'x', height, '&chco=', color, ',', color, ',', '000000', '&ext=.png' );
+}
+
 if( ! Array.prototype.forEach ) {
 	Array.prototype.forEach = function( fun /*, thisp*/ ) {
 		if( typeof fun != 'function' )
@@ -1156,7 +1164,7 @@ function writeApiMapHTML() {
 			'#legend table { xwidth:100%; }',
 			'#legend .legendboxtd { width:7%; }',
 			'#legend .legendnametd { xfont-size:24px; xwidth:18%; }',
-			'#legend .legendbox { height:24px; width:24px; float:left; margin-right:4px; }',
+			'#legend .legendbox { height:24px; width:24px; xfloat:left; margin-right:4px; }',
 			'#legend .legendname { xfont-size:12pt; white-space:pre; }',
 			'#legend .legendvotestd { text-align:right; width:5em; }',
 			'#legend .legendpercenttd { text-align:right; width:2em; }',
@@ -1720,11 +1728,11 @@ function showStateSidebar( state, party ) {
 		tallies.forEach( function( tally ) {
 			var candidate = candidates.all.by.name[tally.name];
 			var box = leaders[tally.name] ? S(
-				'<div class="legendbox" style="border:1px solid #888888; background-color:', candidate.color, ';">',
-					'&nbsp;',
+				'<div class="legendbox">',
+					'<img src="', getPinImage(candidate.color), '" />',
 				'</div>'
 			) : S(
-				'<div class="legendbox" style="margin:1px;">',
+				'<div class="legendbox">',
 					'&nbsp;',
 				'</div>'
 			);
@@ -2361,8 +2369,8 @@ function placeTable( state, place, balloon ) {
 			lines.push( [
 				'<tr>',
 					'<td style="width:1%;">',
-						'<div style="width:20px; height:20px; margin:0 4px 2px 0; border:1px solid #888888; background-color:', candidate.color, ';">',
-							'&nbsp;',
+						'<div class="legendbox">',
+							'<img src="', getPinImage(candidate.color), '" />',
 						'</div>',
 					'</td>',
 					'<td style="', fontsize, 'xpadding-right:8px; white-space:pre;">',
