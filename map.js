@@ -1574,7 +1574,9 @@ function stateReady( state ) {
 			showStateSidebar( state, curParty );
 			if( opt.tileUrl )
 				loadTiles( state, curParty );
-			showPolys( state, curParty );
+			setTimeout( function() {
+				showPolys( state, curParty );
+			}, 250 );
 		}, 250 );
 	}
 }
