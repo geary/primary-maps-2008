@@ -251,6 +251,8 @@ opt.mapHeight = ( '' + opt.mapHeight ).replace( /px$/, '' );
 if( opt.stateSelector == null ) opt.stateSelector = true;
 if( opt.partySelector == null ) opt.partySelector = true;
 
+opt.tileUrl = opt.tileUrl || 'http://gmodules.com/ig/proxy?max_age=3600&url=http://election-map-tiles-1.s3.amazonaws.com/boundaries/';
+
 //opt.twitter = opt.twitter || mapplet;
 //opt.youtube = opt.youtube || mapplet;
 
@@ -2230,18 +2232,10 @@ function loadState() {
 var tileLayerOverlay;
 function loadTiles( state, party ) {
 	if( tileLayerOverlay ) map.removeOverlay( tileLayerOverlay );
-	
-	//var base = opt.tileUrl || ( 'http://padlet/election-tiles/election-tiles-1/tiles/' + state.abbr.toLowerCase() + '/' );
-	//base = 'http://gmodules.com/ig/proxy?url=http://mg.to/elections/tiles/';
-	//base = 'http://padlet/elections/2008/shapes/tiles-county/';
-	//base = 'http://gmodules.com/ig/proxy?url=http://primary-maps-2008-test.googlecode.com/svn/trunk/tiles/us/tiles/';
-	//base = 'http://gmodules.com/ig/proxy?url=http://primary-maps-2008-test.googlecode.com/svn/trunk/tiles/us/tiles/';
-	//base = 'http://primary-maps-2008-test.googlecode.com/svn/trunk/tiles/us/tiles/';
-	//base = 'http://primary-maps-2008-test.googlecode.com/svn/trunk/tiles/us/tiles-75/';
-	
+	var abbr = state.abbr.toLowerCase();
 	tileLayerOverlay = new GTileLayerOverlay(
 		new GTileLayer( null, 1, 1, {
-			tileUrlTemplate: opt.tileUrl + state.abbr.toLowerCase() + '/tile-{Z}-{Y}-{X}.png', 
+			tileUrlTemplate: S( opt.tileUrl, abbr, '/', abbr, '-{Z}-{Y}-{X}.png' ),
 			isPng:true,
 			opacity:1.0
 		})
