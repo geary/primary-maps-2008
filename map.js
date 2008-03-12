@@ -1,11 +1,11 @@
 var IconFactory = { icons:{} };
 
 IconFactory.createMarkerIcon = function(opts) {
-	var width = opts.width || 32;
 	var height = opts.height || 32;
+	var width = opts.width || height;
 	var primaryColor = opts.primaryColor || "#ff0000";
+	var cornerColor = opts.cornerColor || primaryColor;
 	var strokeColor = opts.strokeColor || "#000000";
-	var cornerColor = opts.cornerColor || "#ffffff";
 	
 	var key = [ width, height, primaryColor, strokeColor, cornerColor ].join('|');
 	var icon = IconFactory.icons[key];
@@ -217,8 +217,7 @@ GoogleElectionMap = {
 		stateReady( state );
 	},
 	zoomToState: function( abbr ) {
-		opt.state = abbr;
-		loadState();
+		setState( abbr );
 	}
 };
 
@@ -1936,13 +1935,12 @@ function showPins( state, party ) {
 
 function createStateMarker( place, size ) {
 	var state = stateByAbbr(place.state);
-	var iconOptions = { width:size, height:size, primaryColor:place.color, cornerColor:place.color };
-	var icon = IconFactory.createMarkerIcon( iconOptions );
+	var icon = IconFactory.createMarkerIcon({ height:size, primaryColor:place.color });
 	var marker = new GMarker( pointLatLng(place.centroid), {
 		icon: icon,
 		title: 'Click for ' + localityName( state, place ) + ' results'
 	});
-	GEvent.addListener( marker, "click", function() {
+	GEvent.addListener( marker, 'click', function() {
 		marker.openInfoWindowHtml( placeBalloon(state,place), { maxWidth:300, disableGoogleLinks:true } );
 	});
 	return marker;
@@ -1981,6 +1979,7 @@ function setStateByName( name ) {
 
 function setState( state ) {
 	if( ! state ) return;
+	if( typeof state == 'string' ) state = stateByAbbr( state );
 	var select = $('#stateSelector')[0];
 	select && ( select.selectedIndex = state.selectorIndex );
 	opt.state = state.abbr.toLowerCase();
