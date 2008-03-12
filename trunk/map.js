@@ -796,7 +796,7 @@ var candidates = {
 		{ 'name': 'huckabee', 'lastName': 'Huckabee', 'fullName': 'Mike Huckabee', 'color': '#1700E8', 'feed': 'h32i31ojgo9vvb3vnggmq1qrh8' },
 		{ 'name': 'hunter', 'lastName': 'Hunter', 'fullName': 'Duncan Hunter', 'color': '#8A5C2E', 'feed': '' },
 		{ 'name': 'keyes', 'lastName': 'Keyes', 'fullName': 'Alan Keyes', 'color': '#8080FF', 'feed': '' },
-		{ 'name': 'mccain', 'lastName': 'McCain', 'fullName': 'John McCain', 'color': '#EEE600', 'feed': 'q1du1ju69m8jecsjkhjr538kbs' },
+		{ 'name': 'mccain', 'lastName': 'McCain', 'fullName': 'John McCain', 'color': '#1FCC15', 'feed': 'q1du1ju69m8jecsjkhjr538kbs' },
 		{ 'name': 'paul', 'lastName': 'Paul', 'fullName': 'Ron Paul', 'color': '#E4Af95', 'feed': '7p20d17uil4ft2qhvattqrjdgg' },
 		{ 'name': 'romney', 'lastName': 'Romney', 'fullName': 'Mitt Romney', 'color': '#FF1300', 'feed': '3mv48r8us0rou62c356om8groc' },
 		{ 'name': 'tancredo', 'lastName': 'Tancredo', 'fullName': 'Tom Tancredo', 'color': '#EE00B5', 'feed': '' },
@@ -972,7 +972,7 @@ function fmtDate( date ) {
 			'<div>',
 				'<select id="stateSelector">',
 					option( 'us', 'Entire USA' ),
-					option( '', 'March 11', 'color:#AAA; font-style:italic; font-weight:bold;' ),
+					option( 'ms', 'March 11 Primary', 'color:#AAA; font-style:italic; font-weight:bold;' ),
 					hotStates.map( function( abbr ) {
 						return stateOption( statesByAbbr[abbr], false );
 					}).join(''),
@@ -2032,6 +2032,14 @@ function load() {
 				'</tr>',
 			'</table>'
 		].join('') );
+		//$('#votestitle').html( S(
+		//	'<div>',
+		//		'<b>', primaryTitle( stateByAbbr(opt.state), party ), '</b>',
+		//	'</div>',
+		//	'<div id="votesattrib" style="text-align:right;">',
+		//		attribution,
+		//	'</div>'
+		//) );
 		$('#legend').html( 'Loading&#8230;' );
 		setStateByAbbr( opt.state );
 		//loadVotes( opt.state );
@@ -2308,14 +2316,20 @@ function localityName( state, place ) {
 	return name;
 }
 
+function primaryTitle( state, party ) {
+	return S(
+		state.name, ' ', curParty.shortName,
+		party.type == 'caucus' ? ' Caucus ' : ' Primary '
+	);
+}
+
 function placeTable( state, place, balloon ) {
 	var fontsize = 'font-size:10pt;';
 	var pad = balloon ? '8px' : '4px';
 	var party = state.parties[curParty.name];
 	var header = S(
 		'<div style="font-size:120%">',
-			state.name, ' ', curParty.shortName,
-			party.type == 'caucus' ? ' Caucus ' : ' Primary ',
+			primaryTitle( state, curParty ),
 		'</div>',
 		'<div style="font-size:110%">',
 			fmtDate(party.date), ', 2008',
