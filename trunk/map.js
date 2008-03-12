@@ -1060,11 +1060,6 @@ function writeMappletHTML() {
 		'<div id="outer">',
 			'<div id="resultlist">',
 			'</div>',
-			'<div id="attribution" style="padding-bottom:4px; border-bottom:1px solid #DDD; margin-bottom:4px; text-align:right; display:none;">',
-				'<span>AP</span>',
-				'<span>/</span>',
-				'<a href="http://www.boston.com/" target="_blank">Boston&nbsp;Globe</a>',
-			'</div>',
 			'<div style="padding-bottom:4px; border-bottom:1px solid #DDD; margin-bottom:4px;">',
 				'<span style="color:red;">New!</span> ',
 				'<a href="http://gmodules.com/ig/creator?synd=open&url=http://primary-maps-2008.googlecode.com/svn/trunk/map.xml" target="_blank">Get this map for your website</a>',
@@ -2030,7 +2025,10 @@ function load() {
 						attribution,
 					'</td>',
 				'</tr>',
-			'</table>'
+			'</table>',
+			'<div>',
+				'Size of map pin reflects number of votes',
+			'</div>'
 		].join('') );
 		//$('#votestitle').html( S(
 		//	'<div>',
