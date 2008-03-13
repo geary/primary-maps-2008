@@ -1918,16 +1918,14 @@ function showPins( state, party ) {
 		//	//});
 		//});
 		
-		if( opt.pins ) {
-			var size = 20;
-			if( leader  &&  min < max ) {
-				var fraction = ( leader.votes - min ) / ( max - min ) * ( place.precincts.reporting / place.precincts.total );
-				size = Math.floor( 20 + fraction * 24 );
-			}
-			
-			place.marker = createStateMarker( place, size );
-			map.addOverlay( place.marker );
+		var size = 20;
+		if( leader  &&  min < max ) {
+			var fraction = ( leader.votes - min ) / ( max - min ) * ( place.precincts.reporting / place.precincts.total );
+			size = Math.floor( 20 + fraction * 24 );
 		}
+		
+		place.marker = createStateMarker( place, size );
+		map.addOverlay( place.marker );
 	});
 	
 	initMap();
