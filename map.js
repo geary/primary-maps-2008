@@ -1055,6 +1055,18 @@ function writeMappletHTML() {
 			'#legend .legendvotes, #legend .legendpercent { xfont-size:10pt; margin-right:6px; }',
 			'#legend .legendclear { clear:left; }',
 			'#legend .legendreporting * { xfont-size:20px; }',
+			'.uftl {border:1px solid white;border-bottom:none;}',
+			'.uftl_reverse_directionality {border:1px solid white;border-bottom:none;clear: right;text-align: right;}',
+			'.uftl{padding:4px 0px 4px 0px;border:1px solid #fff;}',
+			'.uftl_reverse_directionality{padding:4px 0px 4px 0px;border:1px solid #fff;clear:right;text-align:right;}',
+			'.fbox,.fmaxbox, .fmaxbox_reverse_directionality,.fminbox, .fminbox_reverse_directionality,a.fmaxbox:hover, a.fmaxbox_reverse_directionality:hover,a.fminbox:hover, a.fminbox_reverse_directionality:hover {background-image: url("http://img0.gmodules.com/ig/images/max_min_dark_blue.gif");width:12px;height:12px;}',
+			'.fmaxbox, .fmaxbox_reverse_directionality {background-position:0px 0px;}',
+			'.fminbox, .fminbox_reverse_directionality {background-position:-12px 0px;}',
+			'a.fmaxbox:hover, a.fmaxbox_reverse_directionality:hover{background-position:0px -12px;}',
+			'a.fminbox:hover, a.fminbox_reverse_directionality:hover{background-position:-12px -12px;}',
+			'a.fmaxbox,a.fminbox{float:left;margin-right:4px;margin-top:2px;width:12px;height:12px;display:block;overflow:hidden;}',
+			'a.fmaxbox_reverse_directionality,a.fminbox_reverse_directionality{float:right;margin-left:4px;margin-top:2px;width:12px;height:12px;display:block;overflow:hidden;}',
+			'.fpad{padding-top:5px;padding-bottom:2px;padding-left:3%;padding-right:2%;width:92%;overflow:auto;}',
 		'</style>',
 		'<div id="outer">',
 			'<div id="resultlist">',
@@ -1089,15 +1101,13 @@ function writeMappletHTML() {
 			//	'<a href="http://www.desmoinesregister.com/apps/pbcs.dll/section?Category=caucus" target="_blank">Des Moines Register</a>',
 			//'</div>',
 			partyButtons,
-			'<div id="votesbar">',
-				'<div id="votestitle">',
-				'</div>',
-				'<div id="legend">',
-					'Loading&#8230;',
-				'</div>',
+			'<div id="votestitle">',
 			'</div>',
-			'<div id="videos" style="margin-top:8px;">',
+			'<div id="legend">',
+				'Loading&#8230;',
 			'</div>',
+			//'<div id="videos" style="margin-top:8px;">',
+			//'</div>',
 			'<div id="news" style="margin-top:6px;">',
 			'</div>',
 		'</div>'
@@ -1231,8 +1241,6 @@ var icons = {};
 //		event.marker = addEventMarker( event );
 //		//allEventData.push( event );
 //	});
-//	
-//	initMap();
 //}
 
 //function addEventMarker( event ) {
@@ -1248,100 +1256,116 @@ var icons = {};
 //}
 
 function onNewsReady( xml ) {
-	var videos = [];
+	var articles = [];
 	$('rss channel item',xml).each( function( i ) {
 		if( i > 4 ) return false;
-		var $item = $(this);
-		var $thumb = $('thumbnail',this);
-		videos.push({
+		//var $item = $(this);
+		//var $thumb = $('thumbnail',this);
+		var $more = $( $('description',this).text() );
+		$('a',$more).attr({ target:'_blank' });
+		var $lh = $('div.lh',$more);
+		var $link = $('a:first',$lh);
+		var source = $('font:first b',$lh).html();
+		$('a:first,font:first,br:lt(2)',$lh).remove();
+		articles.push({
 			link: $('link',this).text(),
 			//thumb: $thumb.attr('url'),
 			//width: +$thumb.attr('width') / 2,
 			//height: +$thumb.attr('height') / 2,
-			title: $('title:first',this).text()
+			title: $('b',$link).text(),
+			source: source,
+			more: $more.html()
 		});
 		return true;
 	});
 	
 	var html = [
 		'<h2 class="VideoHeading"><a href="http://news.google.com/?ned=us&topic=el">Campaign News</a></h2>',
-		videos.map( function( video ) {
+		articles.map( function( article ) {
 			return [
-				'<div class="Video">',
-					//'<a class="VideoLink" href="', video.link, '" target="_blank">',
-					//	'<img class="VideoThumb" src="', video.thumb, '" style="width:', video.width, 'px; height:', video.height, 'px; border:0;" />',
-					//'</a>',
-					'<a href="', video.link, '" target="_blank">',
-						'<div class="VideoTitle">',
-							video.title,
-						'</div>',
+				'<div class="uftl">',
+					'<a class="fmaxbox" href="javascript:void(0)">',
 					'</a>',
+					'<a href="', article.link, '" target="_blank">',
+						article.title,
+					'</a>',
+					'<br />',
+					'<font size="-1">',
+						article.source,
+					'</font>',
 				'</div>',
-				'<div class="VideoBorder">',
+				'<div class="fpad" style="display:none;">',
+					article.more,
 				'</div>'
 			].join('');
 		}).join(''),
 	].join('');
 	
-	$('#news').html( html );
-	
-	adjustHeight();
-}
-
-function onVideoReady( xml ) {
-	var videos = [];
-	$('rss channel item',xml).each( function( i ) {
-		if( i > 2 ) return false;
-		var $item = $(this);
-		var $thumb = $('thumbnail',this);
-		if( ! $thumb.length )
-			$thumb = $( this.getElementsByTagName( 'media:thumbnail' ) );
-		videos.push({
-			link: $('link',this).text(),
-			thumb: $thumb.attr('url'),
-			width: +$thumb.attr('width') / 2,
-			height: +$thumb.attr('height') / 2,
-			title: $('title:first',this).text()
-		});
+	$('#news').html( html ).click( function( event ) {
+		function update( clas, weight, action ) {
+			target.className = clas;
+			var $title = $(target).parent();
+			$title.css({ fontWeight:weight });
+			$title.next()[action]();
+			adjustHeight();
+			return false;
+		}
+		var target = event.target;
+		switch( target.className ) {
+			case 'fmaxbox':  return update( 'fminbox', 'bold', 'show' );
+			case 'fminbox':  return update( 'fmaxbox', 'normal', 'hide' );
+		}
 		return true;
-	});
-	
-	var html = [
-		'<h2 class="VideoHeading"><a href="http://www.youtube.com/profile_videos?user=iowacaucuses">Latest Videos</a></h2>',
-		videos.map( function( video ) {
-			var thumb = ! video.thumb ? '' : [
-				'<a class="VideoLink" href="', video.link, '" target="_blank">',
-					'<img class="VideoThumb" src="', video.thumb, '" style="width:', video.width, 'px; height:', video.height, 'px; border:0;" />',
-				'</a>'
-			].join('');
-			return [
-				'<div class="Video">',
-					thumb,
-					'<a href="', video.link, '" target="_blank">',
-						'<div class="VideoTitle">',
-							video.title,
-						'</div>',
-					'</a>',
-				'</div>',
-				'<div class="VideoBorder">',
-				'</div>'
-			].join('');
-		}).join(''),
-	].join('');
-	
-	$('#videos').html( html );
+  	});
 	
 	adjustHeight();
 }
 
-function initMap() {
-	//if( ! mapplet ) {
-	//	GEvent.addListener( map, 'mousemove', mousemoved/*.hover*/ );
-	//	//GEvent.addListener( map, 'mouseout', mousemoved.clear );
-	//}
-	
-	//setTimeout( function() { $('#clicknote').show( 'slow' ); }, 1000 );
-}
+//function onVideoReady( xml ) {
+//	var videos = [];
+//	$('rss channel item',xml).each( function( i ) {
+//		if( i > 2 ) return false;
+//		var $item = $(this);
+//		var $thumb = $('thumbnail',this);
+//		if( ! $thumb.length )
+//			$thumb = $( this.getElementsByTagName( 'media:thumbnail' ) );
+//		videos.push({
+//			link: $('link',this).text(),
+//			thumb: $thumb.attr('url'),
+//			width: +$thumb.attr('width') / 2,
+//			height: +$thumb.attr('height') / 2,
+//			title: $('title:first',this).text()
+//		});
+//		return true;
+//	});
+//	
+//	var html = [
+//		'<h2 class="VideoHeading"><a href="http://www.youtube.com/profile_videos?user=iowacaucuses">Latest Videos</a></h2>',
+//		videos.map( function( video ) {
+//			var thumb = ! video.thumb ? '' : [
+//				'<a class="VideoLink" href="', video.link, '" target="_blank">',
+//					'<img class="VideoThumb" src="', video.thumb, '" style="width:', video.width, 'px; height:', video.height, 'px; border:0;" />',
+//				'</a>'
+//			].join('');
+//			return [
+//				'<div class="Video">',
+//					thumb,
+//					'<a href="', video.link, '" target="_blank">',
+//						'<div class="VideoTitle">',
+//							video.title,
+//						'</div>',
+//					'</a>',
+//				'</div>',
+//				'<div class="VideoBorder">',
+//				'</div>'
+//			].join('');
+//		}).join(''),
+//	].join('');
+//	
+//	$('#videos').html( html );
+//	
+//	adjustHeight();
+//}
 
 function polyMethod( name, fn ) {
 	GPolygon.prototype[name] = GPolyline.prototype[name] = fn;
@@ -1928,7 +1952,7 @@ function showPins( state, party ) {
 		map.addOverlay( place.marker );
 	});
 	
-	initMap();
+	//initMap();
 }
 
 function createStateMarker( place, size ) {
