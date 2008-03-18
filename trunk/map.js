@@ -1044,7 +1044,7 @@ function writeMappletHTML() {
 			'.VideoThumb { float:left; margin-right:8px; }',
 			'.VideoBorder { clear:left; }',
 			'#votestitle { margin:12px 0 6px 0; padding:0; }',
-			'#votesattrib * { font-size:85%; }',
+			'.votesattrib * { font-size:85%; }',
 			'#legend table { xwidth:100%; }',
 			'#legend .legendboxtd { width:1%; }',
 			'#legend .legendnametd { xfont-size:24px; xwidth:18%; }',
@@ -1164,7 +1164,7 @@ function writeApiMapHTML() {
 			'#fullstate th.countyname, #fullstate td.countyname { text-align:left; font-weight:bold; }',
 			'.statewide * { font-weight: bold; }',
 			'#votestitle { margin:12px 0 3px 0; padding:0; }',
-			'#votesattrib * { font-size:85%; }',
+			'.votesattrib * { font-size:85%; }',
 			'#legend table { xwidth:100%; }',
 			'#legend .legendboxtd { width:7%; }',
 			'#legend .legendnametd { xfont-size:24px; xwidth:18%; }',
@@ -1737,7 +1737,8 @@ function showStateSidebar( state, party ) {
 					rows.join(''),
 				'</tbody>',
 			'</table>',
-			reporting
+			reporting,
+			attribution,
 		].join('');
 	}	
 	$('#legend').html( html );
@@ -2020,11 +2021,13 @@ function openInfo( place ) {
 }
 
 var attribution = S(
-	'<span>AP</span>',
-	'<span>/</span>',
-	'<a href="http://www.boston.com/" target="_blank">Boston&nbsp;Globe</a>',
-	'<br />',
-	'<a href="http://www.realclearpolitics.com/" target="_blank">RealClearPolitics</a>'
+	'<div class="votesattrib">',
+		'<span>AP</span>',
+		'<span> / </span>',
+		'<a href="http://www.boston.com/" target="_blank">Boston&nbsp;Globe</a>',
+		'<span> / </span>',
+		'<a href="http://www.realclearpolitics.com/" target="_blank">RealClearPolitics</a>',
+	'</div>'
 );
 
 
@@ -2036,17 +2039,9 @@ function load() {
 		setPartyButtons();
 		//map.clearOverlays();
 		$('#votestitle').html( [
-			'<table  cellspacing="0" style="width:100%;">',
-				'<tr>',
-					'<td style="text-align:left;">',
-						//'<b>', party.fullName, '</b>',
-						'<b>', party.shortName, ' results</b>',
-					'</td>',
-					'<td id="votesattrib" style="text-align:right;">',
-						attribution,
-					'</td>',
-				'</tr>',
-			'</table>',
+			'<div>',
+				'<b>', party.shortName, ' results</b>',
+			'</div>',
 			'<div>',
 				'Size of map pin reflects number of votes',
 			'</div>'
