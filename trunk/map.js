@@ -726,21 +726,21 @@ function adjustHeight() {
 		_IG_AdjustIFrameHeight();
 }
 
+function cacheUrl( url, cache, always ) {
+	if( opt.nocache  &&  ! always ) return url + '?q=' + new Date().getTime();
+	if( opt.nocache ) cache = 0;
+	if( typeof cache != 'number' ) cache = 120;
+	url = _IG_GetCachedUrl( url, { refreshInterval:cache } );
+	if( ! url.match(/^http:/) ) url = 'http://' + location.host + url;
+	return url;
+}
+
 function loadScript( url, cache ) {
 	var script = document.createElement( 'script' );
 	script.type = 'text/javascript';
 	script.charset = 'utf-8';
-	if( opt.nocache ) {
-		var seq = (new Date).getTime();
-		url +='?q=' + seq;
-	}
-	else {
-		if( cache == null ) cache = 120;
-		if( cache && mapplet )
-			url = _IG_GetCachedUrl( url, { refreshInterval:cache } );
-	}
-	//console.log( 'loadScript', url );
-	script.src = url;
+	script.src = cacheUrl( url );
+	//console.log( 'loadScript', script.src );
 	script.title = 'jsonresult';
 	$('head')[0].appendChild( script );
 }
@@ -1218,6 +1218,8 @@ var feed = {
 
 var map;
 
+opt.codeUrl = opt.codeUrl || 'http://primary-maps-2008.googlecode.com/svn/trunk/';
+opt.frameUrl = opt.frameUrl || opt.codeUrl;
 opt.dataUrl = opt.dataUrl || 'http://primary-maps-2008-data.googlecode.com/svn/trunk/';
 opt.state = opt.state || 'us';
 
@@ -2275,7 +2277,7 @@ function loadTiles( state, party ) {
 
 function placeBalloon( state, place ) {
 	var method = 'zoomToState';
-	var base = 'http://primary-maps-2008.googlecode.com/svn/trunk/infoframe.html';
+	var base = opt.frameUrl + 'infoframe.html';
 	var id = 'LinkFrameForMapplet';
 	if( place.type == 'state' ) {
 		var abbr = state.abbr.toLowerCase();
@@ -2287,10 +2289,7 @@ function placeBalloon( state, place ) {
 	}
 	
 	function makeUrl( type ) {
-		return 'http://gmodules.com' +
-		_IG_GetCachedUrl(
-			S( base, '?', type, '|', method, '|', abbr, '|', linktext.replace( / /g, '+' ) ),
-			{ refreshInterval:0 } );
+		return cacheUrl( S( base, '?', type, '|', method, '|', abbr, '|', linktext.replace( / /g, '+' ) ), null, true );
 	}
 	
 	function makeFrame( type, style ) {
@@ -2310,7 +2309,7 @@ function placeBalloon( state, place ) {
 	}
 	else {  // IE, Safari
 		var link = '';
-		var iframe =makeFrame( 'link', 'height:3.2em; width:20em;' );
+		var iframe = makeFrame( 'link', 'height:3.2em; width:20em;' );
 	}
 	
 	return [
