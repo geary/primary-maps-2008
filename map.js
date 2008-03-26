@@ -131,8 +131,7 @@ function join( array, delim ) {
 
 jQuery.fn.html = function( a ) {
 	if( a == null ) return this[0] && this[0].innerHTML;
-	if( typeof a != 'object' ) a = arguments;
-	return this.empty().append( join(a) );
+	return this.empty().append( join( typeof a == 'object' ? a : arguments ) );
 };
 
 // hoverize.js
