@@ -1923,44 +1923,6 @@ function showPins( state, party ) {
 			}
 		}
 		
-		//place.shapes.forEach( function( shape ) {
-		//	var points = shape.points;
-		//	var vertices = shape.vertices = [];
-		//	// Old fashioned loop for speed
-		//	for( var i = 0, n = points.length;  i < n;  ++i ) {
-		//		var point = points[i];
-		//		vertices.push( new GLatLng( point[1], point[0] ) );
-		//	}
-		//	
-		//	var border = '#000080';
-		//	shape.polygon = {
-		//		base: new GPolygon( vertices, border, 1, .5, place.color, place.opacity, { clickable:false } )
-		//	};
-		//	
-		//	//if( json ) {
-		//	//	shape.polygon = {
-		//	//		base:
-		//	//			opt.projector ? new GPolygon( vertices, border, 1, .5, color, .9 )  :
-		//	//			votes ? new GPolygon( vertices, border, 1, .5, color, .7 ) :
-		//	//			new GPolygon( vertices, border, 1, .5 ) //,
-		//	//		//select: new GPolygon( vertices, color2, 1, .75, color2, .15 )
-		//	//	};
-		//	//}
-		//	//else {
-		//	//	shape.polygon = {
-		//	//		base: new GPolygon( vertices, border, 1, .5, place.color, .8 )
-		//	//	};
-		//	//}
-		//	shape.polygon.base.$_place_$ = { parent:state, place:place };
-		//	map.addOverlay( shape.polygon.base );
-		//	//GEvent.addListener( shape.polygon.base, 'click', function() {
-		//	//	map.openInfoWindowHtml(
-		//	//		pointLatLng( shape.centroid ),
-		//	//		placeBalloon( place ),
-		//	//		{ maxWidth:300 } );
-		//	//});
-		//});
-		
 		var size = 20;
 		if( leader  &&  min < max ) {
 			var fraction = ( leader.votes - min ) / ( max - min ) * ( place.precincts.reporting / place.precincts.total );
@@ -1968,10 +1930,18 @@ function showPins( state, party ) {
 		}
 		
 		place.marker = createStateMarker( place, size );
-		map.addOverlay( place.marker );
 	});
 	
-	//initMap();
+	setTimeout( function() {
+		places.forEach( function( place ) {
+			map.addOverlay( place.marker );
+		});
+		setTimeout( function() {
+			places.forEach( function( place ) {
+				bindStateMarker( place );
+			});
+		}, 100 );
+	}, 100 );
 }
 
 function createStateMarker( place, size ) {
@@ -1981,10 +1951,14 @@ function createStateMarker( place, size ) {
 		icon: icon,
 		title: 'Click for ' + localityName( state, place ) + ' results'
 	});
-	GEvent.addListener( marker, 'click', function() {
-		marker.openInfoWindowHtml( placeBalloon(state,place), { maxWidth:300, disableGoogleLinks:true } );
-	});
 	return marker;
+}
+
+function bindStateMarker( place ) {
+	var state = stateByAbbr(place.state);
+	GEvent.addListener( place.marker, 'click', function() {
+		place.marker.openInfoWindowHtml( placeBalloon(state,place), { maxWidth:300, disableGoogleLinks:true } );
+	});
 }
 
 function makeIcons() {
