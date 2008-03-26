@@ -86,6 +86,10 @@ if( ! Array.prototype.map ) {
 	};
 }
 
+Array.prototype.mapjoin = function( fun, delim ) {
+	return this.map( fun ).join( delim || '' );
+};
+
 if( ! Array.prototype.index ) {
 	Array.prototype.index = function( field ) {
 		this.by = {};
@@ -119,6 +123,16 @@ String.prototype.words = function( fun ) {
 
 function S() {
 	return Array.prototype.join.call( arguments, '' );
+}
+
+function join( array, delim ) {
+	return Array.prototype.join.call( array, delim || '' );
+}
+
+jQuery.fn.html = function( a ) {
+	if( a == null ) return this[0] && this[0].innerHTML;
+	if( typeof a != 'object' ) a = arguments;
+	return this.empty().append( join(a) );
 };
 
 // hoverize.js
@@ -899,19 +913,19 @@ var partyButtons = '<div id="partyButtons"></div>';
 function setPartyButtons() {
 	if( ! opt.partySelector ) return;
 	$('#partyButtons').html(
-		curParty.name == 'dem' ? S(
+		curParty.name == 'dem' ? [
 			'<div style="margin-top:8px;">',
 				'<b>Democratic</b>',
 				'<a href="#" style="margin-left:8px;" id="btnRep">Republican</a>',
 				'<button style="margin-left:8px;" id="btnReload">Refresh</button>',
 			'</div>'
-		) : S(
+		] : [
 			'<div style="margin-top:8px;">',
 				'<a href="#" style="margin-right:8px;" id="btnDem">Democratic</a>',
 				'<b>Republican</b>',
 				'<button style="margin-left:8px;" id="btnReload">Refresh</button>',
 			'</div>'
-		)
+		]
 	);
 	
 	$('#btnDem').click( function() {
@@ -972,13 +986,13 @@ function fmtDate( date ) {
 				'<select id="stateSelector">',
 					option( 'us', 'Entire USA' ),
 					option( 'ms', 'March 11 Primary', 'color:#AAA; font-style:italic; font-weight:bold;' ),
-					hotStates.map( function( abbr ) {
+					hotStates.mapjoin( function( abbr ) {
 						return stateOption( statesByAbbr[abbr], false );
-					}).join(''),
+					}),
 					option( '', 'All States', 'color:#AAA; font-style:italic; font-weight:bold;' ),
-					states.map( function( state ) {
+					states.mapjoin( function( state ) {
 						return /*hotStates.by[state.abbr] ? '' :*/ stateOption( state, true );
-					}).join(''),
+					}),
 				'</select>',
 			'</div>',
 		'</div>'
@@ -1281,10 +1295,14 @@ function onNewsReady( xml ) {
 		return true;
 	});
 	
-	var html = [
-		'<h2 class="VideoHeading"><a href="http://news.google.com/?ned=us&topic=el">Campaign News</a></h2>',
-		articles.map( function( article ) {
-			return [
+	$('#news').html(
+		'<h2 class="VideoHeading">',
+			'<a href="http://news.google.com/?ned=us&topic=el">',
+				'Campaign News',
+			'</a>',
+		'</h2>',
+		articles.mapjoin( function( article ) {
+			return S(
 				'<div class="uftl">',
 					'<a class="fmaxbox" href="javascript:void(0)">',
 					'</a>',
@@ -1299,11 +1317,9 @@ function onNewsReady( xml ) {
 				'<div class="fpad" style="display:none;">',
 					article.more,
 				'</div>'
-			].join('');
-		}).join(''),
-	].join('');
-	
-	$('#news').html( html ).click( function( event ) {
+			);
+		})
+	).click( function( event ) {
 		function update( clas, weight, action ) {
 			target.className = clas;
 			var $title = $(target).parent();
@@ -1341,15 +1357,15 @@ function onNewsReady( xml ) {
 //		return true;
 //	});
 //	
-//	var html = [
+//	var html = S(
 //		'<h2 class="VideoHeading"><a href="http://www.youtube.com/profile_videos?user=iowacaucuses">Latest Videos</a></h2>',
-//		videos.map( function( video ) {
-//			var thumb = ! video.thumb ? '' : [
+//		videos.mapjoin( function( video ) {
+//			var thumb = ! video.thumb ? '' : S(
 //				'<a class="VideoLink" href="', video.link, '" target="_blank">',
 //					'<img class="VideoThumb" src="', video.thumb, '" style="width:', video.width, 'px; height:', video.height, 'px; border:0;" />',
 //				'</a>'
-//			].join('');
-//			return [
+//			);
+//			return S(
 //				'<div class="Video">',
 //					thumb,
 //					'<a href="', video.link, '" target="_blank">',
@@ -1360,9 +1376,9 @@ function onNewsReady( xml ) {
 //				'</div>',
 //				'<div class="VideoBorder">',
 //				'</div>'
-//			].join('');
-//		}).join(''),
-//	].join('');
+//			);
+//		})
+//	);
 //	
 //	$('#videos').html( html );
 //	
@@ -1475,28 +1491,28 @@ function pointLatLng( point ) {
 
 function formatEvent( event ) {
 	var href = event.eventdetailslink;
-	var link = ! href ? '' : [
+	var link = ! href ? '' : S(
 		'<div style="margin-top:6px;">',
 			'<a href="', event.eventdetailslink, '" target="_blank">Event details&#8230;</a>',
 		'</div>'
-	].join('');
+	);
 	var names = event.candnamelist.replace( /,+$/, '' ).replace( /, /, ',' ).replace( /,/, ', ' ).trim();
 
-	var who = ! names ? '' : [
+	var who = ! names ? '' : S(
 		'<tr>',
 			'<td><b>Candidate:&nbsp;</b></td>',
 			'<td>', candidateIcons(names,'width:16; height:16; float:left; margin:2px 4px 2px 2px;'), names, '</td>',
 		'</tr>'
-	].join('');
+	);
 	
-	var where = event.venuename == event.venuecity ? '' : [
+	var where = event.venuename == event.venuecity ? '' : S(
 		'<tr>',
 			'<td><b>Where:&nbsp;</b></td>',
 			'<td>', event.venuename, '</td>',
 		'</tr>'
-	].join('');
+	);
 
-	return [
+	return S(
 		'<div style="margin-top:8px;">',
 			'<div style="font-size: 120%; font-weight: bold; margin-bottom:6px;">', event.eventtitle, '</div>',
 			'<table>',
@@ -1513,7 +1529,7 @@ function formatEvent( event ) {
 			'</table>',
 			link,
 		'</div>'
-	].join('');
+	);
 }
 
 /*
@@ -1655,7 +1671,7 @@ function showStateProjector( json, party ) {
 			'<div style="clear:both;>',
 			'</div>',
 		'</div>'
-	].join('');
+	];
 	
 	$('#legend').html( html );
 	
@@ -1664,7 +1680,7 @@ function showStateProjector( json, party ) {
 		for( var i = start;  i <= end;  ++i ) {
 			var candidate = candidates[party][i];
 			var tally = tallies.by.name[candidate.name];
-			cols.push( [
+			cols.push(
 				'<td class="legendboxtd">',
 					'<div class="legendbox" style="border:1px solid #888888; background-color:', candidate.color, ';">',
 						'&nbsp;',
@@ -1680,14 +1696,14 @@ function showStateProjector( json, party ) {
 					'<div class="legendclear">',
 					'</div>',
 				'</td>'
-			].join('') );
+			);
 		}
 		
-		rows.push( [
+		rows.push(
 			'<tr>',
 				cols.join(''),
 			'</tr>'
-		].join('') );
+		);
 	}
 }
 
@@ -1740,9 +1756,9 @@ function showStateSidebar( state, party ) {
 				'</tbody>',
 			'</table>',
 			reporting,
-			attribution,
-		].join('');
-	}	
+			attribution
+		];
+	}
 	$('#legend').html( html );
 	adjustHeight();
 	
@@ -1760,7 +1776,7 @@ function showStateSidebar( state, party ) {
 				'</div>'
 			);
 			if( ! tally.votes ) return;
-			rows.push( S(
+			rows.push(
 				'<tr>',
 					'<td class="legendvotestd">',
 						'<div class="legendvotes">',
@@ -1786,7 +1802,7 @@ function showStateSidebar( state, party ) {
 						'</div>',
 					'</td>',
 				'</tr>'
-			) );
+			);
 		});
 	}
 }
@@ -1809,23 +1825,23 @@ function showStateTable( json, party ) {
 		'<div class="legendreporting">',
 			precincts.reporting, ' of ', precincts.total, ' precincts reporting',
 		'</div>'
-	].join('');
+	];
 	
 	$('#fullstate').html( html );
 	
 	function header() {
-		return [
+		return S(
 			'<th class="countyname"></th>',
-			cands.map( function( candidate ) {
-				return [ '<th>', candidate.lastName, '</th>' ].join('');
-			}).join(''),
-		].join('');
+			cands.mapjoin( function( candidate ) {
+				return S( '<th>', candidate.lastName, '</th>' );
+			})
+		);
 	}
 	
 	function countyRows() {
-		return counties.map( function( county ) {
+		return counties.mapjoin( function( county ) {
 			return row( county );
-		}).join('');
+		});
 	}
 	
 	function stateRow() {
@@ -1836,15 +1852,15 @@ function showStateTable( json, party ) {
 		var tallies = ( county ? json.counties[county.name] : json.state )[party];
 		if( ! tallies ) return '';
 		tallies.index('name');
-		return [
+		return S(
 			'<tr class="', clas, '">',
 				'<td class="countyname">', name || county.name, '</td>',
-				cands.map( function( candidate ) {
+				cands.mapjoin( function( candidate ) {
 					var tally = tallies.by.name[candidate.name] || { votes:0 };
-					return [ '<td>', formatNumber(tally.votes), '</td>' ].join('');
-				}).join(''),
+					return S( '<td>', formatNumber(tally.votes), '</td>' );
+				}),
 			'</tr>'
-		].join('');
+		);
 	}
 }
 
@@ -2040,22 +2056,22 @@ function load() {
 		else party = curParty;
 		setPartyButtons();
 		//map.clearOverlays();
-		$('#votestitle').html( [
+		$('#votestitle').html(
 			'<div>',
 				'<b>', party.shortName, ' results</b>',
 			'</div>',
 			'<div>',
 				'Size of map pin reflects number of votes',
 			'</div>'
-		].join('') );
-		//$('#votestitle').html( S(
+		);
+		//$('#votestitle').html(
 		//	'<div>',
 		//		'<b>', primaryTitle( stateByAbbr(opt.state), party ), '</b>',
 		//	'</div>',
 		//	'<div id="votesattrib" style="text-align:right;">',
 		//		attribution,
 		//	'</div>'
-		//) );
+		//);
 		$('#legend').html( 'Loading&#8230;' );
 		setStateByAbbr( opt.state );
 		//loadVotes( opt.state );
@@ -2220,7 +2236,7 @@ function loadState() {
 
 //function loadVotes() {
 //	return;
-//		//loadScript( [ opt.dataUrl, 'elections/2008/primary/states/', opt.state, '/results_', party.name, '.js' ].join('') );
+//		//loadScript( S( opt.dataUrl, 'elections/2008/primary/states/', opt.state, '/results_', party.name, '.js' ) );
 //		
 //	var contentBase = window.contentBase || 'http://primary-maps-2008-data.googlecode.com/svn/trunk/miniresults/';
 //
@@ -2312,7 +2328,7 @@ function placeBalloon( state, place ) {
 		var iframe = makeFrame( 'link', 'height:3.2em; width:20em;' );
 	}
 	
-	return [
+	return S(
 		'<div style="font-size:10pt;">',
 			placeTable( state, place, true ),
 			'<div style="margin-top:10px;">',
@@ -2320,7 +2336,7 @@ function placeBalloon( state, place ) {
 				iframe,
 			'</div>',
 		'</div>'
-	].join('');
+	);
 }
 
 function localityName( state, place ) {
@@ -2392,7 +2408,7 @@ function placeTable( state, place, balloon ) {
 		tallies.forEach( function( tally, i ) {
 			if( i >= 3 ) return;
 			var candidate = candidates.all.by.name[tally.name];
-			lines.push( [
+			lines.push(
 				'<tr>',
 					'<td style="width:1%;">',
 						'<div class="legendbox">',
@@ -2419,20 +2435,20 @@ function placeTable( state, place, balloon ) {
 					//	'<img class="favicon" src="', imgUrl(tally.name), '" />',
 					//'</td>',
 				'</tr>'
-			].join('') );
+			);
 		});
 	}
 	//else if( ! county.precincts ) {
 	//	//lines.push( '<tr><td>' + county.name + ' residents vote in a nearby town.</td></tr>' );
 	//}
 	
-	//var wikilink = ! balloon ? '' : [
+	//var wikilink = ! balloon ? '' : S(
 	//	'<a href="http://en.wikipedia.org/wiki/',
 	//			countyName(county).replace( / /g, '_' ),
 	//			'" target="_blank">',
 	//		'County information',
 	//	'</a>'
-	//].join('');
+	//);
 	
 	return ! total ? none : S(
 		header,
@@ -2478,11 +2494,11 @@ function showRegionNews( region ) {
 	if( ! region ) {
 		$('#news')
 			.css({ backgroundColor:'inherit' })
-			.html( [
+			.html(
 				'<h2 class="NewsHeading">',
 					mapplet ? 'Click the map for regional news' : 'Rest the mouse over the map for regional news',
 				'</h2>'
-			].join('') );
+			);
 		return;
 	}
 	
@@ -2490,24 +2506,24 @@ function showRegionNews( region ) {
 	
 	var list = [];
 	news && news.forEach( function( item ) {
-		list.push( [
+		list.push(
 			'<div class="NewsItem">',
 				candidateIcons( item.title ),
 				'<a href="', item.link, '" target="_blank">', item.title, '</a>',
 			'</div>'
-		].join('') );
+		);
 	});
 	
 	$('#news')
 		.css({ backgroundColor:region.solid })
-		.html( [
+		.html(
 			'<h2 class="NewsHeading">',
 				region.caption, ' Iowa News',
 			'</h2>',
 			'<div class="NewsList">',
 				list.join(''),
 			'</div>'
-		].join('') );
+		);
 	
 	adjustHeight();
 }
@@ -2519,15 +2535,13 @@ function imgUrl( name ) {
 
 function candidateIcons( text, style ) {
 	var names = text.toLowerCase().match(reCandidates) || [ 'generic' ];
-	var icons = names.map( function( name ) {
-		return [
+	return names.mapjoin( function( name ) {
+		return S(
 			'<img ',
 				style != null ? 'style="' + style + '"' : 'class="favicon"',
 				' src="', imgUrl(name), '" />'
-		].join('');
+		);
 	});
-	
-	return icons.join('');
 }
 
 function download( url, ready ) {
