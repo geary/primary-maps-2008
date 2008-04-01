@@ -330,14 +330,6 @@ function fmtDate( date ) {
 	return shortMonths[ d[0] - 1 ] + ' ' + (+d[1]);
 }
 
-function feedDate( text ) {
-	var match = text.match(/^When: \w{3} (\w{3}) (\d{1,2}), (\d{4}) (\d{1,2}):(\d{2})/);
-	if( ! match ) return null;
-	var month = shortMonths.by[ match[1] ];
-	if( month == null ) return null;
-	return new Date( +match[3], month, +match[2], +match[4], +match[5] );
-}
-
 if( mapplet ) writeMappletHTML();
 else writeApiMapHTML();
 
@@ -394,7 +386,7 @@ function writeMappletHTML() {
 			'</div>',
 			'<div id="votestitle">',
 			'</div>',
-			'<div id="legend">',
+			'<div id="eventlist">',
 				'Loading&#8230;',
 			'</div>',
 			//'<div id="videos" style="margin-top:8px;">',
@@ -421,7 +413,7 @@ function writeApiMapHTML() {
 	//		'<div id="votestitle">',
 	//		'</div>',
 	//		//'<div style="font-weight:bold;">Statewide Results</div>',
-	//		'<div id="legend">',
+	//		'<div id="eventlist">',
 	//			'Loading&#8230;',
 	//		'</div>',
 	//		'<div id="results">',
@@ -754,12 +746,14 @@ function getCandidateCalendars() {
 	});
 	fetchMultiXml( urls, function( feeds ) {
 		var events = feedEvents( feeds );
+		$('#eventlist').html( listEvents( events ) );
+		adjustHeight();
 		markEvents( events );
 	});
 }
 
 function feedEvents( feeds ) {
-	var events = [];
+	events = [];
 	feeds.forEach( function( feed, i ) {
 		$('feed>entry',feed).each( function() {
 			var lat = $('extendedProperty[name=NYTlatitude]',this).attr('value');
@@ -769,48 +763,84 @@ function feedEvents( feeds ) {
 			var date = feedDate( summary );
 			if( ! date ) return;
 			//var midnight = new Date().setHours( 0, 0, 0, 0 );
-			//if( date.getTime() < midnight ) return;
-			events.push({
+			//if( date < midnight ) return;
+			var event = {
 				id: $('id',this).text(),
 				candidate: candidates[i],
 				latlng: new GLatLng( +lat, +lng ),
 				date: date,
+				dateText: summary.match(/^When: (\w{3} \w{3} \d{1,2}, \d{4} \d{1,2}:\d{2}(am|pm)?( to \d{1,2}:\d{2}(am|pm)?))/)[1],
 				title: $('title',this).text(),
 				cal: $('link[rel=alternate]',this).attr('href'),
 				summary: summary,
 				content: $('content',this).text()
-			});
+			};
+			event.balloon = eventBalloon( event );
+			events.push( event );
 		});
 	});
-	return Object.sort( events, 'date', true );
+	return events = Object.sort( events, 'date', true ).index('id').reverse();
+}
+
+function feedDate( text ) {
+	var match = text.match(/^When: \w{3} (\w{3}) (\d{1,2}), (\d{4}) (\d{1,2}):(\d{2})(am|pm)?/);
+	if( ! match ) return null;
+	var month = shortMonths.by[ match[1] ];
+	if( month == null ) return null;
+	var hour = +match[4] + ( match[6] == 'pm' ? 12 : 0 );
+	return new Date( +match[3], month, +match[2], hour, +match[5] ).getTime();
 }
 
 function markEvents( events ) {
 	events.forEach( function( event ) {
 		event.marker = new GMarker( event.latlng, {
 			icon: event.candidate.gicon,
-			title: S( event.title, ' - ', event.summary.match(/^When: (\w{3} \w{3} \d{1,2}, \d{4} \d{1,2}:\d{2})/)[1] )
+			title: S( event.title, ' - ', event.dateText )
 		});
 		map.addOverlay( event.marker );
 	});
 	setTimeout( function() {
 		events.forEach( function( event ) {
-			event.marker.bindInfoWindow( eventBalloon(event), { /*maxWidth:500,*/ disableGoogleLinks:true } );
+			event.marker.bindInfoWindow( event.balloon, { /*maxWidth:500,*/ disableGoogleLinks:true } );
 		});
-	}, 100 );
+	}, 250 );
+}
+
+openEvent = function( id ) {
+	var event = events.by.id[id];
+	if( event )
+		event.marker.openInfoWindow( event.balloon, { /*maxWidth:500,*/ disableGoogleLinks:true } );
+}
+
+function listEvents( events ) {
+	return S(
+		events.mapjoin( function( event ) {
+			return S(
+				'<div style="cursor:pointer;" onclick="openEvent(\'', event.id, '\')">',
+					'<div>',
+						'<img style="vertical-align:middle; border:0; margin-right:4px; width:18px; height:18px;" src="', event.candidate.iconUrl, '" />',
+						'<span style="vertical-align:middle; font-size:11pt; font-weight:bold;">',
+							event.title,
+						'</span>',
+					'</div>',
+					'<div style="margin-bottom:6px;">',
+						event.dateText,
+					'</div>',
+				'</div>'
+			);
+		})
+	);
 }
 
 function eventBalloon( event ) {
 	return S(
-		'<div style="float:left;">',
-			'<img style="border:0; margin:4px 8px 0 0; width:18px; height:18px;" src="', event.candidate.iconUrl, '" />',
+		'<div>',
+			'<img style="vertical-align:middle; border:0; margin-right:4px; width:18px; height:18px;" src="', event.candidate.iconUrl, '" />',
+			'<span style="vertical-align:middle; font-size:11pt; font-weight:bold;">',
+				event.title,
+			'</span>',
 		'</div>',
-		'<div style="font-size:12pt; font-weight:bold;">',
-			event.title,
-		'</div>',
-		'<div style="clear:left;">',
-		'</div>',
-		'<div style="font-size:10pt;">',
+		'<div style="margin-top:12px; font-size:10pt;">',
 			event.content,
 		'</div>'
 	);
