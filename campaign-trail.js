@@ -547,8 +547,8 @@ function feedEvents( feeds ) {
 				id: $('id',this).text(),
 				candidate: candidates[i],
 				latlng: new GLatLng( +lat, +lng ),
-				date: date,
-				dateText: summary.match(/^When: (\w{3} \w{3} \d{1,2}, \d{4} \d{1,2}:\d{2}(am|pm)?( to \d{1,2}:\d{2}(am|pm)?))/)[1],
+				date: date.date,
+				dateText:date.text,
 				title: $('title',this).text(),
 				cal: $('link[rel=alternate]',this).attr('href'),
 				summary: summary,
@@ -561,13 +561,22 @@ function feedEvents( feeds ) {
 	return events = Object.sort( events, 'date', true ).index('id').reverse();
 }
 
+// When: Fri Mar 14, 2008 7pm to 8:30pm&nbsp;...
+// When: Fri Mar 14, 2008 7:00pm to 8:00pm&nbsp;...
+// When: Fri Mar 14, 2008 19:00 to 20:00&nbsp;...
+// When: Fri Mar 14, 2008 19:00 to Fri Mar 14, 2008 20:00&nbsp;...
+
 function feedDate( text ) {
-	var match = text.match(/^When: \w{3} (\w{3}) (\d{1,2}), (\d{4}) (\d{1,2}):(\d{2})(am|pm)?/);
+	var match = text.match(
+		/^When: (\w{3} (\w{3}) (\d{1,2}), (\d{4}) (\d{1,2})(:(\d{2}))? ?(am|pm)?( to (\w{3} \w{3} \d{1,2}, \d{4} )?(\d{1,2})(:(\d{2}))? ?(am|pm)?))/ );
 	if( ! match ) return null;
-	var month = shortMonths.by[ match[1] ];
+	var month = shortMonths.by[ match[2] ];
 	if( month == null ) return null;
-	var hour = +match[4] + ( match[6] == 'pm' ? 12 : 0 );
-	return new Date( +match[3], month, +match[2], hour, +match[5] ).getTime();
+	var hour = +match[5] + ( match[8] == 'pm' ? 12 : 0 );
+	return {
+		date: new Date( +match[4], month, +match[3], hour, +match[7] ).getTime(),
+		text: match[1]
+	};
 }
 
 function markEvents( events ) {
