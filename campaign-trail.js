@@ -570,13 +570,22 @@ function feedEvents( feeds ) {
 function feedDate( text ) {
 	function num( i ) { return +( match[i] || 0 ); }
 	var match = text.match(
-		/^When: (\w{3} (\w{3}) (\d{1,2}), (\d{4})( (\d{1,2})(:(\d{2}))? ?(am|pm)?( to (\w{3} \w{3} \d{1,2}, \d{4} )?(\d{1,2})(:(\d{2}))? ?(am|pm)?))?)/ );
+		/^When: *(((\d{4})-(\d{1,2})-(\d{1,2})|\w{3} +(\w{3}) +(\d{1,2}), +(\d{4}))( +(\d{1,2})(:(\d{2}))? ?(am|pm)?( +to +(\w{3} +\w{3} +\d{1,2}, +\d{4} +)?(\d{1,2})(:(\d{2}))? ?(am|pm)?))?)/ );
 	if( ! match ) return badDate( text );
-	var month = shortMonths.by[ match[2] ];
-	if( month == null ) return badDate( text );
-	var hour = num(6) + ( match[9] == 'pm' ? 12 : 0 );
+	var year = num(3), month, day, hour, minute;
+	if( year ) {
+		month = num(4);
+		day = num(5);
+	}
+	else {
+		month = shortMonths.by[ match[6] ];
+		if( month == null ) return badDate( text );
+		day = num(7);
+	}
+	hour = num(10) + ( match[13] == 'pm' ? 12 : 0 );
+	minute = num(12);
 	return {
-		date: new Date( num(4), month, num(3), hour, num(8) ).getTime(),
+		date: new Date( year, month, day, hour, minute ).getTime(),
 		text: match[1],
 		match: match
 	};
