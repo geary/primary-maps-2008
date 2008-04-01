@@ -561,22 +561,29 @@ function feedEvents( feeds ) {
 	return events = Object.sort( events, 'date', true ).index('id').reverse();
 }
 
+// When: Fri Mar 14, 2008<br>...
 // When: Fri Mar 14, 2008 7pm to 8:30pm&nbsp;...
 // When: Fri Mar 14, 2008 7:00pm to 8:00pm&nbsp;...
 // When: Fri Mar 14, 2008 19:00 to 20:00&nbsp;...
 // When: Fri Mar 14, 2008 19:00 to Fri Mar 14, 2008 20:00&nbsp;...
 
 function feedDate( text ) {
+	function num( i ) { return +( match[i] || 0 ); }
 	var match = text.match(
-		/^When: (\w{3} (\w{3}) (\d{1,2}), (\d{4}) (\d{1,2})(:(\d{2}))? ?(am|pm)?( to (\w{3} \w{3} \d{1,2}, \d{4} )?(\d{1,2})(:(\d{2}))? ?(am|pm)?))/ );
-	if( ! match ) return null;
+		/^When: (\w{3} (\w{3}) (\d{1,2}), (\d{4})( (\d{1,2})(:(\d{2}))? ?(am|pm)?( to (\w{3} \w{3} \d{1,2}, \d{4} )?(\d{1,2})(:(\d{2}))? ?(am|pm)?))?)/ );
+	if( ! match ) return badDate( text );
 	var month = shortMonths.by[ match[2] ];
-	if( month == null ) return null;
-	var hour = +match[5] + ( match[8] == 'pm' ? 12 : 0 );
+	if( month == null ) return badDate( text );
+	var hour = num(6) + ( match[9] == 'pm' ? 12 : 0 );
 	return {
-		date: new Date( +match[4], month, +match[3], hour, +match[7] ).getTime(),
-		text: match[1]
+		date: new Date( num(4), month, num(3), hour, num(8) ).getTime(),
+		text: match[1],
+		match: match
 	};
+}
+
+function badDate( text ) {
+	window.console && console.log && console.log( 'Bad date:', text );
 }
 
 function markEvents( events ) {
@@ -607,7 +614,7 @@ function listEvents( events ) {
 				'<div style="cursor:pointer;" onclick="openEvent(\'', event.id, '\')">',
 					'<div>',
 						'<img style="vertical-align:middle; border:0; margin-right:4px; width:18px; height:18px;" src="', event.candidate.iconUrl, '" />',
-						'<span style="vertical-align:middle; font-size:11pt; font-weight:bold;">',
+						'<span style="vertical-align:middle; font-weight:bold;">',
 							event.title,
 						'</span>',
 					'</div>',
