@@ -30,8 +30,10 @@ def formatNumber( number ):
 
 def json( obj ):
 	if 0:
+		# Pretty print
 		json = sj.dumps( obj, indent=4 )
 	else:
+		# Use compact format, but add some newlines in the hope of using less space for svn revisions
 		json = sj.dumps( obj, separators=( ',', ':' ) )
 		json = re.sub( '\],"', '],\n"', json )
 		json = re.sub( ':\[{', ':[\n{', json )
@@ -127,7 +129,8 @@ def setVotes( entity, header, row ):
 		p = entity['parties'][party]
 		if 'precincts' not in p: p['precincts'] = getPrecincts( row )
 		if 'votes' not in p: p['votes'] = {}
-		p['votes'][name] = int(row[col])
+		votes = int(row[col])
+		if votes: p['votes'][name] = votes
 
 def percentage( n ):
 	pct = int( round( 100.0 * float(n) ) )
@@ -150,6 +153,29 @@ def sortVotes( party ):
 	party['votes'] = tally
 	if 'delegatehtml' in party: del party['delegatehtml']
 	if 'delegatelist' in party: del party['delegatelist']
+
+#def setPins( locals ):
+#	least = most = None
+#	for local in locals.itervalues():
+#		votes = local['votes']
+#		if len(votes):
+#			n = votes[0]['votes']
+#			if n:
+#				if least == None or n < least: least = n
+#				if most == None or n > most: most = n
+#	for local in locals.itervalues():
+#		local['pinsize'] = 24
+#		votes = local['votes']
+#		if len(votes) and least and most:
+#			n = votes[0]['votes']
+#			if most == 1:
+#					if n == 1:
+#						local['pinsize'] = 40
+#			else:
+#				precincts = local['precincts']
+#				reporting = float(precincts['reporting']) / float(precincts['total'])
+#				fraction = float( n - least ) / float( most - least ) * reporting
+#				local['pinsize'] = int( 24 + fraction * 16 )
 
 def cleanNum( n ):
 	return int( re.sub( '[^0-9]', '', n ) or 0 )
@@ -221,6 +247,7 @@ def makeJson( party ):
 				countytotal += vote['votes']
 			countyparty['total'] = countytotal
 			countyvotes[countyname] = countyparty
+		#setPins( countyvotes )
 		write(
 			'%s/%s_%s.js' %( votespath, state['abbr'].lower(), party ),
 			'GoogleElectionMap.votesReady(%s)' % json({
@@ -232,6 +259,7 @@ def makeJson( party ):
 					'locals': countyvotes
 			}) )
 	sortVotes( usparty )
+	#setPins( statevotes )
 	write(
 		'%s/%s_%s.js' %( votespath, 'us', party ),
 		'GoogleElectionMap.votesReady(%s)' % json({
