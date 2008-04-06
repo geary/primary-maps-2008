@@ -109,7 +109,7 @@ def generate( state, zoom ):
 	else:
 		cropcmd = ''
 	blank = magick.blank( gridsize )
-	base = '%s/%s/tile-%d' %( tilespath, state, zoom )
+	base = '%s/%s/%s-%d' %( tilespath, state, state, zoom )
 	command = ( '%s -draw "@%s" %s ' + base + '.png' )%( blank, cmdfile, cropcmd )
 	#command = ( '%s -draw "@draw.cmd" %s -depth 8 -type Palette -floodfill 0x0 white -background white -transparent-color white ' + base + '.png' )%( blank, cropcmd )
 	#command = ( 'null: -resize %dx%d! -floodfill 0x0 white -draw "@draw.cmd" %s -depth 8 -type Palette -background white -transparent white -transparent-color white ' + base + '.png' )%( gridsize[0], gridsize[1], cropcmd )
@@ -164,7 +164,7 @@ def drawPlaces( draw, places ):
 	for place in places:
 		placename = place['name']
 		color = randomGray()
-		opacity = .15
+		opacity = .12
 		alpha = '%02X' % int( opacity * 255.0 )
 		for shape in place['shapes']:
 			nPolys += 1
@@ -180,7 +180,7 @@ polygon''' %( color, alpha )
 				draw += ' %d,%d' %( point[0] - scaleoffset[0], point[1] - scaleoffset[1] )
 	print '%d points in %d polygons' %( nPoints, nPolys )
 
-for z in xrange(0,5):
+for z in xrange(0,6):
 	generate( 'us', z )
 	
 for z in xrange(5,9):
