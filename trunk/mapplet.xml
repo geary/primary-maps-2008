@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8" ?>
+<?xml version="1.0" encoding="UTF-8"?>
 <Module>
 <ModulePrefs
 	title="Election Map from Google"
@@ -10,9 +10,14 @@
 >
 	<Require feature="sharedmap"/>
 	<Require feature="dynamic-height"/>
+	<Require feature="settitle"/>
 </ModulePrefs>
 <Content type="html">
 <![CDATA[
+
+<script type="text/javascript">
+	_IG_SetTitle( 'US Primary Results' );
+</script>
 
 <script type="text/javascript">
 /*
