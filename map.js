@@ -131,7 +131,7 @@ function join( array, delim ) {
 
 jQuery.fn.html = function( a ) {
 	if( a == null ) return this[0] && this[0].innerHTML;
-	return this.empty().append( join( typeof a == 'object' ? a : arguments ) );
+	return this.empty().append( join( a.charAt ? arguments : a ) );
 };
 
 // hoverize.js
@@ -280,8 +280,8 @@ opt.tileUrl = opt.tileUrl || 'http://gmodules.com/ig/proxy?max_age=3600&url=http
 var imgBaseUrl = 'http://gmaps-samples.googlecode.com/svn/trunk/elections/2008/images/icons/';
 
 var parties = [
-	{ name: 'dem', shortName: 'Democratic', fullName: 'Democratic Party', url:'http://www.iowademocrats.org/' },
-	{ name: 'gop', shortName: 'Republican', fullName: 'Republican Party', url:'http://www.iowagop.net/' }
+	{ name: 'dem', shortName: 'Democratic', fullName: 'Democratic Party' },
+	{ name: 'gop', shortName: 'Republican', fullName: 'Republican Party' }
 ].index('name');
 
 var q = opt.party || location.search.slice(1);
