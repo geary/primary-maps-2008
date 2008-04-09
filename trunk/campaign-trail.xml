@@ -16,9 +16,7 @@
 
 <script type="text/javascript">
 	_IG_SetTitle( '2008 Campaign Trail' );
-</script>
-
-<script type="text/javascript">
+	
 	GoogleElectionMapOptions = {
 		mapplet: true,
 		_: null
