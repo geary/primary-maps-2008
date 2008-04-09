@@ -190,6 +190,7 @@ var mapplet = opt.mapplet;
 if( opt.gadget ) {
 	var p = new _IG_Prefs();
 	opt.sidebarWidth = p.getInt('sidebarwidth');
+	opt.zoom = p.getInt('zoom');
 	opt.mapWidth = window.innerWidth - opt.sidebarWidth;
 	opt.mapHeight = window.innerHeight;
 	if( window.innerWidth < 500 ) {
