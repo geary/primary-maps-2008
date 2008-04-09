@@ -209,7 +209,7 @@ opt.mapHeight = ( '' + opt.mapHeight ).replace( /px$/, '' );
 
 opt.imgUrl = opt.imgUrl || 'http://primary-maps-2008.googlecode.com/svn/trunk/images/';
 
-opt.gadgetXML = opt.gadgetXML || 'http://primary-maps-2008.googlecode.com/svn/trunk/campaign-trail.xml';
+opt.gadgetXML = opt.gadgetXML || 'http://primary-maps-2008.googlecode.com/svn/trunk/campaign-trail-gadget.xml';
 
 function adjustHeight() {
 	if( mapplet )
