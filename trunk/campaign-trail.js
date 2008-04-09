@@ -190,14 +190,15 @@ var mapplet = opt.mapplet;
 if( opt.gadget ) {
 	var p = new _IG_Prefs();
 	opt.sidebarWidth = p.getInt('sidebarwidth');
-	opt.mapWidth = window.innerWidth - opt.sidebarWidth ;
-	opt.mapHeight = window.innerHeight - 24;
+	opt.mapWidth = window.innerWidth - opt.sidebarWidth;
+	opt.mapHeight = window.innerHeight;
 	if( window.innerWidth < 500 ) {
 		opt.mapWidth = opt.sidebarWidth = window.innerWidth;
-		opt.mapHeight = opt.sidebarHeight = ( window.innerHeight - 24 ) / 2;
+		opt.mapHeight = opt.sidebarHeight = ( window.innerHeight - 4 ) / 2;
 	}
 }
 
+opt.zoom = opt.zoom || 3;
 opt.sidebarWidth = opt.sidebarWidth || 280;
 opt.mapWidth = opt.mapWidth || 400;
 opt.mapHeight = opt.mapHeight || 300;
@@ -206,6 +207,8 @@ opt.mapWidth = ( '' + opt.mapWidth ).replace( /px$/, '' );
 opt.mapHeight = ( '' + opt.mapHeight ).replace( /px$/, '' );
 
 opt.imgUrl = opt.imgUrl || 'http://primary-maps-2008.googlecode.com/svn/trunk/images/';
+
+opt.gadgetXML = opt.gadgetXML || 'http://primary-maps-2008.googlecode.com/svn/trunk/campaign-trail.xml';
 
 function adjustHeight() {
 	if( mapplet )
@@ -333,9 +336,10 @@ function fmtDate( date ) {
 if( mapplet ) writeMappletHTML();
 else writeApiMapHTML();
 
-function writeMappletHTML() {
+function writeCSS() {
 	document.write(
 		'<style type="text/css">',
+			'body { margin:0; padding:0; }',
 			'* { font-family: Arial,sans-serif; font-size: 10pt; }',
 			'#outer {}',
 			'#links { margin-bottom:4px; }',
@@ -354,7 +358,6 @@ function writeMappletHTML() {
 			'.VideoTitle { xfont-size:110%; }',
 			'.VideoThumb { float:left; margin-right:8px; }',
 			'.VideoBorder { clear:left; }',
-			'#votestitle { margin:12px 0 6px 0; padding:0; }',
 			'.votesattrib * { font-size:85%; }',
 			'#legend table { xwidth:100%; }',
 			'#legend .legendboxtd { width:1%; }',
@@ -378,13 +381,17 @@ function writeMappletHTML() {
 			'a.fmaxbox,a.fminbox{float:left;margin-right:4px;margin-top:2px;width:12px;height:12px;display:block;overflow:hidden;}',
 			'a.fmaxbox_reverse_directionality,a.fminbox_reverse_directionality{float:right;margin-left:4px;margin-top:2px;width:12px;height:12px;display:block;overflow:hidden;}',
 			'.fpad{padding-top:5px;padding-bottom:2px;padding-left:3%;padding-right:2%;width:92%;overflow:auto;}',
-		'</style>',
+		'</style>'
+	);
+}
+
+function writeMappletHTML() {
+	writeCSS();
+	document.write(
 		'<div id="outer">',
 			'<div style="padding-bottom:4px; border-bottom:1px solid #DDD; margin-bottom:4px;">',
 				'<span style="color:red;">New!</span> ',
-				'<a href="http://gmodules.com/ig/creator?synd=open&url=http://primary-maps-2008.googlecode.com/svn/trunk/map.xml" target="_blank">Get this map for your website</a>',
-			'</div>',
-			'<div id="votestitle">',
+				'<a href="http://gmodules.com/ig/creator?synd=open&url=', opt.gadgetXML, '" target="_blank">Get this map for your website</a>',
 			'</div>',
 			'<div id="eventlist">',
 				'Loading&#8230;',
@@ -398,32 +405,28 @@ function writeMappletHTML() {
 }
 
 function writeApiMapHTML() {
-	//var mapWidth = opt.mapWidth ? opt.mapWidth + 'px' : '100%';
-	//var mapHeight = opt.mapHeight ? opt.mapHeight + 'px' : '100%';
-	//var mapHTML = S(
-	//	'<div id="map" style="width:', mapWidth, '; height:', mapHeight, ';">',
-	//	'</div>'
-	//);
-	//var sidebarHTML = S(
-	//	'<div id="resultlist">',
-	//	'</div>',
-	//	stateSelector,
-	//	partyButtons,
-	//	'<div id="votesbar">',
-	//		'<div id="votestitle">',
-	//		'</div>',
-	//		//'<div style="font-weight:bold;">Statewide Results</div>',
-	//		'<div id="eventlist">',
-	//			'Loading&#8230;',
-	//		'</div>',
-	//		'<div id="results">',
-	//			//'Roll the mouse over the map for county-by-county results.<br /><br />',
-	//			//'Roll the mouse over the map for state-by-state results.<br />',
-	//			//'Zoom in for county-by-county results.<br /><br />',
-	//			//'Scroll down for statewide details',
-	//		'</div>',
-	//	'</div>'
-	//);
+	writeCSS();
+	var mapWidth = opt.mapWidth ? opt.mapWidth + 'px' : '100%';
+	var mapHeight = opt.mapHeight ? opt.mapHeight + 'px' : '100%';
+	var mapHTML = S(
+		'<div id="map" style="margin:0; padding:0; width:', mapWidth, '; height:', mapHeight, ';">',
+		'</div>'
+	);
+	var sidebarHTML = S(
+		'<div id="resultlist">',
+		'</div>',
+		'<div id="votesbar">',
+			'<div id="eventlist">',
+				'Loading&#8230;',
+			'</div>',
+			'<div id="results">',
+				//'Roll the mouse over the map for county-by-county results.<br /><br />',
+				//'Roll the mouse over the map for state-by-state results.<br />',
+				//'Zoom in for county-by-county results.<br /><br />',
+				//'Scroll down for statewide details',
+			'</div>',
+		'</div>'
+	);
 	//document.write(
 	//	'<style type="text/css">',
 	//		'body { margin:0; padding:0; }',
@@ -441,12 +444,7 @@ function writeApiMapHTML() {
 	//		'.NewsList  a:hover { text-decoration:underline; }',
 	//		'.NewsItem { padding:4px 2px 2px 2px; vertical-align:bottom; line-height:125%; }',
 	//		'.favicon { width:16; height:16; float:left; padding:2px 4px 2px 2px; }',
-	//		'#fullstate { margin-top:12px; }',
-	//		'#fullstate table { width:700px; }',
-	//		'#fullstate th, #fullstate td { text-align: right; background-color:#E8E8E8; padding:2px; }',
-	//		'#fullstate th.countyname, #fullstate td.countyname { text-align:left; font-weight:bold; }',
 	//		'.statewide * { font-weight: bold; }',
-	//		'#votestitle { margin:12px 0 3px 0; padding:0; }',
 	//		'.votesattrib * { font-size:85%; }',
 	//		'#legend table { xwidth:100%; }',
 	//		'#legend .legendboxtd { width:7%; }',
@@ -461,37 +459,33 @@ function writeApiMapHTML() {
 	//		'#legend .legendreporting * { xfont-size:20px; }',
 	//	'</style>'
 	//);
-	//
-	//if( opt.sidebarHeight ) {
-	//	document.write(
-	//		mapHTML,
-	//		'<div style="margin-top:4px; width:', opt.sidebarWidth, 'px; height:', opt.sidebarHeight, 'px; overflow:auto;">',
-	//			'<div style="width:99%;">',
-	//				sidebarHTML,
-	//			'</div>',
-	//		'</td>',
-	//			'</tr>',
-	//		'</table>',
-	//		'<div id="fullstate">',
-	//		'</div>'
-	//	);
-	//}
-	//else {
-	//	document.write(
-	//		'<table>',
-	//			'<tr valign="top">',
-	//				'<td>',
-	//					mapHTML,
-	//				'</td>',
-	//				'<td valign="top" style="width:', opt.sidebarWidth, 'px;">',
-	//					sidebarHTML,
-	//				'</td>',
-	//			'</tr>',
-	//		'</table>',
-	//		'<div id="fullstate">',
-	//		'</div>'
-	//	);
-	//}
+	
+	if( opt.sidebarHeight ) {
+		document.write(
+			mapHTML,
+			'<div style="margin-top:4px; width:', opt.sidebarWidth, 'px; height:', opt.sidebarHeight, 'px; overflow:auto;">',
+				'<div style="width:99%;">',
+					sidebarHTML,
+				'</div>',
+			'</div>'
+		);
+	}
+	else {
+		document.write(
+			'<table cellspacing="0" cellpadding="0">',
+				'<tr valign="top">',
+					'<td>',
+						mapHTML,
+					'</td>',
+					'<td valign="top" style="width:', opt.sidebarWidth, 'px;">',
+						'<div style="margin-left:4px; width:100%; height:100%; overflow:auto;">',
+							sidebarHTML,
+						'</div>',
+					'</td>',
+				'</tr>',
+			'</table>'
+		);
+	}
 }
 
 var map;
@@ -509,6 +503,8 @@ function load() {
 		map.enableScrollWheelZoom();
 		//map.addControl( new GLargeMapControl() );
 		map.addControl( new GSmallMapControl() );
+		var center = new GLatLng( 37.0625, -95.677068 );
+		map.setCenter( center, opt.zoom );
 	}
 	
 	getCandidateCalendars();
@@ -607,7 +603,7 @@ function markEvents( events ) {
 	});
 	setTimeout( function() {
 		events.forEach( function( event ) {
-			event.marker.bindInfoWindow( event.balloon, { /*maxWidth:500,*/ disableGoogleLinks:true } );
+			eventInfoWindow( event, 'bindInfoWindow' );
 		});
 	}, 250 );
 }
@@ -615,26 +611,35 @@ function markEvents( events ) {
 openEvent = function( id ) {
 	var event = events.by.id[id];
 	if( event )
-		event.marker.openInfoWindow( event.balloon, { /*maxWidth:500,*/ disableGoogleLinks:true } );
+		eventInfoWindow( event, 'openInfoWindow' );
+};
+
+function eventInfoWindow( event, method ) {
+	event.marker[method]( event.balloon, {
+		maxWidth: Math.min( opt.mapWidth - 100, 400 ),
+		disableGoogleLinks: true
+	});
 }
 
 function listEvents( events ) {
 	return S(
-		events.mapjoin( function( event ) {
-			return S(
-				'<div style="cursor:pointer;" onclick="openEvent(\'', event.id, '\')">',
-					'<div>',
-						'<img style="vertical-align:middle; border:0; margin-right:4px; width:18px; height:18px;" src="', event.candidate.iconUrl, '" />',
-						'<span style="vertical-align:middle; font-weight:bold;">',
-							event.title,
-						'</span>',
-					'</div>',
-					'<div style="margin-bottom:6px;">',
-						event.dateText,
-					'</div>',
-				'</div>'
-			);
-		})
+		'<div class="eventwrapper">',
+			events.mapjoin( function( event ) {
+				return S(
+					'<div style="cursor:pointer;" onclick="openEvent(\'', event.id, '\')">',
+						'<div>',
+							'<img style="vertical-align:middle; border:0; margin-right:4px; width:18px; height:18px;" src="', event.candidate.iconUrl, '" />',
+							'<span style="vertical-align:middle; font-weight:bold;">',
+								event.title,
+							'</span>',
+						'</div>',
+						'<div style="margin-bottom:6px;">',
+							event.dateText,
+						'</div>',
+					'</div>'
+				);
+			}),
+		'</div>'
 	);
 }
 
