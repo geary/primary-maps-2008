@@ -5,7 +5,7 @@
 		author="Michael Geary"
 		author_email="elections@google.com"
 		description="2008 Campaign Trail"
-		height="10000"
+		height="2000"
 >
 	<Require feature="sharedmap"/>
 	<Require feature="dynamic-height"/>
@@ -23,19 +23,18 @@
 		mapplet: true,
 		_: null
 	};
-</script>
-
-<script type="text/javascript">
-	document.write(
-		'<script type="text/javascript" src="',
-			_IG_GetCachedUrl( 'http://primary-maps-2008.googlecode.com/svn/trunk/jquery-1.2.3-no-ajax.min.js', { refreshInterval:3600 } ),
-		'">',
-		'<\/script>',
-		'<script type="text/javascript" src="',
-			_IG_GetCachedUrl( 'http://primary-maps-2008.googlecode.com/svn/trunk/campaign-trail.js', { refreshInterval:120 } ),
-		'">',
-		'<\/script>'
-	);
+	
+	function script( url, seconds ) {
+		document.write(
+			'<script type="text/javascript" src="',
+				_IG_GetCachedUrl( url, { refreshInterval:seconds } ),
+			'">',
+			'<\/script>'
+		);
+	}
+	
+	script( 'http://primary-maps-2008.googlecode.com/svn/trunk/jquery-1.2.3-no-ajax.min.js', 3600 );
+	script( 'http://primary-maps-2008.googlecode.com/svn/trunk/campaign-trail.js', 120 );
 </script>
 
 ]]>
