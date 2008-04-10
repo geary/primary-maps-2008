@@ -653,7 +653,9 @@ function eventBalloon( event ) {
 			'</span>',
 		'</div>',
 		'<div style="margin-top:12px; font-size:10pt;">',
-			event.content.replace( /Event Description:.*<\/a>/, '' ),
+			event.content
+				.replace( /<br>Event Status: confirmed/, '' )
+				.replace( /Event Description:.*<\/a>/, '' ),
 		'</div>'
 	);
 }
