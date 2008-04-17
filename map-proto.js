@@ -1010,21 +1010,14 @@ function setPartyButtons() {
 			'</div>'
 		]
 	);
-	
-	$('#btnDem').click( function() {
-		loadResults( parties.by.name['dem'] );
-		return false;
-	});
-
-	$('#btnRep').click( function() {
-		loadResults( parties.by.name['gop'] );
-		return false;
-	});
-	
-	$('#btnReload').click( function() {
-		loadResults();
-		return false;
-	});
+	$('#votestitle').html(
+		'<div>',
+			'<b>', curParty.shortName, ' results</b>',
+		'</div>',
+		'<div>',
+			'Size of map pin reflects number of votes',
+		'</div>'
+	);
 }
 
 twitterBlurb = ! opt.twitter ? '' : S(
@@ -1218,9 +1211,6 @@ function writeMappletHTML() {
 			//	'&nbsp;|&nbsp;',
 			//	'<a href="http://www.desmoinesregister.com/apps/pbcs.dll/section?Category=caucus" target="_blank">Des Moines Register</a>',
 			//'</div>',
-			partyButtons,
-			'<div id="votestitle">',
-			'</div>',
 			'<div id="content">',
 				'Loading&#8230;',
 			'</div>',
@@ -1243,20 +1233,14 @@ function writeApiMapHTML() {
 		'<div id="resultlist">',
 		'</div>',
 		stateSelector,
-		partyButtons,
-		'<div id="votesbar">',
-			'<div id="votestitle">',
-			'</div>',
-			//'<div style="font-weight:bold;">Statewide Results</div>',
-			'<div id="content">',
-				'Loading&#8230;',
-			'</div>',
-			'<div id="results">',
-				//'Roll the mouse over the map for county-by-county results.<br /><br />',
-				//'Roll the mouse over the map for state-by-state results.<br />',
-				//'Zoom in for county-by-county results.<br /><br />',
-				//'Scroll down for statewide details',
-			'</div>',
+		'<div id="content">',
+			'Loading&#8230;',
+		'</div>',
+		'<div id="results">',
+			//'Roll the mouse over the map for county-by-county results.<br /><br />',
+			//'Roll the mouse over the map for state-by-state results.<br />',
+			//'Zoom in for county-by-county results.<br /><br />',
+			//'Scroll down for statewide details',
 		'</div>'
 	);
 	document.write(
@@ -1822,49 +1806,49 @@ function getLeaders( locals ) {
 
 function stateSidebar() {
 	var state = stateByAbbr(opt.state), party = curParty;
-	var html = '';
 	var votes = state.votes[party.name];
 	var totals = votes.totals, locals = votes.locals;
-	if( totals && locals ) {
-		var leaders = getLeaders( locals );
-		var precincts = totals.precincts;
-		var tallies = totals.votes;
-		tallies.index('name');
-		var rows = [];
-		var cands = candidates[party.name];
-		addRows();
-		
-		var reporting = ! precincts.total ? '' : S(
-			'<div class="contentreporting">',
-				precincts.reporting, ' of ', precincts.total, ' precincts reporting',
-			'</div>'
-		);
-		
-		var html = [
-			'<table>',
-				'<thead>',
-					'<th>',
-						'Votes',
-					'</th>',
-					'<th style="padding-right:8px;">',
-						'Delegates',
-					'</th>',
-					'<th>',
-						' ',
-					'</th>',
-					'<th style="text-align:left;">',
-						'Candidate',
-					'</th>',
-				'</thead>',
-				'<tbody>',
-					rows.join(''),
-				'</tbody>',
-			'</table>',
-			reporting,
-			attribution
-		];
-	}
-	return html
+	if( ! totals || ! locals ) return 'No results reported';
+	var leaders = getLeaders( locals );
+	var precincts = totals.precincts;
+	var tallies = totals.votes;
+	tallies.index('name');
+	var rows = [];
+	var cands = candidates[party.name];
+	addRows();
+	
+	var reporting = ! precincts.total ? '' : S(
+		'<div class="contentreporting">',
+			precincts.reporting, ' of ', precincts.total, ' precincts reporting',
+		'</div>'
+	);
+	
+	return S(
+		partyButtons,
+		'<div id="votestitle">',
+		'</div>',
+		'<table>',
+			'<thead>',
+				'<th>',
+					'Votes',
+				'</th>',
+				'<th style="padding-right:8px;">',
+					'Delegates',
+				'</th>',
+				'<th>',
+					' ',
+				'</th>',
+				'<th style="text-align:left;">',
+					'Candidate',
+				'</th>',
+			'</thead>',
+			'<tbody>',
+				rows.join(''),
+			'</tbody>',
+		'</table>',
+		reporting,
+		attribution
+	);
 	
 	function addRows() {
 		var cols = [];
@@ -2134,14 +2118,6 @@ function load() {
 		else party = curParty;
 		setPartyButtons();
 		//map.clearOverlays();
-		$('#votestitle').html(
-			'<div>',
-				'<b>', party.shortName, ' results</b>',
-			'</div>',
-			'<div>',
-				'Size of map pin reflects number of votes',
-			'</div>'
-		);
 		//$('#votestitle').html(
 		//	'<div>',
 		//		'<b>', primaryTitle( stateByAbbr(opt.state), party ), '</b>',
@@ -2244,12 +2220,32 @@ function load() {
 		loadInfo();
 	}
 	
+	$('#content').click( contentClick );
+	
 	setParty = function( party ) {
 		if( party != curParty ) loadResults( party );
 	}
 	
 	//initControls();
 	adjustHeight();
+}
+
+function  contentClick() {
+	switch( this.id ) {
+		case 'btnDem':
+			loadResults( parties.by.name['dem'] );
+			return false;
+		
+		case 'btnRep':
+			loadResults( parties.by.name['gop'] );
+			return false;
+		
+		case 'btnReload':
+			loadResults();
+			return false;
+	}
+	
+	return false;
 }
 
 //var mousemoved = function( latlng ) {
