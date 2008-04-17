@@ -89,8 +89,9 @@ def cleanNum( n ):
 
 def makeJson( state, data ):
 	write(
-		'%s/states/%s/age.js' %( datapath, state ),
-		'GoogleElectionMap.agesReady(%s)' % json({
+		'%s/states/%s/demographic.js' %( datapath, state ),
+		#'GoogleElectionMap.agesReady(%s)' % json({
+		'Demographics = %s;' % json({
 				'status': 'ok',
 				'state': state,
 				'ages': data
