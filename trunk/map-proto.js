@@ -36,8 +36,7 @@ var ChartApi = {
 			chds: a.scale.join(),
 			chl: a.labels.join('|'),
 			chs: a.width + 'x' + a.height,
-			chtt: a.title,
-			chbh: a.barWidth.join()
+			chtt: a.title
 		});
 	},
 	
@@ -62,11 +61,11 @@ var ChartApi = {
 			chl: a.labels && a.labels.join('|'),
 			chs: a.width + 'x' + a.height,
 			chtt: a.title,
-			chbh: a.barWidth.join(),
 			chf: a.solid,
 			chm: a.fill
 		});
 	},
+	
 	url: function( a ) {
 		var params = [];
 		for( k in a )
@@ -1096,6 +1095,8 @@ function writeCommon() {
 	document.write(
 		'<style type="text/css">',
 			'select { width:100%; }',
+			'.age-legend * { font-size:12px; }',
+			'.age-legend div { float:left; }',
 		'</style>'
 	);
 }
@@ -2329,17 +2330,13 @@ function loadInfo() {
 }
 
 var infoHtml = {
-	stateVotes: function() {
-		return stateSidebar();
-	},
+	stateVotes: stateSidebar,
 	
 	countyVotes: function() {
 		return 'county votes';
 	},
 	
-	age: function() {
-		return ages();
-	},
+	age: ages,
 	
 	population: function() {
 		return 'population';
@@ -2357,14 +2354,14 @@ function ages() {
 		return label.replace( ' to ', '-' );
 	});
 	var color = {
-		dem: { line:'0000FF', fill:'bg,s,D8D8FF' },
-		gop: { line:'DD0000', fill:'bg,s,FFD8D8' }
+		dem: { line:'0000FF', fill:'bg,ls,0,C4C4FF,0.28,DCDCFF,0.44,C4C4FF,0.28' },
+		gop: { line:'DD0000', fill:'bg,ls,0,FFC4C4,0.28,FFDCDC,0.44,FFC4C4,0.28' }
 	};
+	var width = 75, height = 22;
 	var html = [];
 	for( var i = 0, n = ages.dem.counties.length;  i < n;  ++i ) {
 		var dem = ages.dem.counties[i], gop = ages.gop.counties[i];
 		var min = Math.min( dem.min, gop.min ), max = Math.max( dem.max, gop.max );
-		var width = 75, height = 22;
 		var use = dem.total > gop.total ? {
 			data: [ gop.counts.join(), dem.counts.join() ],
 			colors: [ color.gop.line, color.dem.line ],
@@ -2380,9 +2377,7 @@ function ages() {
 			solid: use.solid,
 			colors: use.colors,
 			data: use.data,
-			scale: [ min * .8, max * 1.1 ],
-			//labels: labels,
-			barWidth: [ 30 ]
+			scale: [ min * .8, max * 1.1 ]
 		});
 		//alert( img );
 		html.push( S(
@@ -2392,7 +2387,49 @@ function ages() {
 			'</div>'
 		) );
 	}
-	return html.join('');
+	width = 24, height = 16;
+	var imgDem = ChartApi.sparkline({
+		width: width,
+		height: height,
+		solid: 'bg,s,C4C4FF',
+		colors: [ '0000FF' ],
+		data: [ '50,50' ],
+		scale: [ 0, 100 ]
+	});
+	var imgGop = ChartApi.sparkline({
+		width: width,
+		height: height,
+		solid: 'bg,s,FFC4C4',
+		colors: [ 'DD0000' ],
+		data: [ '50,50' ],
+		scale: [ 0, 100 ]
+	});
+
+	return S(
+		'<div class="age-legend">',
+			'<div>',
+				'<div style="width:24px;">18</div>',
+				'<div style="width:30px;">35</div>',
+				'<div style="width:21px;">65+</div>',
+				'<div style="width:16px;"> </div>',
+			'</div>',
+			'<div style="margin:0 4px 0 12px; width:', width, 'px;">',
+				'<img style="width:', width, 'px; height:', height, 'px;" src="', imgDem, '" />',
+			'</div>',
+			'<div>',
+				'Democratic',
+			'</div>',
+			'<div style="margin:0 4px 0 12px; width:', width, 'px;">',
+				'<img style="width:', width, 'px; height:', height, 'px;" src="', imgGop, '" />',
+			'</div>',
+			'<div>',
+				'Republican',
+			'</div>',
+		'</div>',
+		'<div style="clear:left; margin-bottom:4px;">',
+		'</div>',
+		html.join('')
+	);
 }
 
 //function loadVotes() {
