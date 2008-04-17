@@ -325,7 +325,7 @@ if( opt.gadget ) {
 	var p = new _IG_Prefs();
 	opt.sidebarWidth = p.getInt('sidebarwidth');
 	opt.mapWidth = window.innerWidth - opt.sidebarWidth ;
-	opt.mapHeight = window.innerHeight - 24;
+	opt.mapHeight = window.innerHeight;
 	opt.state = p.getString('state');
 	opt.party = p.getString('party');
 	opt.stateSelector = p.getBool('stateselector');
@@ -1246,7 +1246,7 @@ function writeApiMapHTML() {
 	);
 	document.write(
 		'<style type="text/css">',
-			'body { margin:0; padding:0; }',
+			'body { margin:0; padding:0; overflow:hidden; }',
 			'* { font-family: Arial,sans-serif; font-size: 10pt; }',
 			'#outer {}',
 			'#eventbar { display:none; }',
@@ -1279,6 +1279,8 @@ function writeApiMapHTML() {
 			'#content .contentclear { clear:left; }',
 			'#content .contentreporting { margin-bottom:8px; }',
 			'#content .contentreporting * { xfont-size:20px; }',
+			'#content {}',
+			'#content-scroll { overflow:scroll; }',
 		'</style>'
 	);
 	
@@ -2326,7 +2328,16 @@ function loadState() {
 function loadInfo() {
 	if( opt.state != 'pa' ) opt.infoType = 'stateVotes';  // temp
 	$('#content').html( infoHtml[opt.infoType]() );
+	setContentScroll();
 	adjustHeight();
+}
+
+function setContentScroll() {
+	var $c = $('#content'), $cs = $('#content-scroll');
+	var height = $(window).height() - $c.offset().top;
+	$c.height( height + 'px' );
+	if( $cs[0] )
+		$cs.height( ( $c.offset().top + height - $cs.offset().top ) + 'px' );
 }
 
 var infoHtml = {
@@ -2428,7 +2439,9 @@ function ages() {
 		'</div>',
 		'<div style="clear:left; margin-bottom:4px;">',
 		'</div>',
-		html.join('')
+		'<div id="content-scroll">',
+			html.join(''),
+		'</div>'
 	);
 }
 
