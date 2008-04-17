@@ -57,15 +57,13 @@ var ChartApi = {
 		return this.chart({
 			cht: 'ls',
 			chco: a.colors.join(),
-			chd: 't:' + a.data.join(),
+			chd: 't:' + a.data.join('|'),
 			chds: a.scale.join(),
 			chl: a.labels && a.labels.join('|'),
 			chs: a.width + 'x' + a.height,
 			chtt: a.title,
 			chbh: a.barWidth.join(),
-			// HACKS
-			//chf: 'bg,s,E4E4E4',
-			//chm: 'B,CCCCFF,0,0,0'
+			chf: a.solid,
 			chm: a.fill
 		});
 	},
@@ -1086,8 +1084,7 @@ function fmtDate( date ) {
 					option( 'stateVotes', 'Statewide Vote Results' ),
 					option( 'countyVotes', 'County Vote Results' ),
 					//option( '', '' ),
-					option( 'demAge', 'Registered Democrats by Age' ),
-					option( 'gopAge', 'Registered Republicans by Age' ),
+					option( 'age', 'Registered Voters by Age' ),
 					option( 'population', 'Population Growth and Decline' ),
 					option( 'ethnic', 'Racial and Ethnic Background' ),
 				'</select>',
@@ -2344,12 +2341,8 @@ var infoHtml = {
 		return 'county votes';
 	},
 	
-	demAge: function() {
-		return ages( 'dem' , '0000FF', 'B,DDDDFF,0,0,0' );
-	},
-	
-	gopAge: function() {
-		return ages( 'gop', 'CC0000', 'B,FFDDDD,0,0,0' );
+	age: function() {
+		return ages();
 	},
 	
 	population: function() {
@@ -2359,36 +2352,51 @@ var infoHtml = {
 	ethnic: function() {
 		return 'ethnic';
 	}
-};	
+};
 
-function ages( party, color, fill ) {
-	var ages = Demographics.ages[party];
-	var labels = ages.labels.map( function( label ) {
+function ages() {
+	var ages = Demographics.ages;
+	var labels = ages.dem.labels.map( function( label ) {
 		//return label.replace( ' to ', '&#8211;' );
 		return label.replace( ' to ', '-' );
 	});
-	return ages.counties.mapjoin( function( county, i ) {
-		//if( i > 0 ) return '';
-		var width = 75, height = 18;
+	var color = {
+		dem: { line:'0000FF', fill:'bg,s,D8D8FF' },
+		gop: { line:'DD0000', fill:'bg,s,FFD8D8' }
+	};
+	var html = [];
+	for( var i = 0, n = ages.dem.counties.length;  i < n;  ++i ) {
+		var dem = ages.dem.counties[i], gop = ages.gop.counties[i];
+		var min = Math.min( dem.min, gop.min ), max = Math.max( dem.max, gop.max );
+		var width = 75, height = 22;
+		var use = dem.total > gop.total ? {
+			data: [ gop.counts.join(), dem.counts.join() ],
+			colors: [ color.gop.line, color.dem.line ],
+			solid: color.dem.fill
+		} : {
+			data: [ dem.counts.join(), gop.counts.join() ],
+			colors: [ color.dem.line, color.gop.line ],
+			solid: color.gop.fill
+		};
 		var img = ChartApi.sparkline({
 			width: width,
 			height: height,
-			colors: [ color ],
-			fill: fill,
-			//title: S( county.name, ' County, ', data.state.toUpperCase(), '|Registered Democrats by Age' ),
-			data: county.counts,
-			scale: [ county.min/2, county.max ],
+			solid: use.solid,
+			colors: use.colors,
+			data: use.data,
+			scale: [ min * .8, max * 1.1 ],
 			//labels: labels,
 			barWidth: [ 30 ]
 		});
 		//alert( img );
-		return S(
+		html.push( S(
 			'<div style="vertical-align:middle; margin-bottom:8px; font-size:16px;">',
 				'<img style="width:', width, 'px; height:', height, 'px;" src="', img, '" />',
-				' ', county.name, ' County',
+				' ', dem.name, ' County',
 			'</div>'
-		);
-	});
+		) );
+	}
+	return html.join('');
 }
 
 //function loadVotes() {
