@@ -66,6 +66,19 @@ var ChartApi = {
 	},
 	
 	sparkbar: function( a ) {
+		var img = this.chart({
+			cht: 'bhg',
+			chbh: [ a.barHeight, a.barSpace, a.groupSpace || a.barSpace ].join(),
+			chco: a.colors.join('|'),
+			chds: a.scale.join(),
+			chd: 't:' + a.data.join(','),
+			chs: [ a.width + 1, a.height + 5 ].join('x')
+		});
+		return S(
+			'<span style="display:block; width:', a.width, 'px; height:', a.height, 'px; background-position:-1px -2px; background-repeat:no-repeat; background-image:url(\'', img, '\');">',
+			'</span>'
+		);
+		
 		return this.chart({
 			cht: 'ls',
 			chco: a.colors.join(),
@@ -2376,11 +2389,7 @@ var infoHtml = {
 	},
 	
 	age: listAges,
-	
-	population: function() {
-		return 'population';
-	},
-	
+	population: listPopulation,
 	religion: listReligion,
 	
 	ethnic: function() {
@@ -2488,7 +2497,6 @@ function listReligion() {
 			colors: colors,
 			data: county.counts
 		});
-		//alert( img );
 		return S(
 			'<div style="vertical-align:middle; margin-bottom:8px; font-size:16px;">',
 				'<div style="float:left; margin-right:8px;">',
@@ -2527,6 +2535,77 @@ function listReligion() {
 						label(3), label(4), label(5),
 					'</tr>',
 				'</table>',
+			'</div>',
+		'</div>',
+		'<div style="clear:left;">',
+		'</div>',
+		'<div style="border-bottom:1px solid #DDD; margin-bottom:4px;">',
+		'</div>',
+		'<div id="content-scroll">',
+			html,
+		'</div>'
+	);
+}
+
+function listPopulation() {
+	var colors = [ '777777', '0000DD', 'DD0000' ];
+	var labels = [ 'Population', 'Democratic', 'Republican' ];
+	var changes = Demographics.changes;
+	var width = 125, height = 22;
+	var scale = [ -7.0, 12.0 ];
+	var html = changes.counties.mapjoin( function( county ) {
+		var img = ChartApi.sparkbar({
+			width: width,
+			height: height,
+			barHeight: 6,
+			barSpace: 2,
+			colors: colors,
+			data: [ county.popChange, county.demChange, county.gopChange ],
+			scale: scale
+		});
+		return S(
+			'<div style="vertical-align:middle; margin-bottom:8px; font-size:16px;">',
+				'<div style="float:left; margin-right:8px;">',
+					img,
+				'</div>',
+				'<div style="float:left;">',
+					' ', county.name, ' County',
+				'</div>',
+				'<div style="clear:left;">',
+				'</div>',
+			'</div>'
+		);
+	});
+	
+	function label( i ) {
+		return S(
+			'<td>',
+				'<div style="width:16px; height:16px; margin:0 4px 4px 0; background-color:#', colors[i], ';">',
+					' ',
+				'</div>',
+				'<div style="margin:0 18px 4px 0;">',
+					labels[i],
+				'</div>',
+			'</td>'
+		);
+	}
+	
+	return S(
+		'<div class="legend">',
+			'<div>',
+					label(0), label(1), label(2),
+			'</div>',
+		'</div>',
+		'<div style="clear:left;">',
+		'</div>',
+		'<div style="border-bottom:1px solid #DDD; margin-bottom:4px;">',
+		'</div>',
+		'<div class="legend">',
+			'<div>',
+				'<div style="width:42px;">-7%</div>',
+				'<div style="width:44px;">0</div>',
+				'<div style="width:46px;">+12%</div>',
+				'<div>Change from 2000 to 2008</div>',
 			'</div>',
 		'</div>',
 		'<div style="clear:left;">',
