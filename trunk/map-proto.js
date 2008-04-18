@@ -52,6 +52,32 @@ var ChartApi = {
 		});
 	},
 	
+	rainbow: function( a ) {
+		var img = this.chart({
+			cht: 'bhs',
+			chco: a.colors.join(),
+			chd: 't:' + a.data.join('|'),
+			chs: [ a.width + 1, a.height + 5 ].join('x')
+		});
+		return S(
+			'<span style="display:block; width:', a.width, 'px; height:', a.height, 'px; background-position:-1px 0; background-repeat:no-repeat; background-image:url(\'', img, '\');">',
+			'</span>'
+		);
+	},
+	
+	sparkbar: function( a ) {
+		return this.chart({
+			cht: 'ls',
+			chco: a.colors.join(),
+			chd: 't:' + a.data.join('|'),
+			chds: a.scale.join(),
+			chs: a.width + 'x' + a.height,
+			chtt: a.title,
+			chf: a.solid,
+			chm: a.fill
+		});
+	},
+	
 	sparkline: function( a ) {
 		return this.chart({
 			cht: 'ls',
@@ -1077,7 +1103,8 @@ function fmtDate( date ) {
 					option( 'countyVotes', 'County Vote Results' ),
 					//option( '', '' ),
 					option( 'age', 'Registered Voters by Age' ),
-					option( 'population', 'Population Growth and Decline' ),
+					option( 'population', 'Population and Voter Gain and Loss' ),
+					option( 'religion', 'Religion' ),
 					option( 'ethnic', 'Racial and Ethnic Background' ),
 				'</select>',
 			'</div>',
@@ -1095,8 +1122,8 @@ function writeCommon() {
 	document.write(
 		'<style type="text/css">',
 			'select { width:100%; }',
-			'.age-legend * { font-size:12px; }',
-			'.age-legend div { float:left; }',
+			'.legend * { font-size:12px; }',
+			'.legend div { float:left; }',
 		'</style>'
 	);
 }
@@ -2347,18 +2374,20 @@ var infoHtml = {
 		return 'county votes';
 	},
 	
-	age: ages,
+	age: listAges,
 	
 	population: function() {
 		return 'population';
 	},
+	
+	religion: listReligion,
 	
 	ethnic: function() {
 		return 'ethnic';
 	}
 };
 
-function ages() {
+function listAges() {
 	var ages = Demographics.ages;
 	var labels = ages.dem.labels.map( function( label ) {
 		//return label.replace( ' to ', '&#8211;' );
@@ -2417,7 +2446,7 @@ function ages() {
 	});
 
 	return S(
-		'<div class="age-legend">',
+		'<div class="legend">',
 			'<div>',
 				'<div style="width:24px;">18</div>',
 				'<div style="width:30px;">35</div>',
@@ -2441,6 +2470,66 @@ function ages() {
 		'</div>',
 		'<div id="content-scroll">',
 			html.join(''),
+		'</div>'
+	);
+}
+
+function listReligion() {
+	var colors = [ '5A1F00', 'D1570D', 'FDE792', '477725', 'A9CC66', 'CCCCCC' ];
+	var religion = Demographics.religion;
+	var width = 75, height = 22;
+	var html = religion.counties.mapjoin( function( county ) {
+		var img = ChartApi.rainbow({
+			width: width,
+			height: height,
+			colors: colors,
+			data: county.counts
+		});
+		//alert( img );
+		return S(
+			'<div style="vertical-align:middle; margin-bottom:8px; font-size:16px;">',
+				'<div style="float:left; margin-right:8px;">',
+					img,
+				'</div>',
+				'<div style="float:left;">',
+					' ', county.name, ' County',
+				'</div>',
+				'<div style="clear:left;">',
+				'</div>',
+			'</div>'
+		);
+	});
+	
+	function label( i ) {
+		return S(
+			'<td>',
+				'<div style="width:16px; height:16px; margin:0 4px 4px 0; background-color:#', colors[i], ';">',
+					' ',
+				'</div>',
+				'<div style="margin:0 18px 4px 0;">',
+					religion.labels[i],
+				'</div>',
+			'</td>'
+		);
+	}
+	
+	return S(
+		'<div class="legend">',
+			'<div>',
+				'<table cellspacing="0" cellpadding="0">',
+					'<tr>',
+						label(0), label(1), label(2),
+					'</tr>',
+					'<tr>',
+						label(3), label(4), label(5),
+					'</tr>',
+				'</table>',
+			'</div>',
+		'</div>',
+		'<div style="clear:left; margin-bottom:4px;">',
+		'</div>',
+		'<div id="content-scroll">',
+			html,
 		'</div>'
 	);
 }
