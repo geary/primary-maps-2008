@@ -2387,7 +2387,7 @@ var infoHtml = {
 	stateVotes: stateSidebar,
 	
 	countyVotes: function() {
-		return 'county votes';
+		return '(coming soon)';
 	},
 	
 	age: listAges,
@@ -2395,7 +2395,7 @@ var infoHtml = {
 	religion: listReligion,
 	
 	ethnic: function() {
-		return 'ethnic';
+		return '(coming soon)';
 	}
 };
 
