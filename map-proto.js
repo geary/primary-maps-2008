@@ -2611,7 +2611,7 @@ function listPopulation() {
 				'<div style="width:45px;">-7%</div>',
 				'<div style="width:50px;">0</div>',
 				'<div style="width:43px;">+12%</div>',
-				'<div>Change from 2000 to 2008</div>',
+				'<div>Changes from 2000 to 2008</div>',
 			'</div>',
 		'</div>',
 		'<div style="clear:left;">',
