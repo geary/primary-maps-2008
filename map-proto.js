@@ -1077,7 +1077,7 @@ function fmtDate( date ) {
 	}
 	
 	stateSelector = ! opt.stateSelector ? '' : S(
-		'<div style="padding-bottom:4px; border-bottom:1px solid #DDD; margin-bottom:4px;">',
+		'<div style="xpadding-bottom:4px; xborder-bottom:1px solid #DDD; margin-bottom:4px;">',
 			'<div>',
 				'Click the map for state results.',
 			'</div>',
@@ -1122,6 +1122,7 @@ function writeCommon() {
 	document.write(
 		'<style type="text/css">',
 			'select { width:100%; }',
+			'.legend {}',
 			'.legend * { font-size:12px; }',
 			'.legend div { float:left; }',
 		'</style>'
@@ -2466,7 +2467,9 @@ function listAges() {
 				'Republican',
 			'</div>',
 		'</div>',
-		'<div style="clear:left; margin-bottom:4px;">',
+		'<div style="clear:left;">',
+		'</div>',
+		'<div style="padding-bottom:4px; border-bottom:1px solid #DDD; margin-bottom:4px;">',
 		'</div>',
 		'<div id="content-scroll">',
 			html.join(''),
@@ -2526,7 +2529,9 @@ function listReligion() {
 				'</table>',
 			'</div>',
 		'</div>',
-		'<div style="clear:left; margin-bottom:4px;">',
+		'<div style="clear:left;">',
+		'</div>',
+		'<div style="border-bottom:1px solid #DDD; margin-bottom:4px;">',
 		'</div>',
 		'<div id="content-scroll">',
 			html,
