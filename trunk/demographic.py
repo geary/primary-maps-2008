@@ -19,6 +19,12 @@ datapath = '../election-data/demographic'
 #	}
 #	return strings[text] or text
 
+def fixint( str ):
+	return int( str.replace( ',', '' ).replace( '.00', '' ) )
+
+def fixpercent( str ):
+	return float( str.replace( '%', '' ) )
+	
 def formatNumber( number ):
 	return str(number)
 
@@ -36,8 +42,8 @@ def json( obj ):
 		json = re.sub( '},"', '},\n"', json )
 	return json
 
-def readData( state, party ):
-	print 'Processing %s %s' %( state, party )
+def readAges( state, party ):
+	print 'Reading ages %s %s' %( state, party )
 	reader = csv.reader( open( '%s/states/%s/age-%s.csv' %( datapath, state, party ), 'rb' ) )
 	counties = []
 	header = reader.next()
@@ -53,7 +59,7 @@ def readData( state, party ):
 		for i in xrange(count):
 			col = row[i]
 			if col == '': continue
-			n = int( col.replace( ',', '' ) )
+			n = fixint( col )
 			age += n * centers[i]
 			total += n
 			if min > n: min = n
@@ -69,8 +75,82 @@ def readData( state, party ):
 		})
 	return { 'labels':header, 'counties':counties }
 
+def readReligion( state ):
+	print 'Reading religion %s' %( state )
+	reader = csv.reader( open( '%s/states/%s/PennCountiesReligion.csv' %( datapath, state ), 'rb' ) )
+	counties = []
+	header = reader.next()
+	header.pop(0)
+	for row in reader:
+		name = fixCountyName( row.pop(0) )
+		if name == 'TOTAL': break
+		total = max = 0.0;  min = 999999999.0;  counts = []
+		count = len(header)
+		for i in xrange(count):
+			col = row[i]
+			if col == '': continue
+			n = float(col)
+			total += n
+			if min > n: min = n
+			if max < n: max = n
+			counts.append( n )
+		counts.append( 100.0 - total )
+		counties.append({
+			'name': name,
+			'total': total,
+			'min': min,
+			'max': max,
+			'counts': counts
+		})
+	header.append( 'None' )
+	return { 'labels':header, 'counties':counties }
+
+def readTypology( state ):
+	print 'Reading typology %s' %( state )
+	reader = csv.reader( open( '%s/states/%s/CountyTypologyPA.csv' %( datapath, state ), 'rb' ) )
+	counties = []
+	header = reader.next()
+	for row in reader:
+		name = fixCountyName( row.pop(0)[1:] )
+		counties.append({
+			'name': name,
+			'before': fixint( row[0] ),
+			'after': fixint( row[1] ),
+			'change': fixint( row[2] ),
+			'percent': float( row[3] ),
+			'type': row[4].strip()
+		})
+	return { 'counties':counties }
+
+def readRegChange( state ):
+	print 'Reading registration changes %s' %( state )
+	reader = csv.reader( open( '%s/states/%s/PennCountiesVoterRegNumbersCorrected.csv' %( datapath, state ), 'rb' ) )
+	counties = []
+	reader.next()
+	header = reader.next()
+	for row in reader:
+		name = fixCountyName( row.pop(0) )
+		counties.append({
+			'name': name,
+			'dem': {
+				'oldcount': fixint( row[0] ),
+				'oldpercent': fixpercent( row[2] ),
+				'newcount': fixint( row[4] ),
+				'newpercent': fixpercent( row[6] ),
+				'change': fixpercent( row[7] )
+			},
+			'gop': {
+				'oldcount': fixint( row[1] ),
+				'oldpercent': fixpercent( row[3] ),
+				'newcount': fixint( row[5] ),
+				'newpercent': fixpercent( row[8] ),
+				'change': fixpercent( row[9] )
+			}
+		})
+	return { 'counties':counties }
+
 def fixCountyName( name ):
-	name = name.capitalize()
+	name = name.replace( ' County', '' ).strip().capitalize()
 	#fixNames = {
 	#	"Harts Location": "Hart's Location",
 	#	"Waterville": "Waterville Valley"
@@ -87,13 +167,16 @@ def percentage( n ):
 def cleanNum( n ):
 	return int( re.sub( '[^0-9]', '', n ) or 0 )
 
-def makeJson( state, data ):
+def makeJson( state, ages, religion, typology, regchange ):
 	write(
 		'%s/states/%s/demographic.js' %( datapath, state ),
 		'GoogleElectionMap.Demographics(%s)' % json({
 				'status': 'ok',
 				'state': state,
-				'ages': data
+				'ages': ages,
+				'religion': religion,
+				'typology': typology,
+				'regchange': regchange
 		}) )
 
 def write( name, text ):
@@ -103,11 +186,16 @@ def write( name, text ):
 	f.close()
 	
 def update( state ):
-	makeJson( state, {
-		'all': readData( state, 'all' ),
-		'dem': readData( state, 'dem' ),
-		'gop': readData( state, 'gop' )
-	})
+	makeJson( state,
+		{
+			'all': readAges( state, 'all' ),
+			'dem': readAges( state, 'dem' ),
+			'gop': readAges( state, 'gop' )
+		},
+		readReligion( state ),
+		readTypology( state ),
+		readRegChange( state )
+	)
 	#print 'Checking in votes JSON...'
 	#os.system( 'svn ci -m "Vote update" %s' % votespath )
 	print 'Done!'
