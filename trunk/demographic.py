@@ -116,8 +116,8 @@ def readTypology( state ):
 			'name': name,
 			'before': fixint( row[0] ),
 			'after': fixint( row[1] ),
-			'change': fixint( row[2] ),
-			'percent': float( row[3] ),
+			#'change': fixint( row[2] ),
+			#'percent': float( row[3] ),
 			'type': row[4].strip()
 		})
 	return { 'counties':counties }
@@ -133,21 +133,63 @@ def readRegChange( state ):
 		counties.append({
 			'name': name,
 			'dem': {
-				'oldcount': fixint( row[0] ),
-				'oldpercent': fixpercent( row[2] ),
-				'newcount': fixint( row[4] ),
-				'newpercent': fixpercent( row[6] ),
-				'change': fixpercent( row[7] )
+				'before': fixint( row[0] ),
+				#'oldpercent': fixpercent( row[2] ),
+				'after': fixint( row[4] ),
+				#'newpercent': fixpercent( row[6] ),
+				#'change': fixpercent( row[7] )
 			},
 			'gop': {
-				'oldcount': fixint( row[1] ),
-				'oldpercent': fixpercent( row[3] ),
-				'newcount': fixint( row[5] ),
-				'newpercent': fixpercent( row[8] ),
-				'change': fixpercent( row[9] )
+				'before': fixint( row[1] ),
+				#'oldpercent': fixpercent( row[3] ),
+				'after': fixint( row[5] ),
+				#'newpercent': fixpercent( row[8] ),
+				#'change': fixpercent( row[9] )
 			}
 		})
 	return { 'counties':counties }
+
+def makeChanges( state ):
+	typ = readTypology( state );  typCounties = typ['counties']
+	vot = readRegChange( state );  votCounties = vot['counties']
+	minPercent = 101.0;  maxPercent = -101.0;  counties = []
+	for i in xrange(len(typCounties)):
+		typCounty = typCounties[i]
+		votCounty = votCounties[i]
+		name = fixCountyName( typCounty['name'] )
+		if name != fixCountyName( votCounty['name'] ): print 'ERROR!'
+		popOld = typCounty['before']
+		popNew = typCounty['after']
+		popChange = popNew - popOld
+		popPercent = float(popChange) / float(popOld) * 100.0
+		demOld = votCounty['dem']['before']
+		demNew = votCounty['dem']['after']
+		demChange = demNew - demOld
+		demPercent = float(demChange) / float(popOld) * 100.0
+		gopOld = votCounty['gop']['before']
+		gopNew = votCounty['gop']['after']
+		gopChange = gopNew - gopOld
+		gopPercent = float(gopChange) / float(popOld) * 100.0
+		minPercent = min( minPercent, popPercent, demPercent, gopPercent )
+		maxPercent = max( maxPercent, popPercent, demPercent, gopPercent )
+		counties.append({
+			'name': name,
+			'popOld': popOld,
+			'popNew': popNew,
+			'popChange': popPercent,
+			'demOld': demOld,
+			'demNew': demNew,
+			'demChange': demPercent,
+			'gopOld': gopOld,
+			'gopNew': gopNew,
+			'gopChange': gopPercent
+		})
+	print 'Min percent = %2.2f, max percent = %2.2f' %( minPercent, maxPercent )
+	return {
+		'minChange': minPercent,
+		'maxChange': maxPercent,
+		'counties': counties
+	}
 
 def fixCountyName( name ):
 	name = name.replace( ' County', '' ).strip().capitalize()
@@ -167,7 +209,7 @@ def percentage( n ):
 def cleanNum( n ):
 	return int( re.sub( '[^0-9]', '', n ) or 0 )
 
-def makeJson( state, ages, religion, typology, regchange ):
+def makeJson( state, ages, religion, changes ):
 	write(
 		'%s/states/%s/demographic.js' %( datapath, state ),
 		'GoogleElectionMap.Demographics(%s)' % json({
@@ -175,8 +217,7 @@ def makeJson( state, ages, religion, typology, regchange ):
 				'state': state,
 				'ages': ages,
 				'religion': religion,
-				'typology': typology,
-				'regchange': regchange
+				'changes': changes
 		}) )
 
 def write( name, text ):
@@ -193,8 +234,7 @@ def update( state ):
 			'gop': readAges( state, 'gop' )
 		},
 		readReligion( state ),
-		readTypology( state ),
-		readRegChange( state )
+		makeChanges( state )
 	)
 	#print 'Checking in votes JSON...'
 	#os.system( 'svn ci -m "Vote update" %s' % votespath )
