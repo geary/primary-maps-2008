@@ -59,8 +59,9 @@ var ChartApi = {
 			chd: 't:' + a.data.join('|'),
 			chs: [ a.width + 1, a.height + 5 ].join('x')
 		});
+		var alt = ! a.alt ? '' : S( 'title="', a.alt, '" ' );
 		return S(
-			'<span style="display:block; width:', a.width, 'px; height:', a.height, 'px; background-position:-1px 0; background-repeat:no-repeat; background-image:url(\'', img, '\');">',
+			'<span style="display:block; ', alt, 'width:', a.width, 'px; height:', a.height, 'px; background-position:-1px 0; background-repeat:no-repeat; background-image:url(\'', img, '\');">',
 			'</span>'
 		);
 	},
@@ -70,6 +71,7 @@ var ChartApi = {
 			cht: 'bhg',
 			chbh: [ a.barHeight, a.barSpace, a.groupSpace || a.barSpace ].join(),
 			chco: a.colors.join('|'),
+			chf: a.background,
 			chds: a.scale.join(),
 			chd: 't:' + a.data.join(','),
 			chs: [ a.width + 1, a.height + 5 ].join('x')
@@ -2548,7 +2550,7 @@ function listReligion() {
 }
 
 function listPopulation() {
-	var colors = [ '777777', '0000DD', 'DD0000' ];
+	var colors = [ '1BCC11', '0000DD', 'DD0000' ];
 	var labels = [ 'Population', 'Democratic', 'Republican' ];
 	var changes = Demographics.changes;
 	var width = 125, height = 22;
@@ -2561,14 +2563,18 @@ function listPopulation() {
 			barSpace: 2,
 			colors: colors,
 			data: [ county.popChange, county.demChange, county.gopChange ],
-			scale: scale
+			scale: scale,
+			background: 'c,ls,0,E0E0E0,0.3684,F4F4F4,0.6316'
+			//,
+			//alt: S(
+			//	county.name, ': Population 
 		});
 		return S(
-			'<div style="vertical-align:middle; margin-bottom:8px; font-size:16px;">',
-				'<div style="float:left; margin-right:8px;">',
+			'<div style="vertical-align:middle; margin-bottom:4px; font-size:16px;">',
+				'<div style="float:left; margin-right:8px; padding:2px; background-color:#F4F4F4; border:1px solid #DDD;">',
 					img,
 				'</div>',
-				'<div style="float:left;">',
+				'<div style="float:left; margin-top:3px;">',
 					' ', county.name, ' County',
 				'</div>',
 				'<div style="clear:left;">',
@@ -2602,9 +2608,9 @@ function listPopulation() {
 		'</div>',
 		'<div class="legend">',
 			'<div>',
-				'<div style="width:42px;">-7%</div>',
-				'<div style="width:44px;">0</div>',
-				'<div style="width:46px;">+12%</div>',
+				'<div style="width:45px;">-7%</div>',
+				'<div style="width:50px;">0</div>',
+				'<div style="width:43px;">+12%</div>',
 				'<div>Change from 2000 to 2008</div>',
 			'</div>',
 		'</div>',
