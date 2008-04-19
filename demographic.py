@@ -193,12 +193,13 @@ def makeChanges( state ):
 
 def fixCountyName( name ):
 	name = name.replace( ' County', '' ).strip().capitalize()
-	#fixNames = {
-	#	"Harts Location": "Hart's Location",
-	#	"Waterville": "Waterville Valley"
-	#}
-	#if( name in fixNames ):
-	#	name = fixNames[name]
+	fixNames = {
+		#"Harts Location": "Hart's Location",
+		#"Waterville": "Waterville Valley",
+		"Mckean": "McKean"
+	}
+	if( name in fixNames ):
+		name = fixNames[name]
 	return name
 
 def percentage( n ):
