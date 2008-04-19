@@ -2208,6 +2208,9 @@ function load() {
 		map.enableScrollWheelZoom();
 		//map.addControl( new GLargeMapControl() );
 		map.addControl( new GSmallMapControl() );
+		
+		GEvent.addListener( map, 'mousemove', mapmousemoved/*.hover*/ );
+		//GEvent.addListener( map, 'mouseout', mapmousemoved.clear );
 	}
 	
 	GEvent.addListener( map, 'click', function( overlay, latlng ) {
@@ -2282,6 +2285,11 @@ function load() {
 	adjustHeight();
 }
 
+function mapmousemoved( latlng ) {
+	var where = hittest( latlng );
+	setHilite( where && where.place.name );
+}
+
 function  contentClick( event ) {
 	var target = event.target;
 	switch( target.id ) {
@@ -2312,20 +2320,18 @@ function oneshot() {
 var hilite = { polys:[] };
 var hiliteOneshot = oneshot();
 
-function setHilite( row ) {
+function setHilite( name ) {
 	hiliteOneshot( function() {
-		var name = row && row.id.replace( /^place-/, '' ).replace( '+', ' ' );
-		if( name == hilite.name ) return;
+		var id = name && ( 'place-' + name.replace( ' ', '+' ) );
+		if( id == hilite.id ) return;
 		
-		$(hilite.row).removeClass( 'placerow-hilite' );
-		$(row).addClass( 'placerow-hilite' );
-		hilite.row = row;
-		hilite.name = name;
+		$('#'+hilite.id).removeClass( 'placerow-hilite' );
+		$('#'+id).addClass( 'placerow-hilite' );
+		hilite.id = id;
 		
-		//debugger;
 		hilite.polys.forEach( function( poly ) { map.removeOverlay( poly ); } );
 		hilite.polys = [];
-		if( row ) {
+		if( id ) {
 			var place = curState.places.by.name[name];
 			if( place ) {
 				place.shapes.forEach( function( shape ) {
@@ -2353,8 +2359,8 @@ function shapeVertices( shape ) {
 
 function contentMouseOver( event ) {
 	var $target = $(event.target);
-	var $row = $target.parents('.placerow');
-	setHilite( $row[0] );
+	var row = $target.parents('.placerow')[0];
+	setHilite( row && row.id.replace( /^place-/, '' ).replace( '+', ' ' ) );
 }
 
 function contentMouseOut( event ) {
@@ -2395,22 +2401,23 @@ function contentMouseOut( event ) {
 
 function hittest( latlng ) {
 	if( ! latlng ) return null;
+	var lat = latlng.lat(), lng = latlng.lng();
 	var state = stateByAbbr( opt.state );
 	if( opt.state == 'us' ) {
-		return test( state );
+		return test( state, lat, lng );
 	}
 	else {
-		return test( state ) || test( stateUS );
+		return test( state, lat, lng ) || test( stateUS, lat, lng );
 	}
 	
-	function test( entity ) {
+	function test( entity, lat, lng ) {
 		// Old fashioned loops for speed
 		var places = entity.places;
 		for( var i = 0, nI = places.length;  i < nI;  ++i ) {
 			var place = places[i];
 			var shapes = place.shapes;
 			for( var j = 0, nJ = shapes.length;  j < nJ;  ++j )
-				if( contains( shapes[j], [ latlng.lng(), latlng.lat() ] ) )
+				if( contains( shapes[j], [ lng, lat ] ) )
 					return { parent:entity, place:place };
 		}
 		return null;
