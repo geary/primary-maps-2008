@@ -339,7 +339,8 @@ GoogleElectionMap = {
 	shapesReady: function( data ) {
 		var abbr = data.state;
 		var state = stateByAbbr( abbr );
-		state.places = data.places;
+		state.places = data.places.index('name');
+		//console.log( state );
 		if( abbr == 'us' )
 			initStateBounds( state.places );
 		if( abbr == opt.state )
@@ -1118,7 +1119,7 @@ function fmtDate( date ) {
 					option( 'countyVotes', 'County Vote Results' ),
 					//option( '', '' ),
 					option( 'age', 'Registered Voters by Age' ),
-					option( 'population', 'Population and Voter Gain and Loss' ),
+					option( 'population', 'Population and Party Gain and Loss' ),
 					option( 'religion', 'Religion' ),
 					option( 'ethnic', 'Racial and Ethnic Background' ),
 				'</select>',
@@ -1140,6 +1141,8 @@ function writeCommon() {
 			'.legend {}',
 			'.legend * { font-size:12px; }',
 			'.legend div { float:left; }',
+			'.placerow { padding:2px; margin:1px; border:1px solid white; cursor:pointer; }',
+			'.placerow-hilite { border:1px solid #888; }',
 		'</style>'
 	);
 }
@@ -2266,7 +2269,10 @@ function load() {
 		loadInfo();
 	}
 	
-	$('#content').click( contentClick );
+	$('#content')
+		.click( contentClick )
+		.mouseover( contentMouseOver )
+		.mouseout( contentMouseOut );
 	
 	setParty = function( party ) {
 		if( party != curParty ) loadResults( party );
@@ -2276,8 +2282,9 @@ function load() {
 	adjustHeight();
 }
 
-function  contentClick() {
-	switch( this.id ) {
+function  contentClick( event ) {
+	var target = event.target;
+	switch( target.id ) {
 		case 'btnDem':
 			loadResults( parties.by.name['dem'] );
 			return false;
@@ -2292,6 +2299,66 @@ function  contentClick() {
 	}
 	
 	return false;
+}
+
+function oneshot() {
+	var timer;
+	return function( fun, time ) {
+		clearTimeout( timer );
+		timer = setTimeout( fun, time );
+	};
+}
+
+var hilite = { polys:[] };
+var hiliteOneshot = oneshot();
+
+function setHilite( row ) {
+	hiliteOneshot( function() {
+		var name = row && row.id.replace( /^place-/, '' ).replace( '+', ' ' );
+		if( name == hilite.name ) return;
+		
+		$(hilite.row).removeClass( 'placerow-hilite' );
+		$(row).addClass( 'placerow-hilite' );
+		hilite.row = row;
+		hilite.name = name;
+		
+		//debugger;
+		hilite.polys.forEach( function( poly ) { map.removeOverlay( poly ); } );
+		hilite.polys = [];
+		if( row ) {
+			var place = curState.places.by.name[name];
+			if( place ) {
+				place.shapes.forEach( function( shape ) {
+					var poly = new GPolygon( shapeVertices(shape), '#000000', 1, .8, '#000000', .2 );
+					hilite.polys.push( poly );
+					map.addOverlay( poly );
+				});
+			}
+		}
+	}, 10 );
+}
+
+function shapeVertices( shape ) {
+	if( ! shape.vertices ) {
+		var points = shape.points, n = points.length;
+		var vertices = shape.vertices = new Array( n + 1 );
+		for( var i = 0;  i < n;  ++i ) {  // old fashioned loop for speed
+			var point = points[i];
+			vertices[i] = new GLatLng( point[1], point[0] );
+		}
+		vertices[n] = new GLatLng( points[0][1], points[0][0] );
+	}
+	return shape.vertices;
+}
+
+function contentMouseOver( event ) {
+	var $target = $(event.target);
+	var $row = $target.parents('.placerow');
+	setHilite( $row[0] );
+}
+
+function contentMouseOut( event ) {
+	setHilite();
 }
 
 //var mousemoved = function( latlng ) {
@@ -2357,7 +2424,7 @@ function following() {
 
 function loadState() {
 	var abbr = opt.state;
-	var state = stateByAbbr( abbr );
+	var state = curState = stateByAbbr( abbr );
 	if( state.data ) {
 		//console.log( 'state ready', state.name );
 		stateReady( state.data );
@@ -2433,9 +2500,11 @@ function listAges() {
 		});
 		//alert( img );
 		html.push( S(
-			'<div style="vertical-align:middle; margin-bottom:8px; font-size:16px;">',
-				'<img style="width:', width, 'px; height:', height, 'px;" src="', img, '" />',
-				' ', dem.name, ' County',
+			'<div class="placerow" id="place-', dem.name.replace( ' ', '+' ), '">',
+				'<div style="vertical-align:middle;">',
+					'<img style="width:', width, 'px; height:', height, 'px;" src="', img, '" />',
+					' ', dem.name, ' County',
+				'</div>',
 			'</div>'
 		) );
 	}
@@ -2500,14 +2569,16 @@ function listReligion() {
 			data: county.counts
 		});
 		return S(
-			'<div style="vertical-align:middle; margin-bottom:8px; font-size:16px;">',
-				'<div style="float:left; margin-right:8px;">',
-					img,
-				'</div>',
-				'<div style="float:left;">',
-					' ', county.name, ' County',
-				'</div>',
-				'<div style="clear:left;">',
+			'<div class="placerow" id="place-', county.name.replace( ' ', '+' ), '" style="vertical-align:middle;">',
+				'<div>',
+					'<div style="float:left; margin-right:8px;">',
+						img,
+					'</div>',
+					'<div style="float:left;">',
+						' ', county.name, ' County',
+					'</div>',
+					'<div style="clear:left;">',
+					'</div>',
 				'</div>',
 			'</div>'
 		);
@@ -2570,14 +2641,16 @@ function listPopulation() {
 			//	county.name, ': Population 
 		});
 		return S(
-			'<div style="vertical-align:middle; margin-bottom:4px; font-size:16px;">',
-				'<div style="float:left; margin-right:8px; padding:2px; background-color:#F4F4F4; border:1px solid #DDD;">',
-					img,
-				'</div>',
-				'<div style="float:left; margin-top:3px;">',
-					' ', county.name, ' County',
-				'</div>',
-				'<div style="clear:left;">',
+			'<div class="placerow" id="place-', county.name.replace( ' ', '+' ), '" style="vertical-align:middle;">',
+				'<div>',
+					'<div style="float:left; margin-right:8px; padding:2px; background-color:#F4F4F4; border:1px solid #DDD;">',
+						img,
+					'</div>',
+					'<div style="float:left; margin-top:3px;">',
+						' ', county.name, ' County',
+					'</div>',
+					'<div style="clear:left;">',
+					'</div>',
 				'</div>',
 			'</div>'
 		);
