@@ -553,7 +553,7 @@ opt.tileUrl = opt.tileUrl || 'http://gmodules.com/ig/proxy?max_age=3600&url=http
 opt.infoType = 'stateVotes';
 
 //var imgBaseUrl = 'http://mg.to/iowa/server/images/';
-var imgBaseUrl = 'http://gmaps-samples.googlecode.com/svn/trunk/elections/2008/images/icons/';
+var imgBaseUrl = opt.imgBaseUrl || 'http://primary-maps-2008.googlecode.com/svn/trunk/images/';
 
 var parties = [
 	{ name: 'dem', shortName: 'Democratic', fullName: 'Democratic Party' },
@@ -1244,37 +1244,47 @@ function fmtDate( date ) {
 	}
 	
 	stateSelector = ! opt.stateSelector ? '' : S(
-		'<div style="xpadding-bottom:4px; xborder-bottom:1px solid #DDD; margin-bottom:4px;">',
-			'<div>',
-				'Click the map for state results.',
-			'</div>',
-			'<div>',
-				'Select a state and the data to view:',
-			'</div>',
-			'<div>',
-				'<select id="stateSelector">',
-					option( 'us', 'Entire USA' ),
-					option( 'pa', 'April 22 Primary', 'color:#AAA; font-style:italic; font-weight:bold;' ),
-					hotStates.mapjoin( function( abbr ) {
-						return stateOption( statesByAbbr[abbr], false );
-					}),
-					option( '', 'All States', 'color:#AAA; font-style:italic; font-weight:bold;' ),
-					states.mapjoin( function( state ) {
-						return /*hotStates.by[state.abbr] ? '' :*/ stateOption( state, true );
-					}),
-				'</select>',
-			'</div>',
-			'<div style="margin-top:4px;">',
-				'<select id="stateInfoSelector">',
-					option( 'stateVotes', 'Statewide Vote Results' ),
-					option( 'countyVotes', 'County Vote Results' ),
-					//option( '', '' ),
-					option( 'age', 'Registered Voters by Age' ),
-					option( 'population', 'Population and Party Gain and Loss' ),
-					option( 'religion', 'Religion' ),
-					option( 'ethnic', 'Racial and Ethnic Background' ),
-				'</select>',
-			'</div>',
+		'<div>',
+			'<table class="selects" cellspacing="0" cellpadding="0">',
+				'<tr>',
+					'<td>',
+						'<label for="stateSelector">',
+							'State:',
+						'</label>',
+					'</td>',
+					'<td>',
+						'<select id="stateSelector">',
+							option( 'us', 'Entire USA' ),
+							option( 'pa', 'April 22 Primary', 'color:#AAA; font-style:italic; font-weight:bold;' ),
+							hotStates.mapjoin( function( abbr ) {
+								return stateOption( statesByAbbr[abbr], false );
+							}),
+							option( '', 'All States', 'color:#AAA; font-style:italic; font-weight:bold;' ),
+							states.mapjoin( function( state ) {
+								return /*hotStates.by[state.abbr] ? '' :*/ stateOption( state, true );
+							}),
+						'</select>',
+					'</td>',
+				'</tr>',
+				'<tr>',
+					'<td>',
+						'<label for="stateInfoSelector">',
+							'View:',
+						'</label>',
+					'</td>',
+					'<td xstyle="width:99%;">',
+						'<select id="stateInfoSelector">',
+							option( 'stateVotes', 'Statewide Vote Results' ),
+							option( 'countyVotes', 'County Vote Results' ),
+							//option( '', '' ),
+							option( 'age', 'Registered Voters by Age' ),
+							option( 'population', 'Population and Party Gain and Loss' ),
+							option( 'religion', 'Religion' ),
+							option( 'ethnic', 'Racial and Ethnic Background' ),
+						'</select>',
+					'</td>',
+				'</tr>',
+			'</table>',
 		'</div>'
 	);
 })();
@@ -1288,7 +1298,9 @@ else writeApiMapHTML();
 function writeCommon() {
 	document.write(
 		'<style type="text/css">',
-			'select { width:100%; }',
+			'.selects tr { vertical-align:middle; }',
+			'.selects label { font-weight:bold; margin:0; }',
+			'.selects select { margin:0 8px 4px 6px; width:99%; }',
 			'.legend {}',
 			'.legend * { font-size:12px; }',
 			'.legend div { float:left; }',
@@ -2518,13 +2530,36 @@ function shapeVertices( shape ) {
 }
 
 function contentMouseOver( event ) {
-	var $target = $(event.target);
+	var target = event.target, $target = $(target);
+	showInfoTip( target.id == 'infoicon' );
 	var row = $target.parents('.placerow')[0];
 	setHilite( row && row.id.replace( /^place-/, '' ).replace( '+', ' ' ) );
 }
 
 function contentMouseOut( event ) {
+	showInfoTip( false );
 	setHilite();
+}
+
+function showInfoTip( show ) {
+	var $tip = $('#infotip');
+	if( show ) {
+		if( $tip[0] ) return;
+		var $content = $('#content');
+		var offset = $content.offset();
+		var top = offset.top + 32;
+		var left = offset.left + 32;
+		var width = $content.width() - 80;
+		
+		$('body').append( S(
+			'<div id="infotip" style="z-order:999; position:absolute; top:', top, 'px; left:', left, 'px; width:', width, 'px; padding:8px; background-color:#F2EFE9; border: 1px solid black;">',
+				infoTips[opt.infoType],
+			'</div>'
+		) );
+	}
+	else {
+		$tip.remove();
+	}
 }
 
 //var mousemoved = function( latlng ) {
@@ -2617,6 +2652,8 @@ function setContentScroll() {
 		$cs.height( ( $c.offset().top + height - $cs.offset().top ) + 'px' );
 }
 
+var infoIcon = S( '<img id="infoicon" style="width:16px; height:16px;" src="', imgUrl('help'), '" />' );
+
 var infoHtml = {
 	stateVotes: stateSidebar,
 	
@@ -2696,10 +2733,10 @@ function listAges() {
 	return S(
 		'<div class="legend">',
 			'<div>',
-				'<div style="width:24px;">18</div>',
+				'<div style="margin-left:4px; width:24px;">18</div>',
 				'<div style="width:30px;">35</div>',
 				'<div style="width:21px;">65+</div>',
-				'<div style="width:16px;"> </div>',
+				'<div style="width:12px;"> </div>',
 			'</div>',
 			'<div style="margin:0 4px 0 12px; width:', width, 'px;">',
 				'<img style="width:', width, 'px; height:', height, 'px;" src="', imgDem, '" />',
@@ -2713,8 +2750,11 @@ function listAges() {
 			'<div>',
 				'Republican',
 			'</div>',
+			'<div style="float:right;">',
+				infoIcon,
+			'</div>',
 		'</div>',
-		'<div style="clear:left;">',
+		'<div style="clear:both;">',
 		'</div>',
 		'<div style="padding-bottom:4px; border-bottom:1px solid #DDD; margin-bottom:4px;">',
 		'</div>',
@@ -2776,8 +2816,11 @@ function listReligion() {
 					'</tr>',
 				'</table>',
 			'</div>',
+			'<div style="float:right;">',
+				infoIcon,
+			'</div>',
 		'</div>',
-		'<div style="clear:left;">',
+		'<div style="clear:both;">',
 		'</div>',
 		'<div style="border-bottom:1px solid #DDD; margin-bottom:4px;">',
 		'</div>',
@@ -2841,8 +2884,11 @@ function listPopulation() {
 			'<div>',
 					label(0), label(1), label(2),
 			'</div>',
+			'<div style="float:right;">',
+				infoIcon,
+			'</div>',
 		'</div>',
-		'<div style="clear:left;">',
+		'<div style="clear:both;">',
 		'</div>',
 		'<div style="border-bottom:1px solid #DDD; margin-bottom:4px;">',
 		'</div>',
@@ -2863,6 +2909,16 @@ function listPopulation() {
 		'</div>'
 	);
 }
+
+var infoTips = {
+	//stateVotes: '',
+	//countyVotes: '',
+	age: "Barack Obama has generally drawn more support from younger voters, while Hillary Clinton&#8217;s base has come more from older voters. With 15 percent of its population 65 or older, Pennsylvania has the third most seniors in the country after Florida and West Virginia. The candidate who does a better job turning out their core age group could take a big step toward winning the primary.",
+	population: "Based on the results of the primary next door in Ohio seven weeks ago, Clinton should be favored in the Keystone State, but Pennsylvania is a more diverse state in its patterns of growth. It has rural and metropolitan areas that are losing population, and fast-growing exurbs. For Obama to do well, he will likely have to do well not only in Philadelphia and Pittsburgh, but also in some of the faster-growing parts of the state.",
+	religion: "Both Obama and Clinton recently participated in a forum on issues of faith at Messiah College in Pennsylvania, a reminder of the role that religion plays in politics and campaigns. In this primary season so far, Obama has done well among Democratic primary voters who identify as Protestants and other denominations, but lagged among Catholics.",
+	ethnic: "Obama has had some difficulty winning a significant share of support of white voters in most of the 2008 Democratic presidential primaries, but at the same time he has overwhelmed Clinton about African-American voters in these contests.",
+	casey: "In 2002, then Pennsylvania state auditor general Bob Casey Jr., lost the Democratic gubernatorial primary to then Philadelphia mayor Ed Rendell who went on to capture the statehouse in 2002. Casey carried 57 of the state&#8217;s 67 counties in that primary, but Rendell won the contest because of his strength in the southeastern part of the state, especially the four suburban and exurban counties outside of Philadelphia&#8212;Bucks, Delaware, Chester and Montgomery&#8212;where he carried more that 80 percent of the vote. In the Democratic presidential race Rendell has endorsed Clinton and Casey is backing Obama. Whether Rendell can help Clinton hold down Obama&#8217;s margins in the Philadelphia area, where he is still popular, or Casey can give Obama a boost among his political base in western, central and northeastern Pennsylvania could be pivotal in this primary&#8217;s outcome."
+};
 
 //function loadVotes() {
 //	return;
