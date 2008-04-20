@@ -2255,10 +2255,10 @@ function createStateMarker( place, size ) {
 }
 
 function bindStateMarker( place ) {
-	var state = stateByAbbr(place.state);
-	GEvent.addListener( place.marker, 'click', function() {
-		place.marker.openInfoWindowHtml( placeBalloon(state,place), { maxWidth:300, disableGoogleLinks:true } );
-	});
+	openInfo( place, true );
+	//GEvent.addListener( place.marker, 'click', function() {
+	//	openInfo( place );
+	//});
 }
 
 function makeIcons() {
@@ -2301,15 +2301,17 @@ function setState( state ) {
 	loadState();
 }
 
-function openInfo( place ) {
+function openInfo( place, bind ) {
 	if( ! place ) return;
-	var state = stateByAbbr(place.place.state);
-	var abbr = state.abbr.toLowerCase();
+	var state = stateByAbbr(place.state);
 	
-	map.openInfoWindowHtml(
-		pointLatLng( place.place.centroid ),
-		placeBalloon( state, place.place ),
-		{ maxWidth:300 } );
+	var method = bind ? 'bindInfoWindowHtml' : 'openInfoWindowHtml';
+	var html = placeBalloon( state, place );
+	var options = { maxWidth:300, disableGoogleLinks:true };
+	if( place.marker )
+		place.marker[method]( html, options );
+	else
+		map[method]( pointLatLng(place.centroid), html, options );
 }
 
 var attribution = S(
@@ -2377,8 +2379,8 @@ function load() {
 	}
 	
 	GEvent.addListener( map, 'click', function( overlay, latlng ) {
-		var place = overlay ? overlay.$_place_$ : hittest( latlng );
-		openInfo( place );
+		var where = hittest( latlng );
+		openInfo( where && where.place );
 	});
 	
 	makeIcons();
