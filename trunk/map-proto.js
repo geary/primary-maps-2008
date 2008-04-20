@@ -2480,6 +2480,7 @@ function setHilite( name, scroll ) {
 		hilite.id = id;
 		var $row = $('#'+id);
 		$row.addClass( 'placerow-hilite' );
+		autoScrollContent.clear();
 		if( scroll )
 			autoScrollContent.hover( $row[0] );
 		
