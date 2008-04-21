@@ -80,17 +80,6 @@ var ChartApi = {
 			'<span style="display:block; width:', a.width, 'px; height:', a.height, 'px; background-position:-1px -2px; background-repeat:no-repeat; background-image:url(\'', img, '\');">',
 			'</span>'
 		);
-		
-		return this.chart({
-			cht: 'ls',
-			chco: a.colors.join(),
-			chd: 't:' + a.data.join('|'),
-			chds: a.scale.join(),
-			chs: a.width + 'x' + a.height,
-			chtt: a.title,
-			chf: a.solid,
-			chm: a.fill
-		});
 	},
 	
 	sparkline: function( a ) {
@@ -562,6 +551,37 @@ var parties = [
 
 var q = opt.party || location.search.slice(1);
 window.curParty = parties.by.name[q] || parties[ Math.random() < .5 ? 0 : 1 ];
+
+var infoTips = {
+	stateVotes: {
+		title: 'Statewide Vote Results',
+		text: ''
+	},
+	countyVotes: {
+		title: 'County Vote Results',
+		text: ''
+	},
+	age: {
+		title: 'Registered Voters by Age',
+		text: "Barack Obama has generally drawn more support from younger voters, while Hillary Clinton&#8217;s base has come more from older voters. With 15 percent of its population 65 or older, Pennsylvania has the third most seniors in the country after Florida and West Virginia. The candidate who does a better job turning out their core age group could take a big step toward winning the primary."
+	},
+	population: {
+		title: 'Population/Party Gain and Loss',
+		text: "Based on the results of the primary next door in Ohio seven weeks ago, Clinton should be favored in the Keystone State, but Pennsylvania is a more diverse state in its patterns of growth. It has rural and metropolitan areas that are losing population, and fast-growing exurbs. For Obama to do well, he will likely have to do well not only in Philadelphia and Pittsburgh, but also in some of the faster-growing parts of the state."
+	},
+	religion: {
+		title: 'Religion',
+		text: "Both Obama and Clinton recently participated in a forum on issues of faith at Messiah College in Pennsylvania, a reminder of the role that religion plays in politics and campaigns. In this primary season so far, Obama has done well among Democratic primary voters who identify as Protestants and other denominations, but lagged among Catholics."
+	},
+	ethnic: {
+		title: 'Racial and Ethnic Background',
+		text: "Obama has had some difficulty winning a significant share of support of white voters in most of the 2008 Democratic presidential primaries, but at the same time he has overwhelmed Clinton about African-American voters in these contests."
+	},
+	gub2002: {
+		title: 'Casey vs. Rendell 2002',
+		text: "In 2002, state auditor general Bob Casey Jr. lost the Democratic gubernatorial primary to Philadelphia mayor Ed Rendell, who went on to win the statehouse in 2002. Casey carried 57 of the state&#8217;s 67 counties, but Rendell won because of his strength in the southeastern part of the state, especially the Philadelphia suburbs in Bucks, Delaware, Chester and Montgomery counties, where he carried more that 80 percent of the vote. This year, Rendell has endorsed Clinton and Casey is backing Obama. Whether Rendell can help Clinton hold down Obama&#8217;s margins in the Philadelphia area, where he is still popular, or Casey can give Obama a boost among his political base in western, central and northeastern Pennsylvania could be pivotal in this primary&#8217;s outcome."
+	}
+};
 
 var states = [
 	{
@@ -1212,12 +1232,6 @@ function setPartyButtons() {
 	);
 }
 
-twitterBlurb = ! opt.twitter ? '' : S(
-	'<div style="padding-bottom:4px; border-bottom:1px solid #DDD; margin-bottom:4px;">',
-		'We\'ve joined forces with <a href="http://twitter.com/" target="_blank">Twitter</a> and <a href="http://twittervision.com/" target="_blank">Twittervision</a> to give you instant updates on Super Tuesday. You can watch Twitter texts from across the country and send in your own updates!',
-	'</div>'
-);
-
 var shortMonths = 'Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec'.split(' ');
 
 function fmtDate( date ) {
@@ -1241,6 +1255,9 @@ function fmtDate( date ) {
 			dates = ' (' + ( dem == gop ? fmtDate(dem) : S( 'D:', fmtDate(dem), ', R:', fmtDate(gop) ) ) + ')';
 		}
 		return option( state.abbr, state.name + dates );
+	}
+	function infoOption( key ) {
+		return option( key, infoTips[key].title );
 	}
 	
 	stateSelector = ! opt.stateSelector ? '' : S(
@@ -1274,13 +1291,14 @@ function fmtDate( date ) {
 					'</td>',
 					'<td xstyle="width:99%;">',
 						'<select id="stateInfoSelector">',
-							option( 'stateVotes', 'Statewide Vote Results' ),
-							option( 'countyVotes', 'County Vote Results' ),
+							infoOption( 'stateVotes' ),
+							infoOption( 'countyVotes' ),
 							//option( '', '' ),
-							option( 'age', 'Registered Voters by Age' ),
-							option( 'population', 'Population and Party Gain and Loss' ),
-							option( 'religion', 'Religion' ),
-							option( 'ethnic', 'Racial and Ethnic Background' ),
+							infoOption( 'age' ),
+							infoOption( 'population' ),
+							infoOption( 'religion' ),
+							infoOption( 'ethnic' ),
+							infoOption( 'gub2002' ),
 						'</select>',
 					'</td>',
 				'</tr>',
@@ -1397,7 +1415,6 @@ function writeMappletHTML() {
 				'<a href="http://gmodules.com/ig/creator?synd=open&url=http://primary-maps-2008.googlecode.com/svn/trunk/map.xml" target="_blank">Get this map for your website</a>',
 			'</div>',
 			stateSelector,
-			//twitterBlurb,
 			//'<div style="padding-bottom:4px; border-bottom:1px solid #DDD; margin-bottom:4px;">',
 			//	'Come back after the polls close (around 8PM EST) for live election results of all the Super Tuesday states!',
 			//'</div>',
@@ -1440,17 +1457,19 @@ function writeApiMapHTML() {
 		'</div>'
 	);
 	var sidebarHTML = S(
-		'<div id="resultlist">',
-		'</div>',
-		stateSelector,
-		'<div id="content">',
-			'Loading&#8230;',
-		'</div>',
-		'<div id="results">',
-			//'Roll the mouse over the map for county-by-county results.<br /><br />',
-			//'Roll the mouse over the map for state-by-state results.<br />',
-			//'Zoom in for county-by-county results.<br /><br />',
-			//'Scroll down for statewide details',
+		'<div id="outer">',
+			'<div id="resultlist">',
+			'</div>',
+			stateSelector,
+			'<div id="content">',
+				'Loading&#8230;',
+			'</div>',
+			'<div id="results">',
+				//'Roll the mouse over the map for county-by-county results.<br /><br />',
+				//'Roll the mouse over the map for state-by-state results.<br />',
+				//'Zoom in for county-by-county results.<br /><br />',
+				//'Scroll down for statewide details',
+			'</div>',
 		'</div>'
 	);
 	document.write(
@@ -2544,23 +2563,29 @@ function contentMouseOut( event ) {
 }
 
 function showInfoTip( show ) {
-	var $tip = $('#infotip');
+	var $infotip = $('#infotip');
 	if( show ) {
-		if( $tip[0] ) return;
-		var $content = $('#content');
-		var offset = $content.offset();
-		var top = offset.top + 32;
-		var left = offset.left + 32;
-		var width = $content.width() - 80;
+		if( $infotip[0] ) return;
+		var tip = infoTips[opt.infoType];
+		var $outer = $('#outer');
+		var offset = $outer.offset();
+		var top = offset.top + 8;
+		var left = offset.left + 8;
+		var width = $outer.width() - 40;
 		
 		$('body').append( S(
-			'<div id="infotip" style="z-order:999; position:absolute; top:', top, 'px; left:', left, 'px; width:', width, 'px; padding:8px; background-color:#F2EFE9; border: 1px solid black;">',
-				infoTips[opt.infoType],
+			'<div id="infotip" style="z-order:999; position:absolute; top:', top, 'px; left:', left, 'px; width:', width, 'px; padding:4px; background-color:#F2EFE9; border: 1px solid black;">',
+				'<div style="margin-bottom:4px;">',
+					'<b>', tip.title, '</b>',
+				'</div>',
+				'<div>',
+					tip.text,
+				'</div>',
 			'</div>'
 		) );
 	}
 	else {
-		$tip.remove();
+		$infotip.remove();
 	}
 }
 
@@ -2669,7 +2694,9 @@ var infoHtml = {
 	
 	ethnic: function() {
 		return '(coming soon)';
-	}
+	},
+	
+	gub2002: listGub2002
 };
 
 function listAges() {
@@ -2910,15 +2937,83 @@ function listPopulation() {
 	);
 }
 
-var infoTips = {
-	//stateVotes: '',
-	//countyVotes: '',
-	age: "Barack Obama has generally drawn more support from younger voters, while Hillary Clinton&#8217;s base has come more from older voters. With 15 percent of its population 65 or older, Pennsylvania has the third most seniors in the country after Florida and West Virginia. The candidate who does a better job turning out their core age group could take a big step toward winning the primary.",
-	population: "Based on the results of the primary next door in Ohio seven weeks ago, Clinton should be favored in the Keystone State, but Pennsylvania is a more diverse state in its patterns of growth. It has rural and metropolitan areas that are losing population, and fast-growing exurbs. For Obama to do well, he will likely have to do well not only in Philadelphia and Pittsburgh, but also in some of the faster-growing parts of the state.",
-	religion: "Both Obama and Clinton recently participated in a forum on issues of faith at Messiah College in Pennsylvania, a reminder of the role that religion plays in politics and campaigns. In this primary season so far, Obama has done well among Democratic primary voters who identify as Protestants and other denominations, but lagged among Catholics.",
-	ethnic: "Obama has had some difficulty winning a significant share of support of white voters in most of the 2008 Democratic presidential primaries, but at the same time he has overwhelmed Clinton about African-American voters in these contests.",
-	casey: "In 2002, then Pennsylvania state auditor general Bob Casey Jr., lost the Democratic gubernatorial primary to then Philadelphia mayor Ed Rendell who went on to capture the statehouse in 2002. Casey carried 57 of the state&#8217;s 67 counties in that primary, but Rendell won the contest because of his strength in the southeastern part of the state, especially the four suburban and exurban counties outside of Philadelphia&#8212;Bucks, Delaware, Chester and Montgomery&#8212;where he carried more that 80 percent of the vote. In the Democratic presidential race Rendell has endorsed Clinton and Casey is backing Obama. Whether Rendell can help Clinton hold down Obama&#8217;s margins in the Philadelphia area, where he is still popular, or Casey can give Obama a boost among his political base in western, central and northeastern Pennsylvania could be pivotal in this primary&#8217;s outcome."
-};
+function listGub2002() {
+	var colors = [ 'EFBA00', '18A221' ];
+	var labels = Demographics.labels.gub2002;
+	var width = 125, height = 22;
+	var html = Demographics.places.mapjoin( function( place ) {
+		var gub = place.gub2002;
+		var img = ChartApi.sparkbar({
+			width: width,
+			height: height,
+			barHeight: 10,
+			barSpace: 2,
+			colors: colors,
+			data: gub,
+			scale: [0, gub[0] + gub[1] ],
+			background: S( 'c,s,F4F4F4' )
+			//,
+			//alt: S(
+			//	place.name, ': Population 
+		});
+		return S(
+			'<div class="placerow" id="place-', place.name.replace( ' ', '+' ), '" style="vertical-align:middle;">',
+				'<div>',
+					'<div style="float:left; margin-right:8px; padding:2px; background-color:#F4F4F4; border:1px solid #DDD;">',
+						img,
+					'</div>',
+					'<div style="float:left; margin-top:3px;">',
+						' ', place.name, ' County',
+					'</div>',
+					'<div style="clear:left;">',
+					'</div>',
+				'</div>',
+			'</div>'
+		);
+	});
+	
+	function label( i ) {
+		return S(
+			'<td>',
+				'<div style="width:16px; height:16px; margin:0 4px 4px 0; background-color:#', colors[i], ';">',
+					' ',
+				'</div>',
+				'<div style="margin:0 18px 4px 0;">',
+					labels[i],
+				'</div>',
+			'</td>'
+		);
+	}
+	
+	return S(
+		'<div class="legend">',
+			'<div>',
+					label(0), label(1),
+			'</div>',
+			'<div style="float:right;">',
+				infoIcon,
+			'</div>',
+		'</div>',
+		'<div style="clear:both;">',
+		'</div>',
+		'<div style="border-bottom:1px solid #DDD; margin-bottom:4px;">',
+		'</div>',
+		'<div class="legend">',
+			'<div>',
+				'<div style="margin-left:4px; width:96px;">0%</div>',
+				'<div style="width:45px;">100%</div>',
+				'<div>2002 Gubernatorial Primary</div>',
+			'</div>',
+		'</div>',
+		'<div style="clear:left;">',
+		'</div>',
+		'<div style="border-bottom:1px solid #DDD; margin-bottom:4px;">',
+		'</div>',
+		'<div id="content-scroll">',
+			html,
+		'</div>'
+	);
+}
 
 //function loadVotes() {
 //	return;
@@ -3161,58 +3256,6 @@ function placeTable( state, place, balloon ) {
 	);
 }
 
-/*
-function selectRegion( region ) {
-	if( region == regions.selected ) return;
-	if( regions.selected )
-		map.removeOverlay( regions.selected.polygon.select );
-	regions.selected = region;
-	if( region )
-		map.addOverlay( region.polygon.select );
-	showRegionNews( region );
-}
-*/
-
-/*
-function showRegionNews( region ) {
-	if( ! region ) {
-		$('#news')
-			.css({ backgroundColor:'inherit' })
-			.html(
-				'<h2 class="NewsHeading">',
-					mapplet ? 'Click the map for regional news' : 'Rest the mouse over the map for regional news',
-				'</h2>'
-			);
-		return;
-	}
-	
-	var news = region.news;
-	
-	var list = [];
-	news && news.forEach( function( item ) {
-		list.push(
-			'<div class="NewsItem">',
-				candidateIcons( item.title ),
-				'<a href="', item.link, '" target="_blank">', item.title, '</a>',
-			'</div>'
-		);
-	});
-	
-	$('#news')
-		.css({ backgroundColor:region.solid })
-		.html(
-			'<h2 class="NewsHeading">',
-				region.caption, ' Iowa News',
-			'</h2>',
-			'<div class="NewsList">',
-				list.join(''),
-			'</div>'
-		);
-	
-	adjustHeight();
-}
-*/
-
 function imgUrl( name ) {
 	return imgBaseUrl + name + '.png';
 }
@@ -3240,266 +3283,6 @@ function download( url, ready ) {
 }
 
 $(window).bind( 'load', load ).bind( 'onunload', GUnload );
-
-//function loadTwitter() {
-//	var url = 'http://primary-maps-2008-data.googlecode.com/svn/trunk/tweets/tweets.js?t=' + new Date().getTime();
-//	_IG_FetchContent( url, function( t ) {
-//		window.tweets = eval( '(' + t + ')' );
-//		//var list = [], markers = [];
-//		//tweets.forEach( function( tweet ) {
-//		//	markers.push();
-//		//});
-//		showTweet();
-//	});
-//}
-//
-//function showTweet() {
-//	var tweet = tweets.shift();
-//	if( tweet )
-//		addTweetMarker( tweet );
-//	else
-//		loadTwitter();
-//}
-//
-//var demRE = /hillary|clinton|barack|obama|democrat/i;
-//var gopRE = /huckabee|mccain|paul|romney|gop|republican/i;
-//
-//var tweetMarker;
-//function addTweetMarker( tweet ) {
-//	//if( tweetMarker ) {
-//	//	//map.closeInfoWindow();
-//	//	map.removeOverlay( tweetMarker );
-//	//	tweetMarker = null;
-//	//}
-//	
-//	//var dem = tweet.message.match( demRE );
-//	//var gop = tweet.message.match( gopRE );
-//	//if( dem && ! gop )
-//	//	changePartyIfFollowing( 'dem' );
-//	//else if( gop && ! dem )
-//	//	changePartyIfFollowing( 'gop' );
-//	
-//	var latlng = new GLatLng( tweet.lat, tweet.lon );
-//	if( ! tweetMarker ) {
-//		tweetMarker = new GMarker( latlng/*, { icon:icons[color] }*/ );
-//		map.addOverlay( tweetMarker );
-//	}
-//	else {
-//		if( mapplet )
-//			tweetMarker.setPoint( latlng );
-//		else
-//			tweetMarker.setLatLng( latlng );
-//	}
-//	//marker.openInfoWindowHtml( tweetBubble(tweet) );
-//	var bubble = tweetBubble(tweet);
-//	tweetMarker.openInfoWindowHtml( bubble, { maxWidth:300, disableGoogleLinks:true } );
-//	
-//	setTimeout( showTweet, 15000 );
-//}
-//
-//function tweetBubble( tweet ) {
-//	var img = ! tweet.image ? '' : S(
-//		'<img ',
-//			'style="border:1px solid black; float:left; width:48px; height:48px; margin:0 6px 6px 0; vertical-align:top;" ',
-//			'src="', tweet.image || '', '" />'
-//	);
-//	var author = ! tweet.author || tweet.author == tweet.user ? '' : S( '<div>', htmlEscape(tweet.author), '</div>' );
-//	return S(
-//		'<div style="font-family: Arial,sans-serif; font-size: 10pt;">',
-//			img,
-//			'<div style="font-weight:bold;">',
-//				'<a target="_new" href="http://twitter.com/', htmlEscape(tweet.user), '">', htmlEscape(tweet.user), '</a>',
-//			'</div>',
-//			author,
-//			'<div>',
-//				htmlEscape( tweet.where || '' ),
-//			'</div>',
-//			'<div style="display: inline;">',
-//				httpLinks( htmlEscape(tweet.message) ),
-//				//atLinks( httpLinks( htmlEscape(tweet.message) ) ),
-//			'</div>',
-//			//'<div id="statusupdated">less than a minute ago in WWW</div>
-//		'</div>'
-//	);
-//}
-
-//function loadYouTubeMap() {
-//	
-//	var contestID = 18;
-//	var vlist = null;
-//	var temp_vlist = null;
-//	var vOfCount = 0;
-//	var tabs = null;
-//	var selectedVid = 0;
-//	var user_vid = "";
-//	var user_id = "";
-//	var _json_with_no_cache = 1;
-//	var timerHandle = 0;
-//	var page = 1;
-//	
-//	
-//	var overlayscleared = 0;
-//	var marker = null;
-//	
-//	var DEFAULT_MARKER_POINT = new GLatLng(38.496593,-98.338623);//new GLatLng(37.4228, -122.085)
-//	var DEFAULT_BIG_ZOOM = 4;
-//	var DEFAULT_SMALL_ZOOM = 6;
-//
-//	
-//	var gicons = [
-//		new GIcon(G_DEFAULT_ICON, _IG_GetImageUrl("http://contests.labpixies.com/gadget/super_tue/images/1.png")),
-//		new GIcon(G_DEFAULT_ICON, _IG_GetImageUrl("http://contests.labpixies.com/gadget/super_tue/images/2.png")),		
-//		new GIcon(G_DEFAULT_ICON, _IG_GetImageUrl("http://contests.labpixies.com/gadget/super_tue/images/3.png")),
-//		new GIcon(G_DEFAULT_ICON, _IG_GetImageUrl("http://contests.labpixies.com/gadget/super_tue/images/4.png"))	
-//	];
-//	
-//	for(var i=0; i < gicons.length ; i++){
-//		var tmp = gicons[i];
-//		tmp.iconSize = new GSize(22,21);
-//		tmp.shadowSize = new GSize(0,0);
-//	}
-//	
-//	var gmarkers = [];
-//	var gmarkers_htmls = [];
-//	var gmarkers_ids = [];
-//	var gmarkers_idx = 0;
-//	
-//	var url = "http://contests.labpixies.com/get_videos/?cid="+contestID+"&v_phase=0";
-//	_IG_FetchContent(url, parseResponse, { refreshInterval: (60 * 1) });
-//	
-//	function parseResponse(response){
-//		
-//		if (response == null || typeof(response) != "string") {
-//			_gel("mainmap").innerHTML = "Temporary unavailable, please try again in a few seconds";
-//			return;
-//		}
-//		
-//		videos_data = eval("("+response+")");
-//		
-//		
-//		vlist = videos_data.list;
-//		vlist.splice(vlist.length-1,1);
-//		
-//		if(vlist.length == 0){
-//			//_gel("mainmap").innerHTML = "No video available, please try again in a few seconds";
-//			//return;
-//		}
-//		
-//		vlist.sort( randOrd );
-//		vOfCount = vlist.length;
-//		
-//		
-//		loadMainMap();
-//		
-//	}
-//	
-//	
-//	function loadMainMap() {
-//		
-//		var bounds = new GLatLngBounds();
-//		
-//console.log('creating markers ' + vlist.length);		
-//		for (var i=0; i<vlist.length && i<50; i++) {
-//console.log('creating marker ' +i);		
-//			var latlng = vlist[i].geo.split("s");
-//			var point = new GLatLng(latlng[0], latlng[1]);
-//			var _marker = createCustomMarker(point, vlist[i].v_name, vlist[i].yt_id, vlist[i].cat);
-//			//map.addOverlay(_marker);
-//			bounds.extend(point);
-//		}
-//		
-//		
-//		//map.setCenter(bounds.getCenter(), map.getBoundsZoomLevel(bounds));
-//		//map.setCenter(new GLatLng("38.548165","-99.492187"), 4);
-//		
-//console.log('adding markers');		
-//		for (var i = 0; i < gmarkers.length; i++) {
-//			map.addOverlay(gmarkers[i]);
-//		}
-//console.log('done adding markers');		
-//		setTimeout("gmarkers_click(0);",2000);
-//	}
-//	
-//	function createCustomMarker(point,name,yt_id,category) {
-//        var html = '<table><tr><td width="230" height="20" class="smallBlueText">'+name+'</td></tr><tr><td width="230" height="190" id="testCont">&nbsp;</td></tr></table>';
-//		
-//		var _marker = new GMarker(point,gicons[category-1]);
-//        GEvent.addListener(_marker, "click", function() {
-//			_marker.openInfoWindowHtml(html);
-//			var curl = ("http://www.youtube.com/v/"+yt_id+"&rel=0&autoplay=1&border=0");
-//			_LP_EmbedFlash(curl, "testCont", {width: 230,height: 190,wmode:'transparent'});
-//			gadgetTracker._trackEvent('map-playVideo',name);
-//			_gel("report_pixel").src = "http://contests.labpixies.com/view.php?vid="+yt_id+"&cont_id="+contestID+"&rand="+Math.round(Math.random()*100000);
-//        });
-//        
-//		GEvent.addListener(_marker, "infowindowbeforeclose", function() {
-//			_gel("testCont").innerHTML = "";
-//        });
-//		
-//        gmarkers[gmarkers_idx] = _marker;
-//        gmarkers_htmls[gmarkers_idx] = html;
-//		gmarkers_ids[gmarkers_idx] = yt_id;
-//		
-//        gmarkers_idx++;
-//        return _marker;
-//    }
-//	
-//	
-//	function gmarkers_click(_idx) {
-//		gmarkers[_idx].openInfoWindowHtml(gmarkers_htmls[_idx]);
-//		var curl = ("http://www.youtube.com/v/"+gmarkers_ids[_idx]+"&rel=0&autoplay=1&border=0");
-//		_LP_EmbedFlash(curl, "testCont", {width: 230,height: 190,wmode:'transparent'});
-//		gadgetTracker._trackEvent('map-playVideo',gmarkers_ids[_idx]);
-//		_gel("report_pixel").src = "http://contests.labpixies.com/view.php?vid="+gmarkers_ids[_idx]+"&cont_id="+contestID+"&rand="+Math.round(Math.random()*100000);
-//	}
-//	
-//	//Utils
-//  function randOrd(){
-//	return (Math.round(Math.random())-0.5); 
-//  }
-//	 
-//  function getJson(b,errorReportFunction){
-//        
-//        clearTimeout(timerHandle);
-//        timerHandle = setTimeout(errorReportFunction,30000);
-//        var c=document.getElementsByTagName("head")[0];
-//        var d=document.createElement("script");
-//        d.type="text/javascript";
-//        d.charset="utf-8";
-//        d.defer="defer";
-//        var e=b;
-//        e=e+"&nocache="+_json_with_no_cache++;
-//        d.src=e;
-//        var f=function(){
-//            var j=d.parentNode;
-//            j.removeChild(d);
-//            delete d
-//        };
-//        var g=function(j){
-//            var s=(j?j:window.event).target?(j?j:window.event).target:(j?j:window.event).srcElement;
-//            if(s.readyState=="loaded"||s.readyState=="complete"){
-//                f();
-//                return;
-//            }
-//        };
-//        if(navigator.product=="Gecko"){
-//            d.onload=f;
-//        }else{
-//            d.onreadystatechange=g;
-//        }
-//        c.appendChild(d)
-//    }
-//	
-//	function _LP_EmbedFlash(_url, _id, _params){
-//	  var isFF = ((navigator.userAgent.toLowerCase().indexOf("firefox") >= 0) || (navigator.userAgent.toLowerCase().indexOf("camino") >= 0));
-//	  if(!isFF){
-//		_IG_EmbedFlash(_url, _id,  _params);
-//	  }else{
-//		var params = _params;
-//		_gel(_id).innerHTML = '<object width="'+params.width+'" height="'+params.height+'"><param name="movie" value="'+_url+'"></param><param name="wmode" value="'+params.wmode+'"></param><embed src="'+_url+'" type="application/x-shockwave-flash" wmode="'+params.wmode+'" width="'+params.width+'" height="'+params.height+'"></embed></object>';    
-//	  }
-//	}
-//}
 
 if( opt.state  &&  opt.state != 'us' ) {
 	document.write(
