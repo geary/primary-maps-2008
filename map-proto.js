@@ -2917,7 +2917,7 @@ function listEthnic() {
 }
 
 function listPopulation() {
-	var colors = [ '1BCC11', '0000DD', 'DD0000' ];
+	var colors = [ '18A221', '0000DD', 'DD0000' ];
 	var labels = [ 'Population', 'Democratic', 'Republican' ];
 	var width = 125, height = 22;
 	var limits = Demographics.limits.population, scale = [ limits.minPercent, limits.maxPercent ];
@@ -2981,9 +2981,9 @@ function listPopulation() {
 		'</div>',
 		'<div class="legend">',
 			'<div>',
-				'<div style="width:37px;">-13%</div>',
-				'<div style="width:61px;">0</div>',
-				'<div style="width:43px;">+41%</div>',
+				'<div style="width:39px;">-25%</div>',
+				'<div style="width:59px;">0</div>',
+				'<div style="width:46px;">+70%</div>',
 				'<div>Changes from 2000 to 2008</div>',
 			'</div>',
 		'</div>',
