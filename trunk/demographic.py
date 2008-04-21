@@ -154,12 +154,12 @@ class Reader:
 				'dem': {
 					'before': demBefore,
 					'after': demAfter,
-					'change': float( demAfter - demBefore ) / float(demBefore) * 100.0
+					'change': percent( float( demAfter - demBefore ) / float(demBefore) )
 				},
 				'gop': {
 					'before': gopBefore,
 					'after': gopAfter,
-					'change': float( gopAfter - gopBefore ) / float(gopBefore) * 100.0
+					'change': percent( float( gopAfter - gopBefore ) / float(gopBefore) )
 				}
 			})
 	
@@ -207,8 +207,11 @@ class Reader:
 		header = reader.next()
 		for row in reader:
 			name = fixCountyName( row.pop(0) )
+			casey = float( row[0] )
+			rendell = float( row[1] )
+			total = casey + rendell
 			self.countiesByName[name].update({
-				'gub2002': [ fixint( row[0] ), fixint( row[1] ) ]
+				'gub2002': [ percent( casey / total ), percent( rendell / total ) ]
 			})
 		self.labels.update({ 'gub2002':[ 'Casey', 'Rendell' ] })
 	
@@ -249,7 +252,7 @@ class Reader:
 			religion = place['religion']['percents']
 			gub2002 = place['gub2002']
 			csv.append(
-				'%s,%s,%d,%d,%.2f%%,%d,%d,%.2f%%,%d,%d,%.2f%%,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%.2f%%,%.2f%%,%.2f%%,%.2f%%,%.2f%%,%.2f%%,%d,%d' %(
+				'%s,%s,%d,%d,%.2f%%,%d,%d,%.2f%%,%d,%d,%.2f%%,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%.2f%%,%.2f%%,%.2f%%,%.2f%%,%.2f%%,%.2f%%,%.2f%%,%.2f%%' %(
 					place['name'], pop['type'],
 					popAll['before'], popAll['after'], popAll['change'],
 					popDem['before'], popDem['after'], popDem['change'],
@@ -278,9 +281,9 @@ def fixCountyName( name ):
 		name = fixNames[name]
 	return name
 
-def percentage( n ):
-	pct = int( round( 100.0 * float(n) ) )
-	if pct == 100 and n < 1: pct = 99
+def percent( n, digits=1 ):
+	pct = round( 100.0 * float(n), digits )
+	#if pct == 100.0 and n < 1: pct = 99.0
 	return pct
 
 def cleanNum( n ):
