@@ -62,6 +62,7 @@ class Reader:
 		self.readReligion()
 		self.readPopulation()
 		self.readTypology()
+		self.readGub2002()
 		self.calcLimits()
 	
 	def readAges( self, party ):
@@ -174,6 +175,17 @@ class Reader:
 					'change': float( row[3] ),
 				}
 			})
+	
+	def readGub2002( self ):
+		print 'Reading Casey-Rendell %s' %( self.state )
+		reader = csv.reader( open( '%s/states/%s/Casey-Rendell-2002.csv' %( datapath, self.state ), 'rb' ) )
+		header = reader.next()
+		for row in reader:
+			name = fixCountyName( row.pop(0) )
+			self.countiesByName[name].update({
+				'gub2002': [ fixint( row[0] ), fixint( row[1] ) ]
+			})
+		self.labels.update({ 'gub2002':[ 'Casey', 'Rendell' ] })
 	
 	def calcLimits( self ):
 		print 'Calculating percent limits %s' %( self.state )
