@@ -2673,8 +2673,7 @@ var infoHtml = {
 };
 
 function listAges() {
-	var ages = Demographics.ages;
-	var labels = ages.dem.labels.map( function( label ) {
+	var labels = Demographics.labels.ages.map( function( label ) {
 		//return label.replace( ' to ', '&#8211;' );
 		return label.replace( ' to ', '-' );
 	});
@@ -2683,9 +2682,8 @@ function listAges() {
 		gop: { line:'DD0000', fill:'bg,ls,0,FFC4C4,0.28,FFDCDC,0.44,FFC4C4,0.28' }
 	};
 	var width = 75, height = 22;
-	var html = [];
-	for( var i = 0, n = ages.dem.counties.length;  i < n;  ++i ) {
-		var dem = ages.dem.counties[i], gop = ages.gop.counties[i];
+	var html = Demographics.places.mapjoin( function( place ) {
+		var ages = place.ages, dem = ages.dem, gop = ages.gop;
 		var min = Math.min( dem.min, gop.min ), max = Math.max( dem.max, gop.max );
 		var use = dem.total > gop.total ? {
 			data: [ gop.counts.join(), dem.counts.join() ],
@@ -2705,15 +2703,15 @@ function listAges() {
 			scale: [ min * .8, max * 1.1 ]
 		});
 		//alert( img );
-		html.push( S(
-			'<div class="placerow" id="place-', dem.name.replace( ' ', '+' ), '">',
+		return S(
+			'<div class="placerow" id="place-', place.name.replace( ' ', '+' ), '">',
 				'<div style="vertical-align:middle;">',
 					'<img style="width:', width, 'px; height:', height, 'px;" src="', img, '" />',
-					' ', dem.name, ' County',
+					' ', place.name, ' County',
 				'</div>',
 			'</div>'
-		) );
-	}
+		);
+	});
 	width = 24, height = 16;
 	var imgDem = ChartApi.sparkline({
 		width: width,
@@ -2761,30 +2759,29 @@ function listAges() {
 		'<div style="padding-bottom:4px; border-bottom:1px solid #DDD; margin-bottom:4px;">',
 		'</div>',
 		'<div id="content-scroll">',
-			html.join(''),
+			html,
 		'</div>'
 	);
 }
 
 function listReligion() {
 	var colors = [ '5A1F00', 'D1570D', 'FDE792', '477725', 'A9CC66', 'CCCCCC' ];
-	var religion = Demographics.religion;
 	var width = 75, height = 22;
-	var html = religion.counties.mapjoin( function( county ) {
+	var html = Demographics.places.mapjoin( function( place ) {
 		var img = ChartApi.rainbow({
 			width: width,
 			height: height,
 			colors: colors,
-			data: county.counts
+			data: place.religion.percents
 		});
 		return S(
-			'<div class="placerow" id="place-', county.name.replace( ' ', '+' ), '" style="vertical-align:middle;">',
+			'<div class="placerow" id="place-', place.name.replace( ' ', '+' ), '" style="vertical-align:middle;">',
 				'<div>',
 					'<div style="float:left; margin-right:8px;">',
 						img,
 					'</div>',
 					'<div style="float:left;">',
-						' ', county.name, ' County',
+						' ', place.name, ' County',
 					'</div>',
 					'<div style="clear:left;">',
 					'</div>',
@@ -2800,7 +2797,7 @@ function listReligion() {
 					' ',
 				'</div>',
 				'<div style="margin:0 18px 4px 0;">',
-					religion.labels[i],
+					Demographics.labels.religion[i],
 				'</div>',
 			'</td>'
 		);
@@ -2835,31 +2832,32 @@ function listReligion() {
 function listPopulation() {
 	var colors = [ '1BCC11', '0000DD', 'DD0000' ];
 	var labels = [ 'Population', 'Democratic', 'Republican' ];
-	var changes = Demographics.changes;
 	var width = 125, height = 22;
-	var scale = [ -7.0, 12.0 ];
-	var html = changes.counties.mapjoin( function( county ) {
+	var limits = Demographics.limits.population, scale = [ limits.minPercent, limits.maxPercent ];
+	var left = -scale[0] / ( scale[1] - scale[0] ), right = 1 - left;
+	var html = Demographics.places.mapjoin( function( place ) {
+		var pop = place.population;
 		var img = ChartApi.sparkbar({
 			width: width,
 			height: height,
 			barHeight: 6,
 			barSpace: 2,
 			colors: colors,
-			data: [ county.popChange, county.demChange, county.gopChange ],
+			data: [ pop.all.change, pop.dem.change, pop.gop.change ],
 			scale: scale,
-			background: 'c,ls,0,E0E0E0,0.3684,F4F4F4,0.6316'
+			background: S( 'c,ls,0,E0E0E0,', left, ',F4F4F4,', right )
 			//,
 			//alt: S(
-			//	county.name, ': Population 
+			//	place.name, ': Population 
 		});
 		return S(
-			'<div class="placerow" id="place-', county.name.replace( ' ', '+' ), '" style="vertical-align:middle;">',
+			'<div class="placerow" id="place-', place.name.replace( ' ', '+' ), '" style="vertical-align:middle;">',
 				'<div>',
 					'<div style="float:left; margin-right:8px; padding:2px; background-color:#F4F4F4; border:1px solid #DDD;">',
 						img,
 					'</div>',
 					'<div style="float:left; margin-top:3px;">',
-						' ', county.name, ' County',
+						' ', place.name, ' County',
 					'</div>',
 					'<div style="clear:left;">',
 					'</div>',
@@ -2896,9 +2894,9 @@ function listPopulation() {
 		'</div>',
 		'<div class="legend">',
 			'<div>',
-				'<div style="width:45px;">-7%</div>',
-				'<div style="width:50px;">0</div>',
-				'<div style="width:43px;">+12%</div>',
+				'<div style="width:37px;">-13%</div>',
+				'<div style="width:61px;">0</div>',
+				'<div style="width:43px;">+41%</div>',
 				'<div>Changes from 2000 to 2008</div>',
 			'</div>',
 		'</div>',
