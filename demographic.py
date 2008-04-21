@@ -42,7 +42,7 @@ class Reader:
 	
 	def makeCountyList( self ):
 		print 'Reading typology %s' %( self.state )
-		reader = csv.reader( open( '%s/states/%s/CO-EST2007-02-42-2.csv' %( datapath, self.state ), 'rb' ) )
+		reader = csv.reader( open( '%s/states/%s/CO-EST2007-02-42.csv' %( datapath, self.state ), 'rb' ) )
 		self.labels = {}
 		self.places = []
 		header = reader.next()
@@ -163,7 +163,7 @@ class Reader:
 	
 	def readPopulation( self ):
 		print 'Reading population %s' %( self.state )
-		reader = csv.reader( open( '%s/states/%s/CO-EST2007-02-42-2.csv' %( datapath, self.state ), 'rb' ) )
+		reader = csv.reader( open( '%s/states/%s/CO-EST2007-02-42.csv' %( datapath, self.state ), 'rb' ) )
 		header = reader.next()
 		for row in reader:
 			name = fixCountyName( row.pop(0)[1:] )
