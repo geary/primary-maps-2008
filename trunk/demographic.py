@@ -146,20 +146,20 @@ class Reader:
 		header = reader.next()
 		for row in reader:
 			name = fixCountyName( row.pop(0) )
+			demBefore = fixint( row[0] )
+			demAfter = fixint( row[4] )
+			gopBefore = fixint( row[1] )
+			gopAfter = fixint( row[5] )
 			self.countiesByName[name]['population'].update({
 				'dem': {
-					'before': fixint( row[0] ),
-					#'oldpercent': fixpercent( row[2] ),
-					'after': fixint( row[4] ),
-					#'newpercent': fixpercent( row[6] ),
-					'change': fixpercent( row[7] )
+					'before': demBefore,
+					'after': demAfter,
+					'change': float( demAfter - demBefore ) / float(demBefore) * 100.0
 				},
 				'gop': {
-					'before': fixint( row[1] ),
-					#'oldpercent': fixpercent( row[3] ),
-					'after': fixint( row[5] ),
-					#'newpercent': fixpercent( row[8] ),
-					'change': fixpercent( row[9] )
+					'before': gopBefore,
+					'after': gopAfter,
+					'change': float( gopAfter - gopBefore ) / float(gopBefore) * 100.0
 				}
 			})
 	
@@ -239,6 +239,33 @@ class Reader:
 					'limits': self.limits,
 					'places': self.places
 			}) )
+	
+	def makeSheet( self ):
+		csv = [ 'County,Type,All 2000,All 2008,All % Change,Dem 2000,Dem 2008,Dem % Change,GOP 2000,GOP 2008,GOP % Change,All 18-24,All 25-34,All 35-44,All 45-54,All 55-64,All 65-74,All 75+,Dem 18-24,Dem 25-34,Dem 35-44,Dem 45-54,Dem 55-64,Dem 65-74,Dem 75+,GOP 18-24,GOP 25-34,GOP 35-44,GOP 45-54,GOP 55-64,GOP 65-74,GOP 75+,White,Black,Asian,Other,Catholic,Evangelical,Mainline,Jewish,Other,None,Casey,Rendell' ]
+		for place in self.places:
+			pop = place['population'];  popAll = pop['all'];  popDem = pop['dem'];  popGop = pop['gop']
+			ages = place['ages'];  ageAll = ages['all']['counts'];  ageDem = ages['dem']['counts']; ageGop = ages['gop']['counts']
+			ethnic = place['ethnic']
+			religion = place['religion']['percents']
+			gub2002 = place['gub2002']
+			csv.append(
+				'%s,%s,%d,%d,%.2f%%,%d,%d,%.2f%%,%d,%d,%.2f%%,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%.2f%%,%.2f%%,%.2f%%,%.2f%%,%.2f%%,%.2f%%,%d,%d' %(
+					place['name'], pop['type'],
+					popAll['before'], popAll['after'], popAll['change'],
+					popDem['before'], popDem['after'], popDem['change'],
+					popGop['before'], popGop['after'], popGop['change'],
+					ageAll[0], ageAll[1], ageAll[2], ageAll[3], ageAll[4], ageAll[5], ageAll[6],
+					ageDem[0], ageDem[1], ageDem[2], ageDem[3], ageDem[4], ageDem[5], ageDem[6],
+					ageGop[0], ageGop[1], ageGop[2], ageGop[3], ageGop[4], ageGop[5], ageGop[6],
+					ethnic[0], ethnic[1], ethnic[2], ethnic[3],
+					religion[0], religion[1], religion[2], religion[3], religion[4], religion[5],
+					gub2002[0], gub2002[1]
+				)
+			)
+		write(
+			'%s/states/%s/spreadsheet.csv' %( datapath, self.state ),
+			'\n'.join(csv)
+		)
 
 def fixCountyName( name ):
 	name = name.replace( ' County', '' ).strip().capitalize()
@@ -269,6 +296,7 @@ def update( state ):
 	reader = Reader( state )
 	reader.readAll()
 	reader.makeJson()
+	reader.makeSheet()
 	#print 'Checking in votes JSON...'
 	#os.system( 'svn ci -m "Vote update" %s' % votespath )
 	print 'Done!'
