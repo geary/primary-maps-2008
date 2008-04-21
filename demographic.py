@@ -62,6 +62,7 @@ class Reader:
 		self.readReligion()
 		self.readPopulation()
 		self.readTypology()
+		self.readEthnic()
 		self.readGub2002()
 		self.calcLimits()
 	
@@ -175,6 +176,30 @@ class Reader:
 					'change': float( row[3] ),
 				}
 			})
+	
+	def readEthnic( self ):
+		print 'Reading ethnic %s' %( self.state )
+		reader = csv.reader( open( '%s/states/%s/qt_pep_2006_est_data1.csv' %( datapath, self.state ), 'rb' ) )
+		reader.next()
+		header = reader.next()
+		for row in reader:
+			name = fixCountyName( row[3].replace( ', Pennsylvania', '' ) )
+			white = int(row[35])
+			black = int(row[36])
+			asian = int(row[38])
+			#hispanic = int(row[47])
+			#whiteonly = int(row[49])
+			#white = int(row[49])
+			total = int(row[33])
+			#other = total - white - black - asian - hispanic
+			other = int(row[40])
+			self.countiesByName[name].update({
+				#'ethnic': [ white, black, asian, hispanic, other ]
+				'ethnic': [ white, black, asian, other ]
+			})
+			#print name, white, black, asian, hispanic, other
+		#self.labels.update({ 'ethnic':[ 'White', 'Black', 'Asian', 'Hispanic', 'Other' ] })
+		self.labels.update({ 'ethnic':[ 'White', 'Black', 'Asian', 'Other' ] })
 	
 	def readGub2002( self ):
 		print 'Reading Casey-Rendell %s' %( self.state )

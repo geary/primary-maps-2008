@@ -57,6 +57,7 @@ var ChartApi = {
 			cht: 'bhs',
 			chco: a.colors.join(),
 			chd: 't:' + a.data.join('|'),
+			chds: a.scale && a.scale.join(),
 			chs: [ a.width + 1, a.height + 5 ].join('x')
 		});
 		var alt = ! a.alt ? '' : S( 'title="', a.alt, '" ' );
@@ -2691,11 +2692,7 @@ var infoHtml = {
 	age: listAges,
 	population: listPopulation,
 	religion: listReligion,
-	
-	ethnic: function() {
-		return '(coming soon)';
-	},
-	
+	ethnic: listEthnic,
 	gub2002: listGub2002
 };
 
@@ -2841,6 +2838,69 @@ function listReligion() {
 						label(3), label(4), label(5),
 					'</tr>',
 				'</table>',
+			'</div>',
+			'<div style="float:right;">',
+				infoIcon,
+			'</div>',
+		'</div>',
+		'<div style="clear:both;">',
+		'</div>',
+		'<div style="border-bottom:1px solid #DDD; margin-bottom:4px;">',
+		'</div>',
+		'<div id="content-scroll">',
+			html,
+		'</div>'
+	);
+}
+
+function listEthnic() {
+	var colors = [ '18A221', 'EFBA00', '1851CE', 'AD1400' ];
+	var width = 75, height = 22;
+	var html = Demographics.places.mapjoin( function( place ) {
+		var ethnic = place.ethnic;
+		var total = 0;
+		for( var i = 0, n = ethnic.length;  i < n;  ++i )
+			total += ethnic[i];
+		var img = ChartApi.rainbow({
+			width: width,
+			height: height,
+			colors: colors,
+			data: ethnic,
+			scale: [ 0, total ]
+		});
+		return S(
+			'<div class="placerow" id="place-', place.name.replace( ' ', '+' ), '" style="vertical-align:middle;">',
+				'<div>',
+					'<div style="float:left; margin-right:8px;">',
+						img,
+					'</div>',
+					'<div style="float:left;">',
+						' ', place.name, ' County',
+					'</div>',
+					'<div style="clear:left;">',
+					'</div>',
+				'</div>',
+			'</div>'
+		);
+	});
+	
+	function label( i ) {
+		return S(
+			'<td>',
+				'<div style="width:16px; height:16px; margin:0 4px 4px 0; background-color:#', colors[i], ';">',
+					' ',
+				'</div>',
+				'<div style="margin:0 18px 4px 0;">',
+					Demographics.labels.ethnic[i],
+				'</div>',
+			'</td>'
+		);
+	}
+	
+	return S(
+		'<div class="legend">',
+			'<div>',
+					label(0), label(1), label(2), label(3),
 			'</div>',
 			'<div style="float:right;">',
 				infoIcon,
