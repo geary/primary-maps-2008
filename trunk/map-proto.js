@@ -1262,7 +1262,7 @@ function fmtDate( date ) {
 	}
 	
 	stateSelector = ! opt.stateSelector ? '' : S(
-		'<div>',
+		'<div style="background-color:#EEE; width:100%; padding:4px 4px 0 0; border-bottom:1px solid #CCC; margin:0 0 4px 0;">',
 			'<table class="selects" cellspacing="0" cellpadding="0">',
 				'<tr>',
 					'<td>',
@@ -1319,7 +1319,7 @@ function writeCommon() {
 		'<style type="text/css">',
 			'.selects tr { vertical-align:middle; }',
 			'.selects label { font-weight:bold; margin:0; }',
-			'.selects select { margin:0 8px 4px 6px; width:99%; }',
+			'.selects select { margin:0 12px 4px 6px; width:98%; }',
 			'.legend {}',
 			'.legend * { font-size:12px; }',
 			'.legend div { float:left; }',
@@ -1416,9 +1416,6 @@ function writeMappletHTML() {
 				'<a href="http://gmodules.com/ig/creator?synd=open&url=http://primary-maps-2008.googlecode.com/svn/trunk/map.xml" target="_blank">Get this map for your website</a>',
 			'</div>',
 			stateSelector,
-			//'<div style="padding-bottom:4px; border-bottom:1px solid #DDD; margin-bottom:4px;">',
-			//	'Come back after the polls close (around 8PM EST) for live election results of all the Super Tuesday states!',
-			//'</div>',
 			//'<div style="padding-bottom:6px; display:none;">',
 			//	'View in <a href="http://earth.google.com/" target="_blank">Google Earth</a>: ',
 			//	'<a href="http://gmaps-samples.googlecode.com/svn/trunk/elections/2008/primary/', opt.state, '/earth-', opt.state, '-democrat.kml">Democratic</a>',
