@@ -551,6 +551,7 @@ var parties = [
 	{ name: 'gop', shortName: 'Republican', fullName: 'Republican Party' }
 ].index('name');
 
+opt.party = 'dem';  // TEMP
 var q = opt.party || location.search.slice(1);
 window.curParty = parties.by.name[q] || parties[ Math.random() < .5 ? 0 : 1 ];
 
@@ -1208,22 +1209,20 @@ function GAsync( obj ) {
 		callback();
 }
 
-var partyButtons = '<div id="partyButtons"></div>';
-
 function setPartyButtons() {
 	if( ! opt.partySelector ) return;
 	$('#partyButtons').html(
 		curParty.name == 'dem' ? [
-			'<div style="margin-top:8px;">',
+			'<div style="padding-bottom:4px; border-bottom:1px solid #DDD; margin-bottom:4px;">',
 				'<b>Democratic</b>',
 				'<a href="#" style="margin-left:8px;" id="btnRep">Republican</a>',
-				'<button style="margin-left:8px;" id="btnReload">Refresh</button>',
+				'<button style="font-size:80%; margin-left:8px;" id="btnReload">Refresh</button>',
 			'</div>'
 		] : [
-			'<div style="margin-top:8px;">',
+			'<div style="padding-bottom:4px; border-bottom:1px solid #DDD; margin-bottom:4px;">',
 				'<a href="#" style="margin-right:8px;" id="btnDem">Democratic</a>',
 				'<b>Republican</b>',
-				'<button style="margin-left:8px;" id="btnReload">Refresh</button>',
+				'<button style="font-size:80%; margin-left:8px;" id="btnReload">Refresh</button>',
 			'</div>'
 		]
 	);
@@ -1330,6 +1329,8 @@ function optionHTML( value, name, selected, disabled ) {
 					'</td>',
 				'</tr>',
 			'</table>',
+		'</div>',
+		'<div id="partyButtons" style="display:none;">',
 		'</div>'
 	);
 })();
@@ -2094,7 +2095,6 @@ function stateSidebar() {
 	);
 	
 	return S(
-		partyButtons,
 		'<div id="votestitle">',
 		'</div>',
 		'<table>',
@@ -2495,6 +2495,8 @@ function load() {
 		loadInfo();
 	}
 	
+	$('#partyButtons').click( partyButtonClick );
+	
 	$('#content')
 		.click( contentClick )
 		.mouseover( contentMouseOver )
@@ -2513,14 +2515,8 @@ function mapmousemoved( latlng ) {
 	setHilite( where && where.place.name, true );
 }
 
-function  contentClick( event ) {
-	var target = event.target;
-	switch( target.tagName.toLowerCase() ) {
-		case 'a':
-			return true;
-	}
-	
-	switch( target.id ) {
+function  partyButtonClick( event ) {
+	switch( event.target.id ) {
 		case 'btnDem':
 			loadResults( parties.by.name['dem'] );
 			return false;
@@ -2532,6 +2528,15 @@ function  contentClick( event ) {
 		case 'btnReload':
 			loadResults();
 			return false;
+	}
+	
+	return false;
+}
+
+function  contentClick( event ) {
+	switch( event.target.tagName.toLowerCase() ) {
+		case 'a':
+			return true;
 	}
 	
 	return false;
@@ -2758,6 +2763,10 @@ function loadInfo() {
 		if( opt.infoType != 'stateVotes'  &&  opt.infoType != 'countyVotes' )
 		   opt.infoType = 'countyVotes';
 	}
+	if( opt.infoType == 'stateVotes' || opt.infoType == 'countyVotes' )
+		$('#partyButtons').show();
+	else
+		$('#partyButtons').hide();
 	$('#content').html( infoHtml[opt.infoType]() );
 	setContentScroll();
 	adjustHeight();
