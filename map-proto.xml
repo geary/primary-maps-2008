@@ -19,7 +19,7 @@
 >
 </ModulePrefs>
 
-<UserPref name="sidebarwidth" default_value="350" datatype="string" display_name="Sidebar&#160;width"/>
+<!--<UserPref name="sidebarwidth" default_value="350" datatype="string" display_name="Sidebar&#160;width"/>-->
 <UserPref name="state" default_value="pa" datatype="enum" display_name="State">
 	<EnumValue value="us" display_value="USA"/>
 	<EnumValue value="al" display_value="Alabama"/>
@@ -110,8 +110,8 @@
 	}
 	
 	script( 'http://primary-maps-2008.googlecode.com/svn/trunk/jquery-1.2.3-no-ajax.min.js', 3600 );
-	script( 'http://primary-maps-2008.googlecode.com/svn/trunk/map-proto.js', 15 );
-	script( 'http://primary-maps-2008-data.googlecode.com/svn/trunk/demographic/states/pa/demographic.js', 15 );
+	script( 'http://primary-maps-2008.googlecode.com/svn/trunk/map-proto.js', 120 );
+	script( 'http://primary-maps-2008-data.googlecode.com/svn/trunk/demographic/states/pa/demographic.js', 120 );
 </script>
 
 ]]>

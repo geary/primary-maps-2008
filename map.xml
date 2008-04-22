@@ -19,7 +19,7 @@
 >
 </ModulePrefs>
 
-<UserPref name="sidebarwidth" default_value="350" datatype="string" display_name="Sidebar&#160;width"/>
+<!--<UserPref name="sidebarwidth" default_value="350" datatype="string" display_name="Sidebar&#160;width"/>-->
 <UserPref name="state" default_value="pa" datatype="enum" display_name="State">
 	<EnumValue value="us" display_value="USA"/>
 	<EnumValue value="al" display_value="Alabama"/>
