@@ -1305,7 +1305,7 @@ function fmtDate( date ) {
 							option( '', 'Voting Results', false, true ),
 							infoOption( 'stateVotes' ),
 							//infoOption( 'countyVotes' ),
-							option( '', 'Demographic Factors', false, true ),
+							option( '', 'Demographic and Political Factors', false, true ),
 							infoOption( 'age', true ),
 							infoOption( 'population' ),
 							infoOption( 'religion' ),
