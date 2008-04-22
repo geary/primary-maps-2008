@@ -1242,19 +1242,25 @@ function fmtDate( date ) {
 	return shortMonths[ d[0] - 1 ] + ' ' + (+d[1]);
 }
 
+function optionHTML( value, name, selected, disabled ) {
+	var id = value ? 'id="option-' + value + '" ' : '';
+	var style = disabled ? 'color:#AAA; font-style:italic; font-weight:bold;' : '';
+	selected = selected ? 'selected="selected" ' : '';
+	disabled = disabled ? 'disabled="disabled" ' : '';
+	return S(
+		'<option ', id, 'value="', value, '" style="', style, '" ', selected, disabled, '>',
+			name,
+		'</option>'
+	);
+}
+
 (function() {
 	//var hotStates = [ 'PA!' ]/*.index()*/;
 	var index = 0;
 	function option( value, name, selected, disabled ) {
-		var style = disabled ? 'color:#AAA; font-style:italic; font-weight:bold;' : '';
-		selected = selected ? 'selected="selected" ' : '';
-		disabled = disabled ? 'disabled="disabled" ' : '';
+		var html = optionHTML( value, name, selected, disabled );
 		++index;
-		return S(
-			'<option value="', value, '" style="', style, '" ', selected, disabled, '>',
-				name,
-			'</option>'
-		);
+		return html;
 	}
 	function stateOption( state, selected, dated ) {
 		state.selectorIndex = index;
@@ -1309,7 +1315,7 @@ function fmtDate( date ) {
 								option( '', 'Voting Results', false, true ),
 								infoOption( 'stateVotes' ),
 								//infoOption( 'countyVotes' ),
-								option( '', 'Demographic and Political Factors', false, true ),
+								option( 'demographic', 'Demographic and Political Factors', false, true ),
 								infoOption( 'age', true ),
 								infoOption( 'population' ),
 								infoOption( 'religion' ),
@@ -2535,7 +2541,7 @@ function setHilite( name, scroll ) {
 		
 		hilite.polys.forEach( function( poly ) { map.removeOverlay( poly ); } );
 		hilite.polys = [];
-		if( id ) {
+		if( id && curState.places ) {
 			var place = curState.places.by.name[name];
 			if( place ) {
 				place.shapes.forEach( function( shape ) {
@@ -2686,6 +2692,26 @@ function following() {
 
 function loadState() {
 	var abbr = opt.state;
+	var $select = $('#stateInfoSelector');
+	function enable( value, name ) {
+		var $option = $('#option-'+value), option = $option[0];
+		if( opt.state == 'pa' ) {
+			if( ! option )
+				$select.append( optionHTML( value, name || infoTips[value].title, false, !! name ) );
+		}
+		else {
+			if( option.selected ) $('#stateInfoSelector')[0].selectedIndex = 1;
+			$option.remove();
+		}
+	}
+	enable( 'demographic', 'Demographic and Political Factors' );
+	enable( 'age' );
+	enable( 'population' );
+	enable( 'religion' );
+	enable( 'ethnic' );
+	enable( 'gub2002' );
+	if( $.browser.msie ) $select.width( $('#stateSelector').width() );  // IE hack
+	
 	var state = curState = stateByAbbr( abbr );
 	if( state.data ) {
 		//console.log( 'state ready', state.name );
