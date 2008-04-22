@@ -3305,7 +3305,7 @@ function placeTable( state, place, balloon ) {
 					'Candidate',
 				'</th>',
 				delegateHeader,
-				'<th>',
+				'<th style="text-align:right; padding-right:8px;">',
 					'Votes',
 				'</th>',
 				'<th>',
