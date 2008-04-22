@@ -1459,7 +1459,7 @@ function writeMappletHTML() {
 }
 
 function writeApiMapHTML() {
-	document.body.setAttribute( 'scroll', 'no' );
+	document.body.scroll = 'no';
 	var mapWidth = opt.mapWidth ? opt.mapWidth + 'px' : '100%';
 	var mapHeight = opt.mapHeight ? opt.mapHeight + 'px' : '100%';
 	var mapHTML = S(
@@ -1484,7 +1484,7 @@ function writeApiMapHTML() {
 	);
 	document.write(
 		'<style type="text/css">',
-			'body { margin:0; padding:0; overflow:hidden; }',
+			'html, body { margin:0; padding:0; border:0 none; overflow:hidden; height:100%; }',
 			'* { font-family: Arial,sans-serif; font-size: 10pt; }',
 			'#outer {}',
 			'#eventbar { display:none; }',
