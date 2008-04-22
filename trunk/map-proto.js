@@ -582,6 +582,9 @@ var infoTips = {
 	gub2002: {
 		title: 'Casey vs. Rendell 2002',
 		text: "In 2002, state auditor general Bob Casey Jr. lost the Democratic gubernatorial primary to Philadelphia mayor Ed Rendell, who went on to win the statehouse in 2002. Casey carried 57 of the state&#8217;s 67 counties, but Rendell won because of his strength in the southeastern part of the state, especially the Philadelphia suburbs in Bucks, Delaware, Chester and Montgomery counties, where he carried more that 80 percent of the vote. This year, Rendell has endorsed Clinton and Casey is backing Obama. Whether Rendell can help Clinton hold down Obama&#8217;s margins in the Philadelphia area, where he is still popular, or Casey can give Obama a boost among his political base in western, central and northeastern Pennsylvania could be pivotal in this primary&#8217;s outcome."
+	},
+	spreadsheet: {
+		title: 'Detailed Spreadsheet'
 	}
 };
 
@@ -1321,6 +1324,7 @@ function optionHTML( value, name, selected, disabled ) {
 								infoOption( 'religion' ),
 								infoOption( 'ethnic' ),
 								infoOption( 'gub2002' ),
+								//infoOption( 'spreadsheet' ),
 							'</select>',
 						'</div>',
 					'</td>',
@@ -2499,6 +2503,11 @@ function mapmousemoved( latlng ) {
 
 function  contentClick( event ) {
 	var target = event.target;
+	switch( target.tagName.toLowerCase() ) {
+		case 'a':
+			return true;
+	}
+	
 	switch( target.id ) {
 		case 'btnDem':
 			loadResults( parties.by.name['dem'] );
@@ -2710,6 +2719,7 @@ function loadState() {
 	enable( 'religion' );
 	enable( 'ethnic' );
 	enable( 'gub2002' );
+	//enable( 'spreadsheet' );
 	if( $.browser.msie ) $select.width( $('#stateSelector').width() );  // IE hack
 	
 	var state = curState = stateByAbbr( abbr );
@@ -2752,7 +2762,8 @@ var infoHtml = {
 	population: listPopulation,
 	religion: listReligion,
 	ethnic: listEthnic,
-	gub2002: listGub2002
+	gub2002: listGub2002,
+	spreadsheet: listSpreadsheet
 };
 
 function listAges() {
@@ -3130,6 +3141,33 @@ function listGub2002() {
 		'</div>',
 		'<div id="content-scroll">',
 			html,
+		'</div>'
+	);
+}
+
+function listSpreadsheet() {
+	var url = 'http://spreadsheets.google.com/ccc?key=p9CuB_zeAq5U28wW_KTt4TA';
+	function link( params, text ) {
+		return S( '<a href="', url, '&', params, '" target="_blank">', text, '</a>' );
+	}
+	return S(
+		'<div>',
+			'<div style="margin-bottom:16px">',
+				'<span style="color:red;">New!</span> ',
+				' View all county demographics, political factors, and vote results in a spreadsheet',
+			'</div>',
+			'<div>',
+				link( 'hl=en', 'Shared Google Spreadsheet with live updates' ),
+				'<br />',
+				link( 'hl=en&newcopy', 'Editable copy of Google Spreadsheet' ),
+				'<br />',
+				'<br />',
+				link( 'output=html', 'Static HTML table' ),
+				'<br />',
+				link( 'output=csv&gid=0', 'Download CSV file' ),
+				'<br />',
+				link( 'output=xls', 'Download XLS file' ),
+			'</div>',
 		'</div>'
 	);
 }
