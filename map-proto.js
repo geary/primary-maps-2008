@@ -1324,7 +1324,7 @@ function optionHTML( value, name, selected, disabled ) {
 								infoOption( 'religion' ),
 								infoOption( 'ethnic' ),
 								infoOption( 'gub2002' ),
-								//infoOption( 'spreadsheet' ),
+								infoOption( 'spreadsheet' ),
 							'</select>',
 						'</div>',
 					'</td>',
@@ -2719,7 +2719,7 @@ function loadState() {
 	enable( 'religion' );
 	enable( 'ethnic' );
 	enable( 'gub2002' );
-	//enable( 'spreadsheet' );
+	enable( 'spreadsheet' );
 	if( $.browser.msie ) $select.width( $('#stateSelector').width() );  // IE hack
 	
 	var state = curState = stateByAbbr( abbr );
