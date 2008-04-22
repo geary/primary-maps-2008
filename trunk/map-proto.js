@@ -506,7 +506,8 @@ function initStateBounds( places ) {
 
 if( opt.gadget ) {
 	var p = new _IG_Prefs();
-	opt.sidebarWidth = p.getInt('sidebarwidth');
+	//opt.sidebarWidth = p.getInt('sidebarwidth');
+	opt.sidebarWidth = 350;
 	opt.mapWidth = $(window).width() - opt.sidebarWidth ;
 	opt.mapHeight = $(window).height();
 	opt.state = p.getString('state');
@@ -515,9 +516,9 @@ if( opt.gadget ) {
 	opt.partySelector = p.getBool('partyselector');
 	//opt.twitter = p.getBool('twitter');
 	//opt.youtube = p.getBool('youtube');
-	if( $(window).width() < 500 ) {
+	if( $(window).width() < 625 ) {
 		opt.mapWidth = opt.sidebarWidth = $(window).width();
-		opt.mapHeight = opt.sidebarHeight = ( $(window).height() - 24 ) / 2;
+		opt.mapHeight = opt.sidebarHeight = ( $(window).height() ) / 2;
 	}
 }
 
@@ -1531,7 +1532,7 @@ function writeApiMapHTML() {
 	if( opt.sidebarHeight ) {
 		document.write(
 			mapHTML,
-			'<div style="margin-top:4px; width:', opt.sidebarWidth, 'px; height:', opt.sidebarHeight, 'px; overflow:auto;">',
+			'<div style="margin-top:4px; width:', opt.sidebarWidth, 'px; height:', opt.sidebarHeight, 'px;">',
 				'<div style="width:99%;">',
 					sidebarHTML,
 				'</div>',
