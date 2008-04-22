@@ -1459,6 +1459,7 @@ function writeMappletHTML() {
 }
 
 function writeApiMapHTML() {
+	document.body.setAttribute( 'scroll', 'no' );
 	var mapWidth = opt.mapWidth ? opt.mapWidth + 'px' : '100%';
 	var mapHeight = opt.mapHeight ? opt.mapHeight + 'px' : '100%';
 	var mapHTML = S(
