@@ -1430,7 +1430,7 @@ function writeMappletHTML() {
 			'</div>',
 			'<div style="padding-bottom:4px; border-bottom:1px solid #DDD; margin-bottom:4px;">',
 				'<span style="color:red;">New!</span> ',
-				'<a href="http://gmodules.com/ig/creator?synd=open&url=http://primary-maps-2008.googlecode.com/svn/trunk/map.xml" target="_blank">Get this map for your website</a>',
+				'<a href="http://gmodules.com/ig/creator?synd=open&url=http://primary-maps-2008.googlecode.com/svn/trunk/gadget.xml" target="_blank">Get this map for your website</a>',
 			'</div>',
 			stateSelector,
 			//'<div style="padding-bottom:6px; display:none;">',
@@ -2290,10 +2290,13 @@ function createStateMarker( place, size ) {
 }
 
 function bindStateMarker( place ) {
-	openInfo( place, true );
-	//GEvent.addListener( place.marker, 'click', function() {
-	//	openInfo( place );
-	//});
+	if( mapplet )
+		GEvent.addListener( place.marker, 'click', function() {
+			setHilite( place.name, true );
+			openInfo( place );
+		});
+	else
+		openInfo( place, true );
 }
 
 function makeIcons() {
@@ -2340,7 +2343,7 @@ function openInfo( place, bind ) {
 	if( ! place ) return;
 	var state = stateByAbbr(place.state);
 	
-	var method = bind ? 'bindInfoWindowHtml' : 'openInfoWindowHtml';
+	var method = mapplet ? 'openInfoWindowHtml' : bind ? 'bindInfoWindow' : 'openInfoWindow';
 	var html = placeBalloon( state, place );
 	var options = { maxWidth:300, disableGoogleLinks:true };
 	if( place.marker )
@@ -2415,6 +2418,7 @@ function load() {
 	
 	GEvent.addListener( map, 'click', function( overlay, latlng ) {
 		var where = hittest( latlng );
+		setHilite( where && where.place.name, true );
 		openInfo( where && where.place );
 	});
 	
@@ -2435,7 +2439,7 @@ function load() {
 	
 	if( mapplet ) {
 		//download( feed.video, onVideoReady );
-		download( feed.news, onNewsReady );
+		//download( feed.news, onNewsReady );
 		//loadYouTubeMap();
 	}
 	
@@ -2521,13 +2525,12 @@ function setHilite( name, scroll ) {
 		var id = name && ( 'place-' + name.replace( ' ', '+' ) );
 		if( id == hilite.id ) return;
 		
-		$('#'+hilite.id).removeClass( 'placerow-hilite' );
+		if( hilite.id ) $('#'+hilite.id).removeClass( 'placerow-hilite' );
 		hilite.id = id;
 		var $row = $('#'+id);
 		$row.addClass( 'placerow-hilite' );
 		autoScrollContent.clear();
-		if( scroll )
-			autoScrollContent.hover( $row[0] );
+		if( scroll ) autoScrollContent.hover( $row[0] );
 		
 		hilite.polys.forEach( function( poly ) { map.removeOverlay( poly ); } );
 		hilite.polys = [];
@@ -2544,7 +2547,14 @@ function setHilite( name, scroll ) {
 	}, 10 );
 }
 
-if( ! mapplet ) autoScrollContent = hoverize( function( row ) {
+autoScrollContent = mapplet ? {
+	clear: function() {},
+	hover: function( row ) {
+		//console.log( 'scrollto', row );
+		//$('body').stop().scrollTo( row, 500 );
+		//$.scrollTo( row );
+	}
+} : hoverize( function( row ) {
 	if( row )
 		$('#content-scroll').stop().scrollTo( row, 500 );
 });
@@ -2684,6 +2694,7 @@ function loadInfo() {
 }
 
 function setContentScroll() {
+	if( mapplet ) return;
 	var $c = $('#content'), $cs = $('#content-scroll');
 	var height = $(window).height() - $c.offset().top;
 	$c.height( height + 'px' );
