@@ -2605,7 +2605,8 @@ function showInfoTip( show ) {
 					tip.text,
 				'</div>',
 				'<div style="margin-top:12px;">',
-					'Commentary by <a href="http://www.nationaljournal.com/">National Journal</a>',
+					//'Commentary by <a href="http://www.nationaljournal.com/">National Journal</a>',
+					'Commentary by National Journal',
 				'</div>',
 			'</div>'
 		) );
