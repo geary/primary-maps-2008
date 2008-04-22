@@ -540,7 +540,7 @@ opt.tileUrl = opt.tileUrl || 'http://gmodules.com/ig/proxy?max_age=3600&url=http
 //opt.twitter = opt.twitter || mapplet;
 //opt.youtube = opt.youtube || mapplet;
 
-opt.infoType = 'stateVotes';
+opt.infoType = 'age';
 
 //var imgBaseUrl = 'http://mg.to/iowa/server/images/';
 var imgBaseUrl = opt.imgBaseUrl || 'http://primary-maps-2008.googlecode.com/svn/trunk/images/';
@@ -555,11 +555,11 @@ window.curParty = parties.by.name[q] || parties[ Math.random() < .5 ? 0 : 1 ];
 
 var infoTips = {
 	stateVotes: {
-		title: 'Statewide Vote Results',
+		title: 'Statewide Voting Results',
 		text: ''
 	},
 	countyVotes: {
-		title: 'County Vote Results',
+		title: 'County Voting Results',
 		text: ''
 	},
 	age: {
@@ -1242,23 +1242,28 @@ function fmtDate( date ) {
 }
 
 (function() {
-	var hotStates = [ 'PA' ]/*.index()*/;
+	var hotStates = [ 'PA!' ]/*.index()*/;
 	var index = 0;
-	function option( value, name, style ) {
+	function option( value, name, selected, disabled ) {
+		var style = disabled ? 'color:#AAA; font-style:italic; font-weight:bold;' : '';
+		selected = selected ? 'selected="selected" ' : '';
+		disabled = disabled ? 'disabled="disabled" ' : '';
 		++index;
-		return S( '<option value="', value, '" style="', style || '', '">', name, '</option>' );
+		return S(
+			'<option value="', value, '" style="', style, '" ', selected, disabled, '>',
+				name,
+			'</option>'
+		);
 	}
-	function stateOption( state, dated ) {
+	function stateOption( state, selected ) {
 		state.selectorIndex = index;
 		var dates = '';
-		if( dated ) {
-			var dem = state.parties.dem.date, gop = state.parties.gop.date;
-			dates = ' (' + ( dem == gop ? fmtDate(dem) : S( 'D:', fmtDate(dem), ', R:', fmtDate(gop) ) ) + ')';
-		}
+		var dem = state.parties.dem.date, gop = state.parties.gop.date;
+		dates = ' (' + ( dem == gop ? fmtDate(dem) : S( 'D:', fmtDate(dem), ', R:', fmtDate(gop) ) ) + ')';
 		return option( state.abbr, state.name + dates );
 	}
-	function infoOption( key ) {
-		return option( key, infoTips[key].title );
+	function infoOption( key, selected ) {
+		return option( key, infoTips[key].title, selected );
 	}
 	
 	stateSelector = ! opt.stateSelector ? '' : S(
@@ -1273,13 +1278,13 @@ function fmtDate( date ) {
 					'<td>',
 						'<select id="stateSelector">',
 							option( 'us', 'Entire USA' ),
-							option( 'pa', 'April 22 Primary', 'color:#AAA; font-style:italic; font-weight:bold;' ),
+							option( '', 'April 22 Primary', false, true ),
 							hotStates.mapjoin( function( abbr ) {
-								return stateOption( statesByAbbr[abbr], false );
+								return stateOption( stateByAbbr( abbr.replace('!','') ), abbr == 'PA!' );
 							}),
-							option( '', 'All States', 'color:#AAA; font-style:italic; font-weight:bold;' ),
+							option( '', 'All States', false, true ),
 							states.mapjoin( function( state ) {
-								return /*hotStates.by[state.abbr] ? '' :*/ stateOption( state, true );
+								return /*hotStates.by[state.abbr] ? '' :*/ stateOption( state );
 							}),
 						'</select>',
 					'</td>',
@@ -1292,10 +1297,11 @@ function fmtDate( date ) {
 					'</td>',
 					'<td xstyle="width:99%;">',
 						'<select id="stateInfoSelector">',
+							option( '', 'Voting Results', false, true ),
 							infoOption( 'stateVotes' ),
-							infoOption( 'countyVotes' ),
-							//option( '', '' ),
-							infoOption( 'age' ),
+							//infoOption( 'countyVotes' ),
+							option( '', 'Demographic Factors', false, true ),
+							infoOption( 'age', true ),
 							infoOption( 'population' ),
 							infoOption( 'religion' ),
 							infoOption( 'ethnic' ),
@@ -2430,15 +2436,15 @@ function load() {
 	//	return false;
 	//});
 
-	$('#stateSelector').change( function() {
-		var value = this.value.toLowerCase();
-		if( ! value ) {
-			value = 'us';
-			this.selectedIndex = 0;
-		}
+	$('#stateSelector')
+		.change( stateSelectorChange )
+		.keyup( stateSelectorChange );
+		
+	function stateSelectorChange() {
+		var value = this.value.replace('!','').toLowerCase();
 		opt.state = value;
 		loadState();
-	});
+	}
 	
 	$('#stateInfoSelector')
 		.change( infoSelectorChange )
@@ -2446,10 +2452,6 @@ function load() {
 	
 	function infoSelectorChange() {
 		var value = this.value;
-		if( ! value ) {
-			value = 'stateVotes';
-			this.selectedIndex = 0;
-		}
 		opt.infoType = value;
 		loadInfo();
 	}
@@ -2786,7 +2788,7 @@ function listAges() {
 }
 
 function listReligion() {
-	var colors = [ '5A1F00', 'D1570D', 'FDE792', '477725', 'A9CC66', 'CCCCCC' ];
+	var colors = [ '18A221', 'EFBA00', '1851CE', 'AD1400', 'AAAAAA', 'DDDDDD' ];
 	var width = 75, height = 22;
 	var html = Demographics.places.mapjoin( function( place ) {
 		var img = ChartApi.rainbow({
