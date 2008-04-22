@@ -560,7 +560,7 @@ var infoTips = {
 		text: ''
 	},
 	countyVotes: {
-		title: 'County Voting Results',
+		title: 'Local Voting Results',
 		text: ''
 	},
 	age: {
@@ -1317,7 +1317,7 @@ function optionHTML( value, name, selected, disabled ) {
 							'<select id="stateInfoSelector">',
 								option( '', 'Voting Results', false, true ),
 								infoOption( 'stateVotes' ),
-								//infoOption( 'countyVotes' ),
+								infoOption( 'countyVotes' ),
 								option( 'demographic', 'Demographic and Political Factors', false, true ),
 								infoOption( 'age', true ),
 								infoOption( 'population' ),
@@ -2062,6 +2062,18 @@ function getLeaders( locals ) {
 	return leaders;
 }
 
+// Separate for speed
+function getLeadersN( locals, n ) {
+	var leaders = {};
+	for( var localname in locals ) {
+		for( var i = 0;  i < n;  ++i ) {
+			var votes = locals[localname].votes[i];
+			if( votes ) leaders[votes.name] = true;
+		}
+	}
+	return leaders;
+}
+
 function stateSidebar() {
 	var state = stateByAbbr(opt.state), party = curParty;
 	var votes = state.votes[party.name];
@@ -2709,7 +2721,7 @@ function loadState() {
 				$select.append( optionHTML( value, name || infoTips[value].title, false, !! name ) );
 		}
 		else {
-			if( option.selected ) $('#stateInfoSelector')[0].selectedIndex = 1;
+			if( option && option.selected ) $('#stateInfoSelector')[0].selectedIndex = 2;
 			$option.remove();
 		}
 	}
@@ -2720,6 +2732,14 @@ function loadState() {
 	enable( 'ethnic' );
 	enable( 'gub2002' );
 	enable( 'spreadsheet' );
+	if( opt.state == 'us' ) {
+		$('#option-stateVotes').html( 'Nationwide Voting Results' );
+		$('#option-countyVotes').html( 'State Voting Results' );
+	}
+	else {
+		$('#option-stateVotes').html( 'Statewide Voting Results' );
+		$('#option-countyVotes').html( 'Local Voting Results' );
+	}
 	if( $.browser.msie ) $select.width( $('#stateSelector').width() );  // IE hack
 	
 	var state = curState = stateByAbbr( abbr );
@@ -2734,7 +2754,10 @@ function loadState() {
 }
 
 function loadInfo() {
-	if( opt.state != 'pa' ) opt.infoType = 'stateVotes';  // temp
+	if( opt.state != 'pa' ) {
+		if( opt.infoType != 'stateVotes'  &&  opt.infoType != 'countyVotes' )
+		   opt.infoType = 'countyVotes';
+	}
 	$('#content').html( infoHtml[opt.infoType]() );
 	setContentScroll();
 	adjustHeight();
@@ -2753,11 +2776,7 @@ var infoIcon = S( '<img id="infoicon" style="width:16px; height:16px;" src="', i
 
 var infoHtml = {
 	stateVotes: stateSidebar,
-	
-	countyVotes: function() {
-		return '(coming soon)';
-	},
-	
+	countyVotes: listVotes,
 	age: listAges,
 	population: listPopulation,
 	religion: listReligion,
@@ -2765,6 +2784,9 @@ var infoHtml = {
 	gub2002: listGub2002,
 	spreadsheet: listSpreadsheet
 };
+
+// TODO: can do a lot of refactoring on these listXyz functions!
+// Copy and paste is quick and easy for now
 
 function listAges() {
 	var labels = Demographics.labels.ages.map( function( label ) {
@@ -3133,6 +3155,114 @@ function listGub2002() {
 				'<div style="margin-left:4px; width:96px;">0%</div>',
 				'<div style="width:45px;">100%</div>',
 				'<div>2002 Gubernatorial Primary</div>',
+			'</div>',
+		'</div>',
+		'<div style="clear:left;">',
+		'</div>',
+		'<div style="border-bottom:1px solid #DDD; margin-bottom:4px;">',
+		'</div>',
+		'<div id="content-scroll">',
+			html,
+		'</div>'
+	);
+}
+
+function objToSortedKeys( obj ) {
+	var result = [];
+	for( var key in obj ) result.push( key );
+	return result.sort();
+}
+
+function listVotes() {
+	var state = stateByAbbr(opt.state), party = curParty;
+	var votes = state.votes[party.name];
+	var totals = votes.totals, locals = votes.locals;
+	if( ! totals || ! locals ) return 'No results reported';
+	var placenames = objToSortedKeys( locals );
+	var leaders = objToSortedKeys( getLeadersN( locals, 3 ) );
+	
+	var width = 125, height = 22;
+	var html = placenames.mapjoin( function( placename ) {
+		var local = locals[placename];
+		var reporting = ! local.precincts ? 1 : local.precincts.reporting / local.precincts.total;
+		var votes = local.votes;
+		var colors = [], data = [], total = 0;
+		var n = Math.min( votes.length, 3 );
+		for( var i = 0;  i < n;  ++i ) {
+			var vote = votes[i];
+			total += vote.votes;
+			data.push( vote.votes * reporting );
+			colors.push( candidates[party.name].by.name[vote.name].color.slice(1) );
+		}
+		var img = ChartApi.sparkbar({
+			width: width,
+			height: height,
+			barHeight: 6,
+			barSpace: 2,
+			colors: colors,
+			data: data,
+			scale: [0, total ],
+			background: S( 'c,s,F4F4F4' )
+			//,
+			//alt: S(
+			//	place.name, ': Population 
+		});
+		return S(
+			'<div class="placerow" id="place-', placename.replace( ' ', '+' ), '" style="vertical-align:middle;">',
+				'<div>',
+					'<div style="float:left; margin-right:8px; padding:2px; background-color:#F4F4F4; border:1px solid #DDD;">',
+						img,
+					'</div>',
+					'<div style="float:left; margin-top:3px;">',
+						' ', placename, // ' County',
+					'</div>',
+					'<div style="clear:left;">',
+					'</div>',
+				'</div>',
+			'</div>'
+		);
+	});
+	
+	function label( candidate ) {
+		return S(
+			'<td>',
+				'<div style="width:16px; height:16px; margin:0 4px 4px 0; background-color:', candidate.color, ';">',
+					' ',
+				'</div>',
+				'<div style="margin:0 18px 4px 0;">',
+					candidate.lastName,
+				'</div>',
+			'</td>'
+		);
+	}
+	
+	return S(
+		'<div class="legend">',
+			'<div>',
+				'<table cellspacing="0" cellpadding="0" style="width:320px;">',
+					'<tr>',
+						leaders.mapjoin( function( name, i ) {
+							return S(
+								( i > 0  &&  i % 3 == 0 ) ? '</tr><tr>' : '',
+								label( candidates[party.name].by.name[name] )
+							);
+						}),
+					'</tr>',
+				'</table>',
+			'</div>',
+			'<div style="float:right;">',
+				infoIcon,
+			'</div>',
+		'</div>',
+		'<div style="clear:both;">',
+		'</div>',
+		'<div style="border-bottom:1px solid #DDD; margin-bottom:4px;">',
+		'</div>',
+		'<div class="legend">',
+			'<div>',
+				'<div style="margin-left:4px; width:96px;">0%</div>',
+				'<div style="width:45px;">100%</div>',
+				'<div>2008 Primary</div>',
 			'</div>',
 		'</div>',
 		'<div style="clear:left;">',
