@@ -507,17 +507,17 @@ function initStateBounds( places ) {
 if( opt.gadget ) {
 	var p = new _IG_Prefs();
 	opt.sidebarWidth = p.getInt('sidebarwidth');
-	opt.mapWidth = window.innerWidth - opt.sidebarWidth ;
-	opt.mapHeight = window.innerHeight;
+	opt.mapWidth = $(window).width() - opt.sidebarWidth ;
+	opt.mapHeight = $(window).height();
 	opt.state = p.getString('state');
 	opt.party = p.getString('party');
 	opt.stateSelector = p.getBool('stateselector');
 	opt.partySelector = p.getBool('partyselector');
 	//opt.twitter = p.getBool('twitter');
 	//opt.youtube = p.getBool('youtube');
-	if( window.innerWidth < 500 ) {
-		opt.mapWidth = opt.sidebarWidth = window.innerWidth;
-		opt.mapHeight = opt.sidebarHeight = ( window.innerHeight - 24 ) / 2;
+	if( $(window).width() < 500 ) {
+		opt.mapWidth = opt.sidebarWidth = $(window).width();
+		opt.mapHeight = opt.sidebarHeight = ( $(window).height() - 24 ) / 2;
 	}
 }
 
@@ -1242,7 +1242,7 @@ function fmtDate( date ) {
 }
 
 (function() {
-	var hotStates = [ 'PA!' ]/*.index()*/;
+	//var hotStates = [ 'PA!' ]/*.index()*/;
 	var index = 0;
 	function option( value, name, selected, disabled ) {
 		var style = disabled ? 'color:#AAA; font-style:italic; font-weight:bold;' : '';
@@ -1255,12 +1255,14 @@ function fmtDate( date ) {
 			'</option>'
 		);
 	}
-	function stateOption( state, selected ) {
+	function stateOption( state, selected, dated ) {
 		state.selectorIndex = index;
 		var dates = '';
-		var dem = state.parties.dem.date, gop = state.parties.gop.date;
-		dates = ' (' + ( dem == gop ? fmtDate(dem) : S( 'D:', fmtDate(dem), ', R:', fmtDate(gop) ) ) + ')';
-		return option( state.abbr, state.name + dates );
+		if( dated ) {
+			var dem = state.parties.dem.date, gop = state.parties.gop.date;
+			dates = ' (' + ( dem == gop ? fmtDate(dem) : S( 'D:', fmtDate(dem), ', R:', fmtDate(gop) ) ) + ')';
+		}
+		return option( state.abbr, state.name + dates, selected );
 	}
 	function infoOption( key, selected ) {
 		return option( key, infoTips[key].title, selected );
@@ -1281,13 +1283,13 @@ function fmtDate( date ) {
 					'<td>',
 						'<select id="stateSelector">',
 							option( 'us', 'Entire USA' ),
-							option( '', 'April 22 Primary', false, true ),
-							hotStates.mapjoin( function( abbr ) {
-								return stateOption( stateByAbbr( abbr.replace('!','') ), abbr == 'PA!' );
-							}),
-							option( '', 'All States', false, true ),
+							//option( '', 'April 22 Primary', false, true ),
+							//hotStates.mapjoin( function( abbr ) {
+							//	return stateOption( stateByAbbr( abbr.replace('!','') ), abbr == 'PA!', false );
+							//}),
+							option( '', 'States and Voting Dates', false, true ),
 							states.mapjoin( function( state ) {
-								return /*hotStates.by[state.abbr] ? '' :*/ stateOption( state );
+								return /*hotStates.by[state.abbr] ? '' :*/ stateOption( state, state.abbr == 'PA', true );
 							}),
 						'</select>',
 					'</td>',
@@ -1535,7 +1537,7 @@ function writeApiMapHTML() {
 	}
 	else {
 		document.write(
-			'<table>',
+			'<table style="width:100%;">',
 				'<tr valign="top">',
 					'<td>',
 						mapHTML,
