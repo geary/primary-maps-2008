@@ -2597,7 +2597,7 @@ function showInfoTip( show ) {
 		var width = $outer.width() - 40;
 		
 		$('body').append( S(
-			'<div id="infotip" style="z-order:999; position:absolute; top:', top, 'px; left:', left, 'px; width:', width, 'px; padding:4px; background-color:#F2EFE9; border: 1px solid black;">',
+			'<div id="infotip" style="z-index:999; position:absolute; top:', top, 'px; left:', left, 'px; width:', width, 'px; padding:4px; background-color:#F2EFE9; border: 1px solid black;">',
 				'<div style="margin-bottom:4px;">',
 					'<b>', tip.title, '</b>',
 				'</div>',
@@ -2610,9 +2610,15 @@ function showInfoTip( show ) {
 				'</div>',
 			'</div>'
 		) );
+		
+		$('body').append( S(
+			'<iframe id="tipframe" style="position:absolute; top:', top, 'px; left:', left, 'px; width:', width, 'px; height:', $('#infotip').height(), 'px; border:0" frameborder="0">',
+			'</iframe>'
+		) );
 	}
 	else {
 		$infotip.remove();
+		$('#tipframe').remove();
 	}
 }
 
