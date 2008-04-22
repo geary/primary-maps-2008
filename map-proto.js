@@ -1268,6 +1268,9 @@ function fmtDate( date ) {
 	
 	stateSelector = ! opt.stateSelector ? '' : S(
 		'<div style="background-color:#EEE; width:100%; padding:4px 4px 0 0; border-bottom:1px solid #CCC; margin:0 0 4px 0;">',
+			'<div style="margin-bottom:2px;">',
+				'Choose a state and select information to view:',
+			'</div>',
 			'<table class="selects" cellspacing="0" cellpadding="0">',
 				'<tr>',
 					'<td>',
