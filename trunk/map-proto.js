@@ -555,6 +555,16 @@ opt.party = 'dem';  // TEMP
 var q = opt.party || location.search.slice(1);
 window.curParty = parties.by.name[q] || parties[ Math.random() < .5 ? 0 : 1 ];
 
+var votesAttribution = S(
+	'<div class="attribution">',
+		'<span>AP</span>',
+		'<span> / </span>',
+		'<a href="http://www.boston.com/" target="_blank">Boston&nbsp;Globe</a>',
+		'<span> / </span>',
+		'<a href="http://www.realclearpolitics.com/" target="_blank">RealClearPolitics</a>',
+	'</div>'
+);
+
 var infoTips = {
 	stateVotes: {
 		title: 'Statewide Voting Results',
@@ -1349,6 +1359,8 @@ function writeCommon() {
 			'.selects .selectcell { width:99%; }',
 			'.selects .selectdiv { margin:0 0 4px 6px; width:100%; }',
 			'.selects select { width:98%; }',
+			'.attribution { border-bottom:1px solid #DDD; padding-bottom:4px; margin-bottom:4px; }',
+			'.attribution * { font-size:85%; }',
 			'.legend {}',
 			'.legend * { font-size:12px; }',
 			'.legend div { float:left; }',
@@ -1358,38 +1370,38 @@ function writeCommon() {
 	);
 }
 
-function writeProjectorHTML() {
-	document.write(
-		'<style type="text/css">',
-			'* { font-family: Arial,sans-serif; font-size: 10pt; }',
-			'#outer {}',
-			'#eventbar { display:none; }',
-			'#links { margin-bottom:4px; }',
-			'#news { margin-top:4px; padding:4px; }',
-			'#clicknote { display:none; }',
-			'h2 { font-size:11pt; margin:0; padding:0; }',
-			'#loading { font-weight:normal; }',
-			'.NewsHeading { padding-left:4px; }',
-			'.NewsList { background-color:white; padding:2px; margin:4px; }',
-			'.NewsList a { text-decoration:none; }',
-			'.NewsList  a:hover { text-decoration:underline; }',
-			'.NewsItem { padding:4px 2px 2px 2px; vertical-align:bottom; line-height:125%; }',
-			'.favicon { width:16; height:16; float:left; padding:2px 4px 2px 2px; }',
-			'#content table { width:100%; }',
-			'#content .contentboxtd { width:7%; }',
-			'#content .contentnametd { font-size:24px; width:18%; }',
-			'#content .contentbox { height:36px; width:36px; float:left; margin-right:4px; }',
-			'#content .contentname { font-size:24px; }',
-			'#content .contentvotes { font-size:18px; }',
-			'#content .contentclear { clear:left; }',
-			'#content .contentreporting * { font-size:20px; }',
-		'</style>',
-		'<div id="content" style="width: 700px; height: 140px">',
-		'</div>',
-		'<div id="map" style="width: 700px; height: 430px">',
-		'</div>'
-	);
-}
+//function writeProjectorHTML() {
+//	document.write(
+//		'<style type="text/css">',
+//			'* { font-family: Arial,sans-serif; font-size: 10pt; }',
+//			'#outer {}',
+//			'#eventbar { display:none; }',
+//			'#links { margin-bottom:4px; }',
+//			'#news { margin-top:4px; padding:4px; }',
+//			'#clicknote { display:none; }',
+//			'h2 { font-size:11pt; margin:0; padding:0; }',
+//			'#loading { font-weight:normal; }',
+//			'.NewsHeading { padding-left:4px; }',
+//			'.NewsList { background-color:white; padding:2px; margin:4px; }',
+//			'.NewsList a { text-decoration:none; }',
+//			'.NewsList  a:hover { text-decoration:underline; }',
+//			'.NewsItem { padding:4px 2px 2px 2px; vertical-align:bottom; line-height:125%; }',
+//			'.favicon { width:16; height:16; float:left; padding:2px 4px 2px 2px; }',
+//			'#content table { width:100%; }',
+//			'#content .contentboxtd { width:7%; }',
+//			'#content .contentnametd { font-size:24px; width:18%; }',
+//			'#content .contentbox { height:36px; width:36px; float:left; margin-right:4px; }',
+//			'#content .contentname { font-size:24px; }',
+//			'#content .contentvotes { font-size:18px; }',
+//			'#content .contentclear { clear:left; }',
+//			'#content .contentreporting * { font-size:20px; }',
+//		'</style>',
+//		'<div id="content" style="width: 700px; height: 140px">',
+//		'</div>',
+//		'<div id="map" style="width: 700px; height: 430px">',
+//		'</div>'
+//	);
+//}
 
 function writeMappletHTML() {
 	document.write(
@@ -1413,7 +1425,6 @@ function writeMappletHTML() {
 			'.VideoThumb { float:left; margin-right:8px; }',
 			'.VideoBorder { clear:left; }',
 			'#votestitle { margin:12px 0 6px 0; padding:0; }',
-			'.votesattrib * { font-size:85%; }',
 			'#content table { xwidth:100%; }',
 			'#content .contentboxtd { width:1%; }',
 			'#content .contentnametd { xfont-size:24px; xwidth:18%; }',
@@ -1523,7 +1534,6 @@ function writeApiMapHTML() {
 			'#fullstate th.countyname, #fullstate td.countyname { text-align:left; font-weight:bold; }',
 			'.statewide * { font-weight: bold; }',
 			'#votestitle { margin:12px 0 3px 0; padding:0; }',
-			'.votesattrib * { font-size:85%; }',
 			'#content table { xwidth:100%; }',
 			'#content .contentboxtd { width:7%; }',
 			'#content .contentnametd { xfont-size:24px; xwidth:18%; }',
@@ -2095,6 +2105,7 @@ function stateSidebar() {
 	);
 	
 	return S(
+		votesAttribution,
 		'<div id="votestitle">',
 		'</div>',
 		'<table>',
@@ -2116,8 +2127,7 @@ function stateSidebar() {
 				rows.join(''),
 			'</tbody>',
 		'</table>',
-		reporting,
-		attribution
+		reporting
 	);
 	
 	function addRows() {
@@ -2374,17 +2384,6 @@ function openInfo( place, bind ) {
 	else
 		map[method]( pointLatLng(place.centroid), html, options );
 }
-
-var attribution = S(
-	'<div class="votesattrib">',
-		'<span>AP</span>',
-		'<span> / </span>',
-		'<a href="http://www.boston.com/" target="_blank">Boston&nbsp;Globe</a>',
-		'<span> / </span>',
-		'<a href="http://www.realclearpolitics.com/" target="_blank">RealClearPolitics</a>',
-	'</div>'
-);
-
 
 function load() {
 
@@ -3246,6 +3245,7 @@ function listVotes() {
 	}
 	
 	return S(
+		votesAttribution,
 		'<div class="legend">',
 			'<div>',
 				'<table cellspacing="0" cellpadding="0" style="width:320px;">',
