@@ -2258,6 +2258,8 @@ function showStateTable( json, party ) {
 	}
 }
 
+var mouseOverMarker;
+
 function showPins( state, party ) {
 	//function tallyColor( place, tally ) {
 	//	if( ! tally ) return;
@@ -2329,6 +2331,15 @@ function showPins( state, party ) {
 	setTimeout( function() {
 		places.forEach( function( place ) {
 			map.addOverlay( place.marker );
+			if( ! mapplet ) {
+				GEvent.addListener( place.marker, 'mouseover', function() {
+					mouseOverMarker = true;
+					setHilite( place.name, true );
+				});
+				GEvent.addListener( place.marker, 'mouseout', function() {
+					mouseOverMarker = false;
+				});
+			}
 		});
 		setTimeout( function() {
 			places.forEach( function( place ) {
@@ -2536,6 +2547,7 @@ function load() {
 }
 
 function mapmousemoved( latlng ) {
+	if( mouseOverMarker ) return;
 	var where = hittest( latlng );
 	setHilite( where && where.place.name, true );
 }
