@@ -3081,7 +3081,7 @@ function listPopulation() {
 			colors: colors,
 			data: [ pop.all.change, pop.dem.change, pop.gop.change ],
 			scale: scale,
-			background: S( 'c,ls,0,E0E0E0,', left, ',F4F4F4,', right )
+			background: S( 'bg,ls,0,E0E0E0,', left, ',F4F4F4,', right )
 			//,
 			//alt: S(
 			//	place.name, ': Population 
@@ -3161,7 +3161,7 @@ function listGub2002() {
 			colors: colors,
 			data: gub,
 			scale: [0, gub[0] + gub[1] ],
-			background: S( 'c,s,F4F4F4' )
+			background: S( 'bg,s,F4F4F4' )
 			//,
 			//alt: S(
 			//	place.name, ': Population 
@@ -3261,7 +3261,7 @@ function listVotes() {
 			colors: colors,
 			data: data,
 			scale: [0, total ],
-			background: S( 'c,s,F4F4F4' )
+			background: S( 'bg,s,F4F4F4' )
 			//,
 			//alt: S(
 			//	place.name, ': Population 
