@@ -3256,7 +3256,7 @@ function listVotes() {
 		var img = ChartApi.sparkbar({
 			width: width,
 			height: height,
-			barHeight: 6,
+			barHeight: n == 3 ? 6 : 10,
 			barSpace: 2,
 			colors: colors,
 			data: data,
