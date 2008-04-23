@@ -289,7 +289,7 @@ def getDelegates( party, urlparty ):
 			if lastkey in states.byName: states.byName[lastkey]['parties'][party]['delegatehtml'].append(cleanvalue(match.group()))
 
 def cleanvalue(value):
-	return re.search('>(.*?)</td>', value).group(1)
+	return re.search('>([^.]*?)(\.|</td>)', value).group(1)
 	
 def cleankey(key):
 	return re.search('<strong>(.*?)</strong',key.group()).group(1)
