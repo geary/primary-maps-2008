@@ -553,8 +553,8 @@ var parties = [
 	{ name: 'gop', shortName: 'Republican', fullName: 'Republican Party' }
 ].index('name');
 
-opt.party = 'dem';  // TEMP
-var q = opt.party || location.search.slice(1);
+opt.party = opt.party || 'dem';
+var q = opt.party;
 window.curParty = parties.by.name[q] || parties[ Math.random() < .5 ? 0 : 1 ];
 
 var votesAttribution = S(
@@ -564,6 +564,30 @@ var votesAttribution = S(
 		'<a href="http://www.boston.com/" target="_blank">Boston&nbsp;Globe</a>',
 		'<span> / </span>',
 		'<a href="http://www.realclearpolitics.com/" target="_blank">RealClearPolitics</a>',
+	'</div>'
+);
+
+var paDosAttribution = S(
+	'<div class="attribution">',
+		'<a href="http://www.dos.state.pa.us/elections/cwp/view.asp?a=1310&q=446974&electionsNav=|" target="_blank">Pennsylvania Department of State</a>',
+	'</div>'
+);
+
+var caseyAttribution = S(
+	'<div class="attribution">',
+		'<a href="http://www.electionreturns.state.pa.us/ElectionsInformation.aspx?FunctionID=15&ElectionID=6&OfficeID=3" target="_blank">Pennsylvania Department of State</a>',
+	'</div>'
+);
+
+var censusAttribution = S(
+	'<div class="attribution">',
+		'<a href="http://factfinder.census.gov/servlet/QTTable?_bm=y&-context=qt&-qr_name=PEP_2006_EST_DP1&-ds_name=PEP_2006_EST&-CONTEXT=qt&-tree_id=806&-all_geo_types=N&-geo_id=05000US42001&-geo_id=05000US42003&-geo_id=05000US42005&-geo_id=05000US42007&-geo_id=05000US42009&-geo_id=05000US42011&-geo_id=05000US42013&-geo_id=05000US42015&-geo_id=05000US42017&-geo_id=05000US42019&-geo_id=05000US42021&-geo_id=05000US42023&-geo_id=05000US42025&-geo_id=05000US42027&-geo_id=05000US42029&-geo_id=05000US42031&-geo_id=05000US42033&-geo_id=05000US42035&-geo_id=05000US42037&-geo_id=05000US42039&-geo_id=05000US42041&-geo_id=05000US42043&-geo_id=05000US42045&-geo_id=05000US42047&-geo_id=05000US42049&-geo_id=05000US42051&-geo_id=05000US42053&-geo_id=05000US42055&-geo_id=05000US42057&-geo_id=05000US42059&-geo_id=05000US42061&-geo_id=05000US42063&-geo_id=05000US42065&-geo_id=05000US42067&-geo_id=05000US42069&-geo_id=05000US42071&-geo_id=05000US42073&-geo_id=05000US42075&-geo_id=05000US42077&-geo_id=05000US42079&-geo_id=05000US42081&-geo_id=05000US42083&-geo_id=05000US42085&-geo_id=05000US42087&-geo_id=05000US42089&-geo_id=05000US42091&-geo_id=05000US42093&-geo_id=05000US42095&-geo_id=05000US42097&-geo_id=05000US42099&-geo_id=05000US42101&-geo_id=05000US42103&-geo_id=05000US42105&-geo_id=05000US42107&-geo_id=05000US42109&-geo_id=05000US42111&-geo_id=05000US42113&-geo_id=05000US42115&-geo_id=05000US42117&-geo_id=05000US42119&-geo_id=05000US42121&-geo_id=05000US42123&-geo_id=05000US42125&-geo_id=05000US42127&-geo_id=05000US42129&-geo_id=05000US42131&-geo_id=05000US42133&-search_results=01000US&-format=&-_lang=en" target="_blank">US Census Bureau</a>',
+	'</div>'
+);
+
+var natJournalAttribution = S(
+	'<div class="attribution">',
+		'<a href="http://http://www.nationaljournal.com/njonline/" target="_blank">National Journal</a>',
 	'</div>'
 );
 
@@ -2857,6 +2881,7 @@ function listAges() {
 	});
 
 	return S(
+		paDosAttribution,
 		'<div class="legend">',
 			'<div>',
 				'<div style="margin-left:4px; width:24px;">18</div>',
@@ -2930,6 +2955,7 @@ function listReligion() {
 	}
 	
 	return S(
+		natJournalAttribution,
 		'<div class="legend">',
 			'<div>',
 				'<table cellspacing="0" cellpadding="0">',
@@ -3000,6 +3026,7 @@ function listEthnic() {
 	}
 	
 	return S(
+		censusAttribution,
 		'<div class="legend">',
 			'<div>',
 					label(0), label(1), label(2), label(3),
@@ -3069,6 +3096,7 @@ function listPopulation() {
 	}
 	
 	return S(
+		natJournalAttribution,
 		'<div class="legend">',
 			'<div>',
 					label(0), label(1), label(2),
@@ -3148,6 +3176,7 @@ function listGub2002() {
 	}
 	
 	return S(
+		caseyAttribution,
 		'<div class="legend">',
 			'<div>',
 					label(0), label(1),
