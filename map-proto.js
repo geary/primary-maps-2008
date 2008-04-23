@@ -541,7 +541,7 @@ opt.tileUrl = opt.tileUrl || 'http://gmodules.com/ig/proxy?max_age=3600&url=http
 //opt.twitter = opt.twitter || mapplet;
 //opt.youtube = opt.youtube || mapplet;
 
-opt.infoType = 'age';
+opt.infoType = 'countyVotes';
 
 //var imgBaseUrl = 'http://mg.to/iowa/server/images/';
 var imgBaseUrl = opt.imgBaseUrl || 'http://primary-maps-2008.googlecode.com/svn/trunk/images/';
@@ -1326,9 +1326,9 @@ function optionHTML( value, name, selected, disabled ) {
 							'<select id="stateInfoSelector">',
 								option( '', 'Voting Results', false, true ),
 								infoOption( 'stateVotes' ),
-								infoOption( 'countyVotes' ),
+								infoOption( 'countyVotes', true ),
 								option( 'demographic', 'Demographic and Political Factors', false, true ),
-								infoOption( 'age', true ),
+								infoOption( 'age' ),
 								infoOption( 'population' ),
 								infoOption( 'religion' ),
 								infoOption( 'ethnic' ),
