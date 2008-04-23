@@ -518,7 +518,9 @@ if( opt.gadget ) {
 	//opt.youtube = p.getBool('youtube');
 	if( $(window).width() < 625 ) {
 		opt.mapWidth = opt.sidebarWidth = $(window).width();
-		opt.mapHeight = opt.sidebarHeight = ( $(window).height() ) / 2;
+		var winHeight = $(window).height();
+		opt.mapHeight = winHeight * .35;
+		opt.sidebarHeight = winHeight - opt.mapHeight;
 	}
 }
 
