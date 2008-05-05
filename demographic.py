@@ -22,7 +22,7 @@ def formatNumber( number ):
 	return str(number)
 
 def json( obj ):
-	if 1:
+	if 0:
 		# Pretty print
 		json = sj.dumps( obj, indent=4 )
 	else:
@@ -41,30 +41,47 @@ class Reader:
 		self.makeCountyList()
 	
 	def makeCountyList( self ):
-		print 'Reading typology %s' %( self.state )
-		reader = csv.reader( open( '%s/states/%s/CO-EST2007-02-42.csv' %( datapath, self.state ), 'rb' ) )
+		print 'Reading county list %s' %( self.state )
+		reader = csv.reader( open( '%s/states/%s/%s_Religion.csv' %( datapath, self.state, self.state ), 'rb' ) )
 		self.labels = {}
 		self.places = []
 		header = reader.next()
 		for row in reader:
-			name = fixCountyName( row[0][1:] )
-			self.places.append({ 'name':name, 'ages':{}, 'population':{} })
+			name = fixCountyName( row[0] )
+			self.places.append({ 'name':name, 'ages':{}, 'occupation':{}, 'population':{}, 'urbanrural':{} })
 		# TODO: generalize this like [].index() in JS?
 		self.countiesByName = {}
 		for place in self.places:
 			self.countiesByName[ place['name'] ] = place
 	
 	def readAll( self ):
-		self.readAges( 'all' )
-		self.readAges( 'dem' )
-		self.readAges( 'gop' )
-		self.readRegChange()
-		self.readReligion()
-		self.readPopulation()
-		self.readTypology()
-		self.readEthnic()
-		self.readGub2002()
-		self.calcLimits()
+		if self.state == 'in':
+			#self.readRegChange()
+			self.readReligion()
+			self.readPopChange()
+			self.readOccupation()
+			self.readUrbanRural()
+			#self.readEthnic()
+			self.calcLimits()
+		elif self.state == 'nc':
+			#self.readRegChange()
+			self.readReligion()
+			self.readPopChange()
+			self.readOccupation()
+			self.readUrbanRural()
+			#self.readEthnic()
+			self.calcLimits()
+		elif self.state == 'pa':
+			self.readAges( 'all' )
+			self.readAges( 'dem' )
+			self.readAges( 'gop' )
+			self.readRegChange()
+			self.readReligion()
+			self.readPopChange()
+			self.readTypology()
+			self.readEthnic()
+			self.readGub2002()
+			self.calcLimits()
 	
 	def readAges( self, party ):
 		print 'Reading ages %s %s' %( self.state, party )
@@ -101,7 +118,7 @@ class Reader:
 	
 	def readReligion( self ):
 		print 'Reading religion %s' %( self.state )
-		reader = csv.reader( open( '%s/states/%s/PennCountiesReligion.csv' %( datapath, self.state ), 'rb' ) )
+		reader = csv.reader( open( '%s/states/%s/%s_Religion.csv' %( datapath, self.state, self.state ), 'rb' ) )
 		header = reader.next()
 		header.pop(0)
 		for row in reader:
@@ -134,7 +151,7 @@ class Reader:
 		reader = csv.reader( open( '%s/states/%s/CountyTypologyPA.csv' %( datapath, self.state ), 'rb' ) )
 		header = reader.next()
 		for row in reader:
-			name = fixCountyName( row.pop(0)[1:] )
+			name = fixCountyName( row.pop(0) )
 			self.countiesByName[name]['population'].update({
 				'type': row[4].strip()
 			})
@@ -163,18 +180,43 @@ class Reader:
 				}
 			})
 	
-	def readPopulation( self ):
+	def readPopChange( self ):
 		print 'Reading population %s' %( self.state )
-		reader = csv.reader( open( '%s/states/%s/CO-EST2007-02-42.csv' %( datapath, self.state ), 'rb' ) )
+		reader = csv.reader( open( '%s/states/%s/%s_PopChange.csv' %( datapath, self.state, self.state ), 'rb' ) )
 		header = reader.next()
 		for row in reader:
-			name = fixCountyName( row.pop(0)[1:] )
+			name = fixCountyName( row.pop(0) )
 			self.countiesByName[name]['population'].update({
 				'all': {
 					'before': fixint( row[1] ),
 					'after': fixint( row[0] ),
 					'change': float( row[3] ),
 				}
+			})
+	
+	def readOccupation( self ):
+		print 'Reading occupation %s' %( self.state )
+		reader = csv.reader( open( '%s/states/%s/%s_Occupation.csv' %( datapath, self.state, self.state ), 'rb' ) )
+		header = reader.next()
+		for row in reader:
+			name = fixCountyName( row.pop(0) )
+			self.countiesByName[name]['occupation'].update({
+				'collar': {
+					'white': float( row[0] ),
+					'blue': float( row[1] ),
+					'grey': float( row[2] ),
+				}
+			})
+	
+	def readUrbanRural( self ):
+		print 'Reading urban-rural %s' %( self.state )
+		reader = csv.reader( open( '%s/states/%s/%s_UrbanRural.csv' %( datapath, self.state, self.state ), 'rb' ) )
+		header = reader.next()
+		for row in reader:
+			name = fixCountyName( row.pop(0) )
+			self.countiesByName[name]['urbanrural'].update({
+				'urban': float( row[0] ),
+				'rural': float( row[1] )
 			})
 	
 	def readEthnic( self ):
@@ -220,10 +262,14 @@ class Reader:
 		minPercent = 101.0;  maxPercent = -101.0
 		for place in self.places:
 			popPercent = place['population']['all']['change']
-			demPercent = place['population']['dem']['change']
-			gopPercent = place['population']['gop']['change']
-			minPercent = min( minPercent, popPercent, demPercent, gopPercent )
-			maxPercent = max( maxPercent, popPercent, demPercent, gopPercent )
+			if self.state == 'pa':  # hack
+				demPercent = place['population']['dem']['change']
+				gopPercent = place['population']['gop']['change']
+				minPercent = min( minPercent, popPercent, demPercent, gopPercent )
+				maxPercent = max( maxPercent, popPercent, demPercent, gopPercent )
+			else:
+				minPercent = min( minPercent, popPercent )
+				maxPercent = max( maxPercent, popPercent )
 		print 'Min percent = %2.2f, max percent = %2.2f' %( minPercent, maxPercent )
 		self.limits = {
 			'population': {
@@ -271,10 +317,13 @@ class Reader:
 		)
 
 def fixCountyName( name ):
-	name = name.replace( ' County', '' ).strip().capitalize()
+	name = name.replace( ' County', '' ).strip()
+	name = re.sub( '^\.', '', name )
+	name = name.capitalize()
 	fixNames = {
 		#"Harts Location": "Hart's Location",
 		#"Waterville": "Waterville Valley",
+		"Cabarus": "Cabarrus",
 		"Mckean": "McKean"
 	}
 	if( name in fixNames ):
@@ -299,12 +348,15 @@ def update( state ):
 	reader = Reader( state )
 	reader.readAll()
 	reader.makeJson()
-	reader.makeSheet()
+	if state == 'pa':  # temp
+		reader.makeSheet()
 	#print 'Checking in votes JSON...'
 	#os.system( 'svn ci -m "Vote update" %s' % votespath )
 	print 'Done!'
 
 def main():
+	update( 'in' )
+	update( 'nc' )
 	update( 'pa' )
 
 if __name__ == "__main__":
