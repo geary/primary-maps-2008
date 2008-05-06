@@ -499,7 +499,7 @@ GoogleElectionMap = {
 		if( abbr == 'us' )
 			initStateBounds( state.places );
 		if( abbr == opt.state )
-			loadScript( S( opt.dataUrl, 'votes/', abbr.toLowerCase(), '_', curParty.name, '.js' ), 120 );
+			loadScript( S( opt.dataUrl, 'votes/', abbr.toLowerCase(), '_', curParty.name, '.js' ), 60 );
 	},
 	votesReady: function( votes ) {
 		var abbr = votes.state;
