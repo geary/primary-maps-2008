@@ -2893,10 +2893,12 @@ function loadState() {
 	map.clearOverlays();
 	var abbr = opt.state;
 	var $select = $('#stateInfoSelector');
-	var oldValue = $select[0].selectedIndex > 2 && $select.val();
+	var index = $select[0].selectedIndex;
+	var changeable = index > 2;
+	var oldValue = changeable && $select.val();
 	$select.find('option:gt(2)').remove();
 	var values = stateFactors[abbr];
-	var iSelect = 2;
+	var iSelect = changeable ? 2 : index;
 	if( values ) {
 		add( 'demographic', 'Demographic and Political Factors' );
 		values.words( function( value, i ) {
