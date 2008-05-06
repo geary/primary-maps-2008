@@ -3111,7 +3111,7 @@ function listEthnic() {
 function listPopulation() {
 	var factors = getFactors();
 	var parties = factors.places[0].population.dem;
-	var colors = parties ? [ '18A221', '0000DD', 'DD0000' ] : [ '18A221' ];
+	var colors = [ '18A221', '0000DD', 'DD0000' ];
 	var labels = parties ? [ 'Population', 'Democratic', 'Republican' ] : [ 'Population' ];
 	var width = 125, height = 22;
 	//var limits = factors.limits.population, scale = [ limits.minPercent, limits.maxPercent ];
@@ -3124,7 +3124,7 @@ function listPopulation() {
 			height: height,
 			barHeight: parties ? 6 : 22,
 			barSpace: 2,
-			colors: colors,
+			colors: parties ? colors : pop.all.change < 0 ? [ 'AD1400' ] : [ '18A221' ],
 			data: parties ? [ pop.all.change, pop.dem.change, pop.gop.change ] : [ pop.all.change ],
 			scale: scale,
 			background: S( 'bg,ls,0,E0E0E0,', left, ',F4F4F4,', right )
