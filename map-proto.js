@@ -3670,8 +3670,8 @@ function listSpreadsheet() {
 	return S(
 		'<div>',
 			'<div style="margin-bottom:16px">',
-				'<span style="color:red;">New!</span> ',
-				' View all county demographics, political factors, and voting results in a spreadsheet',
+				//'<span style="color:red;">New! </span> ',
+				'View all county demographics, political factors, and voting results in a spreadsheet',
 			'</div>',
 			'<div>',
 				link( 'hl=en', 'Google Docs spreadsheet with live updates and chat' ),
