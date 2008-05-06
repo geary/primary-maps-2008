@@ -222,6 +222,10 @@ if( ! Array.prototype.index ) {
 	};
 }
 
+Array.prototype.random = function() {
+	return this[ randomInt(this.length) ];
+};
+
 String.prototype.trim = function() {
 	return this.replace( /^\s\s*/, '' ).replace( /\s\s*$/, '' );
 };
@@ -242,6 +246,10 @@ jQuery.fn.html = function( a ) {
 	if( a == null ) return this[0] && this[0].innerHTML;
 	return this.empty().append( join( a.charAt ? arguments : a ) );
 };
+
+function randomInt( n ) {
+	return Math.floor( Math.random() * n );
+}
 
 /**
  * jQuery.ScrollTo
@@ -1306,8 +1314,9 @@ function optionHTML( value, name, selected, disabled ) {
 	);
 }
 
+var hotStates = [ 'IN!', 'NC!' ]/*.index()*/;
+
 (function() {
-	//var hotStates = [ 'PA!' ]/*.index()*/;
 	var index = 0;
 	function option( value, name, selected, disabled ) {
 		var html = optionHTML( value, name, selected, disabled );
@@ -1327,6 +1336,7 @@ function optionHTML( value, name, selected, disabled ) {
 		return option( key, infoTips[key].title, selected );
 	}
 	
+	var hot;
 	stateSelector = ! opt.stateSelector ? '' : S(
 		'<div style="background-color:#EEE; width:100%; padding:4px 4px 0 0; border-bottom:1px solid #CCC; margin:0 0 4px 0;">',
 			'<div style="margin-bottom:2px;">',
@@ -1343,13 +1353,16 @@ function optionHTML( value, name, selected, disabled ) {
 						'<div class="selectdiv">',
 							'<select id="stateSelector">',
 								option( 'us', 'Entire USA' ),
-								//option( '', 'April 22 Primary', false, true ),
-								//hotStates.mapjoin( function( abbr ) {
-								//	return stateOption( stateByAbbr( abbr.replace('!','') ), abbr == 'PA!', false );
-								//}),
+								option( '', 'May 6 Primary', false, true ),
+								hotStates.mapjoin( function( abbr ) {
+									abbr = abbr.replace( '!', '' ).toLowerCase();
+									var select;
+									if( abbr == opt.state ) hot = select = true;
+									return stateOption( stateByAbbr(abbr), select, false );
+								}),
 								option( '', 'All States and Voting Dates', false, true ),
 								states.mapjoin( function( state ) {
-									return /*hotStates.by[state.abbr] ? '' :*/ stateOption( state, state.abbr.toLowerCase == opt.state, true );
+									return /*hotStates.by[state.abbr] ? '' :*/ stateOption( state, ! hot && state.abbr.toLowerCase() == opt.state, true );
 								}),
 							'</select>',
 						'</div>',
@@ -1626,6 +1639,8 @@ opt.codeUrl = opt.codeUrl || 'http://primary-maps-2008.googlecode.com/svn/trunk/
 opt.frameUrl = opt.frameUrl || opt.codeUrl;
 opt.dataUrl = opt.dataUrl || 'http://primary-maps-2008-data.googlecode.com/svn/trunk/';
 opt.state = opt.state || 'us';
+if( opt.state == 'zz' )
+	opt.state = hotStates.random().replace( '!', '' ).toLowerCase();
 
 var state = states[opt.state];
 
