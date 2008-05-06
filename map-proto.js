@@ -2800,8 +2800,8 @@ function following() {
 }
 
 stateFactors = {
-	'in': 'occupation religion urbanrural',
-	'nc': 'occupation religion urbanrural',
+	'in': 'population occupation religion urbanrural',
+	'nc': 'population occupation religion urbanrural',
 	'pa': 'age population religion ethnic gub2002 spreadsheet'
 };
 
@@ -3110,25 +3110,24 @@ function listEthnic() {
 
 function listPopulation() {
 	var factors = getFactors();
-	var colors = [ '18A221', '0000DD', 'DD0000' ];
-	var labels = [ 'Population', 'Democratic', 'Republican' ];
+	var parties = factors.places[0].population.dem;
+	var colors = parties ? [ '18A221', '0000DD', 'DD0000' ] : [ '18A221' ];
+	var labels = parties ? [ 'Population', 'Democratic', 'Republican' ] : [ 'Population' ];
 	var width = 125, height = 22;
-	var limits = factors.limits.population, scale = [ limits.minPercent, limits.maxPercent ];
+	//var limits = factors.limits.population, scale = [ limits.minPercent, limits.maxPercent ];
+	var limits = factors.limits.population, scale = [ -25, 70 ];
 	var left = -scale[0] / ( scale[1] - scale[0] ), right = 1 - left;
 	var html = factors.places.mapjoin( function( place ) {
 		var pop = place.population;
 		var img = ChartApi.sparkbar({
 			width: width,
 			height: height,
-			barHeight: 6,
+			barHeight: parties ? 6 : 22,
 			barSpace: 2,
 			colors: colors,
-			data: [ pop.all.change, pop.dem.change, pop.gop.change ],
+			data: parties ? [ pop.all.change, pop.dem.change, pop.gop.change ] : [ pop.all.change ],
 			scale: scale,
 			background: S( 'bg,ls,0,E0E0E0,', left, ',F4F4F4,', right )
-			//,
-			//alt: S(
-			//	place.name, ': Population 
 		});
 		return S(
 			'<div class="placerow" id="place-', place.name.replace( ' ', '+' ), '" style="vertical-align:middle;">',
@@ -3160,10 +3159,10 @@ function listPopulation() {
 	}
 	
 	return S(
-		censusPaAttribution,
+		parties ? censusPaAttribution : censusAttribution,
 		'<div class="legend">',
 			'<div>',
-					label(0), label(1), label(2),
+					parties ? S( label(0), label(1), label(2) ) : label(0),
 			'</div>',
 			'<div style="float:right;">',
 				infoIcon,
