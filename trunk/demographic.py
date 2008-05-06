@@ -61,7 +61,7 @@ class Reader:
 			self.readPopChange()
 			self.readOccupation()
 			self.readUrbanRural()
-			#self.readEthnic()
+			self.readEthnic1()
 			self.calcLimits()
 		elif self.state == 'nc':
 			#self.readRegChange()
@@ -69,7 +69,7 @@ class Reader:
 			self.readPopChange()
 			self.readOccupation()
 			self.readUrbanRural()
-			#self.readEthnic()
+			#self.readEthnic1()
 			self.calcLimits()
 		elif self.state == 'pa':
 			self.readAges( 'all' )
@@ -243,6 +243,23 @@ class Reader:
 		#self.labels.update({ 'ethnic':[ 'White', 'Black', 'Asian', 'Hispanic', 'Other' ] })
 		self.labels.update({ 'ethnic':[ 'White', 'Black', 'Asian', 'Other' ] })
 	
+	def readEthnic1( self ):
+		print 'Reading ethnic %s' %( self.state )
+		reader = csv.reader( open( '%s/states/%s/%s_Racial.csv' %( datapath, self.state, self.state ), 'rb' ) )
+		reader.next()
+		header = reader.next()
+		for row in reader:
+			name = fixCountyName( row[0] )
+			white = float( row[1] )
+			black = float( row[2] )
+			hispanic = float( row[3] )
+			asian = float( row[4] )
+			other = 100.0 - white - black - asian - hispanic
+			self.countiesByName[name].update({
+				'ethnic': [ white, black, hispanic, asian, other ]
+			})
+		self.labels.update({ 'ethnic1':[ 'White', 'Black', 'Hispanic', 'Asian', 'Other' ] })
+		
 	def readGub2002( self ):
 		print 'Reading Casey-Rendell %s' %( self.state )
 		reader = csv.reader( open( '%s/states/%s/Casey-Rendell-2002.csv' %( datapath, self.state ), 'rb' ) )
