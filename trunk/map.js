@@ -1,5 +1,3 @@
-GoogleElectionMapOptions.state = 'pa';
-
 function scriptIG( url, seconds ) {
 	document.write(
 		'<script type="text/javascript" src="',
