@@ -625,7 +625,7 @@ var urbanruralAttribution = S(
 	'</div>'
 );
 
-var infoTips = {
+var infoTipsPA = {
 	stateVotes: {
 		title: 'Statewide Voting Results',
 		text: ''
@@ -666,6 +666,46 @@ var infoTips = {
 		title: 'Detailed Spreadsheet'
 	}
 };
+
+var infoTipsIN = {
+	stateVotes: {
+		title: 'Statewide Voting Results',
+		text: ''
+	},
+	countyVotes: {
+		title: 'Local Voting Results',
+		text: ''
+	},
+	voters: {
+		title: 'Registered Voters',
+		text: "Indiana does not have partisan registration, and participation in its presidential primaries is open to all voters. North Carolina does have partisan registration, but independent or unaffiliated voters can participate in the Democratic contest. Participation in the Republican primary is limited to registered Republicans. The voter registration data for North Carolina counties comes from the <a target='_blank' href='http://www.sboe.state.nc.us/'>State Board of Elections</a> as of April 26, 2008. In most of the primaries, Sen. Barack Obama has tended to do better among independent voters than Sen. Hillary Rodham Clinton."
+	},
+	population: {
+		title: 'Population Gain and Loss',
+		text: "These charts indicate which counties are growing and which ones are not. In recent primaries, Sen. Hillary Rodham Clinton has done well in rural communities and older metropolitan areas. But neither Clinton nor Obama has performed consistently in the faster growing areas. For Obama to do well in Indiana and North Carolina on May 6, he&#8217;s probably going to have to do well not only in his relative strongholds, such as core urban counties and counties with big university and college populations, but also in the faster growing portions of both states.<br /><br />Census Bureau data for 2000 to 2007."
+	},
+	religion: {
+		title: 'Religion',
+		text: "Sens. Barack Obama and Hillary Rodham Clinton recently participated in a forum on issues of faith at Messiah College in Pennsylvania, a reminder of the role that religion plays in politics and campaigns. So far in this primary season, Sen. Obama has done relatively well among Democratic primary voters who identify as Protestants and other denominations, but lagged among Catholics.<br/><br/>This data is from the <a target='_blank' href='http://www.thearda.com/Archive/Browse.asp'>Association of Religion Data Archives</a> at Penn State University, but it&#8217;s not perfect. While ARDA is one of the best resources on religious affiliations in the country, the data does not include historically African American denominations in its 2000 congregation and membership totals, so it is understating some religious participation."
+	},
+	ethnic: {
+		title: 'Racial and Ethnic Background',
+		text: "Sen. Barack Obama has had some difficulty winning a significant share of support of white voters in most of the 2008 Democratic presidential primaries, but at the same time he has overwhelmed Clinton among African-American voters in these contests.<br /><br />For Indiana counties, the data on race comes from 2006 Census population estimates compiled by <a target='_blank' href='http://www.polidata.us>POLIDATA</a> for <a target='_blank' href='http://www.nationaljournal.com>National Journal</a>.<br /><br />For North Carolina counties the data is based on the registered voters in each county as of April 26, 2008 reported by the <a target='_blank' href='http://www.sboe.state.nc.us'>North Carolina State Board of Elections</a>."
+	},
+	occupation: {
+		title: 'Occupation',
+		text: "Sen. Hillary Rodham Clinton has diligently courted blue collar voters, one of the key constituencies of the Democratic Party, and they have become a bulwark of her presidential candidacy. Without continued support from these voters, she would have a difficult time fighting on. At the same time, Sen. Barack Obama has fared well among better educated voters with white collar jobs. While Obama is the current frontrunner for the Democratic nomination, many observers believe he needs to make more inroads among blue collar voters to mobilize and unify the entire Democratic Party coalition in the general election is he&#8217;s nominated. The charts are based on 2000 Census data on persons 16 years or older employed in three categories of occupations: White collar (management, professional, sales and administrative jobs), blue collar (construction, production and transportation), and grey collar (all other occupations).<br /><br />Data compiled by <a target='_blank' href='http://www.polidata.us/'>POLIDATA</a> for The Almanac of American Politics published by <a target='_blank' href='http://www.nationaljournal.com/'>National Journal</a>."
+	},
+	urbanrural: {
+		title: 'Urban vs. Rural',
+		text: "Sen. Hillary Rodham Clinton, and particularly her husband, former president Bill Clinton, have campaigned hard to win support from rural voters in these closing stages of the Democratic presidential nominating contest. Meanwhile, Sen. Barack Obama has continued to fare better among urban voters in primary after primary. Sen. Clinton&#8217;s latest campaign pledge to give drivers a summer gas tax holiday could have additional appeal among rural voters who tend to drive longer distances.<br /><br />The charts show the percentages of the population living in areas defined as urban or rural by the Census Bureau.<br /><br />Data compiled by <a target='_blank' href='http://www.polidata.us>POLIDATA</a> for The Almanac of American Politics published by <a target='_blank' href='http://www.nationaljournal.com'>National Journal</a>."
+	},
+	spreadsheet: {
+		title: 'Detailed Spreadsheet'
+	}
+};
+
+var infoTipsNC = infoTipsIN;
 
 var states = [
 	{
@@ -787,7 +827,8 @@ var states = [
 		'parties': {
 			'dem': { 'date': '05-06' },
 			'gop': { 'date': '05-06' }
-		}
+		},
+		'infoTips': infoTipsIN
 	},
 	{
 		'abbr': 'IA',
@@ -944,7 +985,8 @@ var states = [
 		'parties': {
 			'dem': { 'date': '05-06' },
 			'gop': { 'date': '05-06' }
-		}
+		},
+		'infoTips': infoTipsNC
 	},
 	{
 		'abbr': 'ND',
@@ -984,7 +1026,8 @@ var states = [
 		'parties': {
 			'dem': { 'date': '04-22' },
 			'gop': { 'date': '04-22' }
-		}
+		},
+		'infoTips': infoTipsPA
 	},
 	{
 		'abbr': 'PR',
@@ -1111,7 +1154,15 @@ states.forEach( function( state ) {
 });
 
 function stateByAbbr( abbr ) {
+	if( typeof abbr != 'string' ) return abbr;
 	return statesByAbbr[abbr.toUpperCase()] || stateUS;
+}
+
+function infoTip( state, type ) {
+	state = state || opt.state;
+	type = type || opt.infoType;
+	var tips = stateByAbbr(state).infoTips;
+	return tips && tips[type];
 }
 
 function adjustHeight() {
@@ -1354,9 +1405,6 @@ var hotStates = [ 'IN!', 'NC!' ]/*.index()*/;
 		}
 		return option( state.abbr, state.name + dates, selected );
 	}
-	function infoOption( key, selected ) {
-		return option( key, infoTips[key].title, selected );
-	}
 	
 	var hot;
 	stateSelector = S(
@@ -1404,8 +1452,8 @@ var hotStates = [ 'IN!', 'NC!' ]/*.index()*/;
 						'<div class="selectdiv">',
 							'<select id="stateInfoSelector">',
 								option( '', 'Voting Results', false, true ),
-								infoOption( 'stateVotes' ),
-								infoOption( 'countyVotes', true ),
+								option( 'stateVotes', 'Statewide Voting Results' ),
+								option( 'countyVotes', 'Local Voting Results', true ),
 							'</select>',
 						'</div>',
 					'</td>',
@@ -1434,10 +1482,14 @@ function writeCommon() {
 			'.attribution { border-bottom:1px solid #DDD; padding-bottom:4px; margin-bottom:4px; }',
 			'.attribution * { font-size:85%; }',
 			'.legend {}',
+			'.legend table { width:320px; }',
 			'.legend td, .legend * { font-size:12px; white-space:pre; }',
 			'.legend div { float:left; }',
+			'#infoicon { cursor:pointer; }',
 			'.placerow { padding:2px; margin:1px; border:2px solid white; cursor:pointer; }',
 			'.placerow-hilite { border-color:#444; }',
+			'a.delbox { background-position:-60px 0px; float:right; height:12px; overflow:hidden; position:relative; width:12px; background-image:url(http://img0.gmodules.com/ig/images/sprite_arrow_enlarge_max_min_shrink_x_blue.gif); }',
+			'a.delbox:hover { background-position:-60px -12px; }',
 		'</style>'
 	);
 }
@@ -1568,7 +1620,7 @@ function writeApiMapHTML() {
 		'</div>'
 	);
 	var sidebarHTML = S(
-		'<div id="outer">',
+		'<div id="NOT-outer">',
 			'<div id="resultlist">',
 			'</div>',
 			stateSelector,
@@ -1622,6 +1674,8 @@ function writeApiMapHTML() {
 		'</style>'
 	);
 	
+	document.write( '<div id="outer">' );
+	
 	if( opt.sidebarHeight ) {
 		document.write(
 			mapHTML,
@@ -1652,6 +1706,8 @@ function writeApiMapHTML() {
 			'</div>'
 		);
 	}
+	
+	document.write( '</div>' );
 }
 
 var feed = {
@@ -2519,6 +2575,8 @@ function load() {
 		//map.addControl( new GLargeMapControl() );
 		map.addControl( new GSmallMapControl() );
 		
+		GEvent.addListener( map, 'click', closeInfoTip );
+		GEvent.addListener( map, 'dragstart', closeInfoTip );
 		GEvent.addListener( map, 'mousemove', mapmousemoved/*.hover*/ );
 		//GEvent.addListener( map, 'mouseout', mapmousemoved.clear );
 	}
@@ -2619,10 +2677,13 @@ function  partyButtonClick( event ) {
 }
 
 function  contentClick( event ) {
-	switch( event.target.tagName.toLowerCase() ) {
+	var target = event.target;
+	switch( target.tagName.toLowerCase() ) {
 		case 'a':
 			return true;
 	}
+	
+	showInfoTip( target.id == 'infoicon' );
 	
 	return false;
 }
@@ -2692,13 +2753,11 @@ function shapeVertices( shape ) {
 
 function contentMouseOver( event ) {
 	var target = event.target, $target = $(target);
-	showInfoTip( target.id == 'infoicon' );
 	var row = $target.parents('.placerow')[0];
 	setHilite( row && row.id.replace( /^place-/, '' ).replace( '+', ' ' ) );
 }
 
 function contentMouseOut( event ) {
-	showInfoTip( false );
 	setHilite();
 }
 
@@ -2706,7 +2765,7 @@ function showInfoTip( show ) {
 	var $infotip = $('#infotip');
 	if( show ) {
 		if( $infotip[0] ) return;
-		var tip = infoTips[opt.infoType];
+		var tip = infoTip();
 		var $outer = $('#outer');
 		var offset = $outer.offset();
 		var top = offset.top + 8;
@@ -2714,16 +2773,26 @@ function showInfoTip( show ) {
 		var width = $outer.width() - 40;
 		
 		$('body').append( S(
-			'<div id="infotip" style="z-index:999; position:absolute; top:', top, 'px; left:', left, 'px; width:', width, 'px; padding:4px; background-color:#F2EFE9; border: 1px solid black;">',
+			//'<div id="infotip" style="z-index:999; position:absolute; top:', top, 'px; left:', left, 'px; width:', width, 'px; padding:8px; background-color:#F2EFE9; border: 1px solid black;">',
+			'<div id="infotip" style="z-index:999; position:absolute; top:', top, 'px; left:', left, 'px; width:', width, 'px; padding:8px; background-color:#F8F7F3; border: 1px solid black;">',
 				'<div style="margin-bottom:4px;">',
-					'<b>', tip.title, '</b>',
+					'<table cellspacing="0" cellpadding="0">',
+						'<tr valign="top">',
+							'<td>',
+								'<b>', tip.title, '</b>',
+							'</td>',
+							'<td style="width:12px;">',
+								'<a class="delbox" id="infoclose" href="javascript:void(0)" title="Close">',
+								'</a>',
+							'</td>',
+						'</tr>',
+					'</div>',
 				'</div>',
 				'<div>',
 					tip.text,
 				'</div>',
 				'<div style="margin-top:12px;">',
-					//'Commentary by <a href="http://www.nationaljournal.com/">National Journal</a>',
-					'Commentary by National Journal',
+					'Commentary by <a target="_blank" href="http://www.nationaljournal.com/">National Journal</a>',
 				'</div>',
 			'</div>'
 		) );
@@ -2732,11 +2801,24 @@ function showInfoTip( show ) {
 			'<iframe id="tipframe" style="position:absolute; top:', top, 'px; left:', left, 'px; width:', width, 'px; height:', $('#infotip').height(), 'px; border:0" frameborder="0">',
 			'</iframe>'
 		) );
+		
+		$('#infoclose').click( function() { showInfoTip( false ); })
+		$(document).bind( 'keydown', infoTipKeyDown ).bind( 'mousedown', closeInfoTip );
 	}
 	else {
+		$(document).unbind( 'keydown', infoTipKeyDown ).unbind( 'mousedown', closeInfoTip );
 		$infotip.remove();
 		$('#tipframe').remove();
 	}
+}
+
+function infoTipKeyDown( event ) {
+	if( event.keyCode == 27 )
+		closeInfoTip();
+}
+
+function closeInfoTip() {
+	showInfoTip( false );
 }
 
 //var mousemoved = function( latlng ) {
@@ -2824,7 +2906,7 @@ function loadState() {
 		});
 	}
 	function add( value, name, selected ) {
-		$select.append( optionHTML( value, name || infoTips[value].title, false, !! name ) );
+		$select.append( optionHTML( value, name || infoTip(null,value).title, false, !! name ) );
 	}
 	$select[0].selectedIndex = iSelect;
 	opt.infoType = $select.val();
