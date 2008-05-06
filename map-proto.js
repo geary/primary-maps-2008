@@ -473,9 +473,15 @@ jQuery.fn.html = function( a ) {
 var opt = window.GoogleElectionMapOptions || {};
 var mapplet = opt.mapplet;
 
+function getFactors() {
+	var state = stateByAbbr(opt.state);
+	return state.factors;
+}
+
 GoogleElectionMap = {
 	Demographics: function( data ) {
-		Demographics = data;  // temp hack
+		if( data.length ) dg.forEach( GoogleElectionMap.Demographics );
+		else stateByAbbr(data.state).factors = data;
 	},
 	shapesReady: function( data ) {
 		var abbr = data.state;
@@ -2843,7 +2849,8 @@ var infoHtml = {
 // Copy and paste is quick and easy for now
 
 function listAges() {
-	var labels = Demographics.labels.ages.map( function( label ) {
+	var factors = getFactors();
+	var labels = factors.labels.ages.map( function( label ) {
 		//return label.replace( ' to ', '&#8211;' );
 		return label.replace( ' to ', '-' );
 	});
@@ -2852,7 +2859,7 @@ function listAges() {
 		gop: { line:'DD0000', fill:'bg,ls,0,FFC4C4,0.28,FFDCDC,0.44,FFC4C4,0.28' }
 	};
 	var width = 75, height = 22;
-	var html = Demographics.places.mapjoin( function( place ) {
+	var html = factors.places.mapjoin( function( place ) {
 		var ages = place.ages, dem = ages.dem, gop = ages.gop;
 		var min = Math.min( dem.min, gop.min ), max = Math.max( dem.max, gop.max );
 		var use = dem.total > gop.total ? {
@@ -2936,9 +2943,10 @@ function listAges() {
 }
 
 function listReligion() {
+	var factors = getFactors();
 	var colors = [ '18A221', 'EFBA00', '1851CE', 'AD1400', 'AAAAAA', 'DDDDDD' ];
 	var width = 75, height = 22;
-	var html = Demographics.places.mapjoin( function( place ) {
+	var html = factors.places.mapjoin( function( place ) {
 		var img = ChartApi.rainbow({
 			width: width,
 			height: height,
@@ -2968,7 +2976,7 @@ function listReligion() {
 					' ',
 				'</div>',
 				'<div style="margin:0 18px 4px 0;">',
-					Demographics.labels.religion[i],
+					factors.labels.religion[i],
 				'</div>',
 			'</td>'
 		);
@@ -3002,9 +3010,10 @@ function listReligion() {
 }
 
 function listEthnic() {
+	var factors = getFactors();
 	var colors = [ '18A221', 'EFBA00', '1851CE', 'AD1400' ];
 	var width = 75, height = 22;
-	var html = Demographics.places.mapjoin( function( place ) {
+	var html = factors.places.mapjoin( function( place ) {
 		var ethnic = place.ethnic;
 		var total = 0;
 		for( var i = 0, n = ethnic.length;  i < n;  ++i )
@@ -3039,7 +3048,7 @@ function listEthnic() {
 					' ',
 				'</div>',
 				'<div style="margin:0 18px 4px 0;">',
-					Demographics.labels.ethnic[i],
+					factors.labels.ethnic[i],
 				'</div>',
 			'</td>'
 		);
@@ -3066,12 +3075,13 @@ function listEthnic() {
 }
 
 function listPopulation() {
+	var factors = getFactors();
 	var colors = [ '18A221', '0000DD', 'DD0000' ];
 	var labels = [ 'Population', 'Democratic', 'Republican' ];
 	var width = 125, height = 22;
-	var limits = Demographics.limits.population, scale = [ limits.minPercent, limits.maxPercent ];
+	var limits = factors.limits.population, scale = [ limits.minPercent, limits.maxPercent ];
 	var left = -scale[0] / ( scale[1] - scale[0] ), right = 1 - left;
-	var html = Demographics.places.mapjoin( function( place ) {
+	var html = factors.places.mapjoin( function( place ) {
 		var pop = place.population;
 		var img = ChartApi.sparkbar({
 			width: width,
@@ -3148,10 +3158,11 @@ function listPopulation() {
 }
 
 function listGub2002() {
+	var factors = getFactors();
 	var colors = [ 'EFBA00', '18A221' ];
-	var labels = Demographics.labels.gub2002;
+	var labels = factors.labels.gub2002;
 	var width = 125, height = 22;
-	var html = Demographics.places.mapjoin( function( place ) {
+	var html = factors.places.mapjoin( function( place ) {
 		var gub = place.gub2002;
 		var img = ChartApi.sparkbar({
 			width: width,

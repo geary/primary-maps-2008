@@ -21,7 +21,7 @@ def fixpercent( str ):
 def formatNumber( number ):
 	return str(number)
 
-def json( obj ):
+def toJSON( obj ):
 	if 0:
 		# Pretty print
 		json = sj.dumps( obj, indent=4 )
@@ -278,16 +278,18 @@ class Reader:
 			}
 		}
 
-	def makeJson( self ):
-		write(
-			'%s/states/%s/demographic.js' %( datapath, self.state ),
-			'GoogleElectionMap.Demographics(%s)' % json({
-					'status': 'ok',
-					'state': self.state,
-					'labels': self.labels,
-					'limits': self.limits,
-					'places': self.places
-			}) )
+	def stateObject( self ):
+		obj = {
+			'status': 'ok',
+			'state': self.state,
+			'labels': self.labels,
+			'limits': self.limits,
+			'places': self.places
+		}
+		
+		write( '%s/states/%s/demographic.js' %( datapath, self.state ),
+			'GoogleElectionMap.Demographics(%s)' % toJSON(obj) )
+		return obj
 	
 	def makeSheet( self ):
 		csv = [ 'County,Type,All 2000,All 2008,All % Change,Dem 2000,Dem 2008,Dem % Change,GOP 2000,GOP 2008,GOP % Change,All 18-24,All 25-34,All 35-44,All 45-54,All 55-64,All 65-74,All 75+,Dem 18-24,Dem 25-34,Dem 35-44,Dem 45-54,Dem 55-64,Dem 65-74,Dem 75+,GOP 18-24,GOP 25-34,GOP 35-44,GOP 45-54,GOP 55-64,GOP 65-74,GOP 75+,White,Black,Asian,Other,Catholic,Evangelical,Mainline,Jewish,Other,None,Casey,Rendell' ]
@@ -343,21 +345,27 @@ def write( name, text ):
 	f = open( name, 'w' )
 	f.write( text )
 	f.close()
-	
+
+allStates = []
+
 def update( state ):
+	global alljson
 	reader = Reader( state )
 	reader.readAll()
-	reader.makeJson()
+	allStates.append( reader.stateObject() )
 	if state == 'pa':  # temp
 		reader.makeSheet()
 	#print 'Checking in votes JSON...'
 	#os.system( 'svn ci -m "Vote update" %s' % votespath )
-	print 'Done!'
+	print 'State done'
 
 def main():
 	update( 'in' )
 	update( 'nc' )
 	update( 'pa' )
+	write( '%s/demographic.js' %( datapath ),
+		'GoogleElectionMap.Demographics(%s)' % toJSON(allStates) )
+	print 'All done'
 
 if __name__ == "__main__":
     main()
