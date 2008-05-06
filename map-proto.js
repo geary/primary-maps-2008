@@ -3111,8 +3111,8 @@ function listEthnic() {
 function listPopulation() {
 	var factors = getFactors();
 	var parties = factors.places[0].population.dem;
-	var colors = [ '18A221', '0000DD', 'DD0000' ];
-	var labels = parties ? [ 'Population', 'Democratic', 'Republican' ] : [ 'Population' ];
+	var colors = parties ? [ '18A221', '0000DD', 'DD0000' ] : [ 'AD1400', '18A221' ];
+	var labels = parties ? [ 'Population', 'Democratic', 'Republican' ] : [ 'Population Loss', 'Population Gain' ];
 	var width = 125, height = 22;
 	//var limits = factors.limits.population, scale = [ limits.minPercent, limits.maxPercent ];
 	var limits = factors.limits.population, scale = [ -25, 70 ];
@@ -3145,14 +3145,14 @@ function listPopulation() {
 		);
 	});
 	
-	function label( i ) {
+	function label( label, i ) {
 		return S(
 			'<td>',
 				'<div style="width:16px; height:16px; margin:0 4px 4px 0; background-color:#', colors[i], ';">',
 					' ',
 				'</div>',
 				'<div style="margin:0 12px 4px 0;">',
-					labels[i],
+					label,
 				'</div>',
 			'</td>'
 		);
@@ -3162,7 +3162,7 @@ function listPopulation() {
 		parties ? censusPaAttribution : censusAttribution,
 		'<div class="legend">',
 			'<div>',
-					parties ? S( label(0), label(1), label(2) ) : label(0),
+					labels.mapjoin( label ),
 			'</div>',
 			'<div style="float:right;">',
 				infoIcon,
