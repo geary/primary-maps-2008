@@ -613,6 +613,12 @@ var ardaAttribution = S(
 	'</div>'
 );
 
+var occupationAttribution = S(
+	'<div class="attribution">',
+		'<a href="http://???/" target="_blank"></a>',
+	'</div>'
+);
+
 var infoTips = {
 	stateVotes: {
 		title: 'Statewide Voting Results',
@@ -637,6 +643,10 @@ var infoTips = {
 	ethnic: {
 		title: 'Racial and Ethnic Background',
 		text: "Obama has had some difficulty winning a significant share of support of white voters in most of the 2008 Democratic presidential primaries, but at the same time he has overwhelmed Clinton about African-American voters in these contests."
+	},
+	occupation: {
+		title: 'Occupations',
+		text: ""
 	},
 	gub2002: {
 		title: 'Casey vs. Rendell 2002',
@@ -2776,8 +2786,8 @@ function following() {
 }
 
 stateFactors = {
-	'in': 'religion',
-	'nc': 'religion',
+	'in': 'occupation religion',
+	'nc': 'occupation religion',
 	'pa': 'age population religion ethnic gub2002 spreadsheet'
 };
 
@@ -2847,6 +2857,7 @@ var infoHtml = {
 	countyVotes: listVotes,
 	age: listAges,
 	population: listPopulation,
+	occupation: listOccupation,
 	religion: listReligion,
 	ethnic: listEthnic,
 	gub2002: listGub2002,
@@ -3233,6 +3244,85 @@ function listGub2002() {
 				'<div style="margin-left:4px; width:96px;">0%</div>',
 				'<div style="width:45px;">100%</div>',
 				'<div>2002 Gubernatorial Primary</div>',
+			'</div>',
+		'</div>',
+		'<div style="clear:left;">',
+		'</div>',
+		'<div style="border-bottom:1px solid #DDD; margin-bottom:4px;">',
+		'</div>',
+		'<div id="content-scroll">',
+			html,
+		'</div>'
+	);
+}
+
+function listOccupation() {
+	var factors = getFactors();
+	var colors = [ 'EFBA00', '1851CE', '18A221' ];
+	var labels = factors.labels.occupation;
+	var width = 125, height = 22;
+	var html = factors.places.mapjoin( function( place ) {
+		var img = ChartApi.sparkbar({
+			width: width,
+			height: height,
+			barHeight: 6,
+			barSpace: 2,
+			colors: colors,
+			data: place.occupation,
+			scale: [0, 100 ],
+			background: S( 'bg,s,F4F4F4' )
+			//,
+			//alt: S(
+			//	place.name, ': Population 
+		});
+		return S(
+			'<div class="placerow" id="place-', place.name.replace( ' ', '+' ), '" style="vertical-align:middle;">',
+				'<div>',
+					'<div style="float:left; margin-right:8px; padding:2px; background-color:#F4F4F4; border:1px solid #DDD;">',
+						img,
+					'</div>',
+					'<div style="float:left; margin-top:3px;">',
+						' ', place.name, ' County',
+					'</div>',
+					'<div style="clear:left;">',
+					'</div>',
+				'</div>',
+			'</div>'
+		);
+	});
+	
+	function label( i ) {
+		return S(
+			'<td>',
+				'<div style="width:16px; height:16px; margin:0 4px 4px 0; background-color:#', colors[i], ';">',
+					' ',
+				'</div>',
+				'<div style="margin:0 12px 4px 0;">',
+					labels[i],
+				'</div>',
+			'</td>'
+		);
+	}
+	
+	return S(
+		occupationAttribution,
+		'<div class="legend">',
+			'<div>',
+					label(0), label(1), label(2),
+			'</div>',
+			'<div style="float:right;">',
+				infoIcon,
+			'</div>',
+		'</div>',
+		'<div style="clear:both;">',
+		'</div>',
+		'<div style="border-bottom:1px solid #DDD; margin-bottom:4px;">',
+		'</div>',
+		'<div class="legend">',
+			'<div>',
+				'<div style="margin-left:4px; width:96px;">0%</div>',
+				'<div style="width:45px;">100%</div>',
+				'<div>Voters by Occupation</div>',
 			'</div>',
 		'</div>',
 		'<div style="clear:left;">',
