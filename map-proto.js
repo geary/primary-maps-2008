@@ -2824,6 +2824,7 @@ function loadState() {
 		$select.append( optionHTML( value, name || infoTips[value].title, false, !! name ) );
 	}
 	$select[0].selectedIndex = iSelect;
+	opt.infoType = $select.val();
 	if( opt.state == 'us' ) {
 		$('#option-stateVotes').html( 'Nationwide Voting Results' );
 		$('#option-countyVotes').html( 'State Voting Results' );
