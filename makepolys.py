@@ -238,6 +238,9 @@ def generateStates( detail, path ):
 			places[key] = place
 	writeStates( places, path )
 
+#generateUS( 0, 'full' )
+#generateUS( 25, '25' )
+
 generateUS( 90, 'coarse' )
 generateStates( 90, 'coarse' )
 
