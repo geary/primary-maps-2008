@@ -48,7 +48,7 @@ class Reader:
 		header = reader.next()
 		for row in reader:
 			name = fixCountyName( row[0] )
-			self.places.append({ 'name':name, 'ages':{}, 'occupation':{}, 'population':{}, 'urbanrural':{} })
+			self.places.append({ 'name':name, 'ages':{}, 'population':{}, 'urbanrural':{} })
 		# TODO: generalize this like [].index() in JS?
 		self.countiesByName = {}
 		for place in self.places:
@@ -198,15 +198,13 @@ class Reader:
 		print 'Reading occupation %s' %( self.state )
 		reader = csv.reader( open( '%s/states/%s/%s_Occupation.csv' %( datapath, self.state, self.state ), 'rb' ) )
 		header = reader.next()
+		header.pop(0)
 		for row in reader:
 			name = fixCountyName( row.pop(0) )
-			self.countiesByName[name]['occupation'].update({
-				'collar': {
-					'white': float( row[0] ),
-					'blue': float( row[1] ),
-					'grey': float( row[2] ),
-				}
-			})
+			self.countiesByName[name]['occupation'] = [
+				float( row[0] ), float( row[1] ), float( row[2] )
+			]
+		self.labels.update({ 'occupation':header })
 	
 	def readUrbanRural( self ):
 		print 'Reading urban-rural %s' %( self.state )
