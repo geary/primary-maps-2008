@@ -480,7 +480,7 @@ function getFactors() {
 
 GoogleElectionMap = {
 	Demographics: function( data ) {
-		if( data.length ) dg.forEach( GoogleElectionMap.Demographics );
+		if( data.length ) data.forEach( GoogleElectionMap.Demographics );
 		else stateByAbbr(data.state).factors = data;
 	},
 	shapesReady: function( data ) {
@@ -1347,9 +1347,9 @@ function optionHTML( value, name, selected, disabled ) {
 								//hotStates.mapjoin( function( abbr ) {
 								//	return stateOption( stateByAbbr( abbr.replace('!','') ), abbr == 'PA!', false );
 								//}),
-								option( '', 'States and Voting Dates', false, true ),
+								option( '', 'All States and Voting Dates', false, true ),
 								states.mapjoin( function( state ) {
-									return /*hotStates.by[state.abbr] ? '' :*/ stateOption( state, state.abbr == 'PA', true );
+									return /*hotStates.by[state.abbr] ? '' :*/ stateOption( state, state.abbr.toLowerCase == opt.state, true );
 								}),
 							'</select>',
 						'</div>',
@@ -1367,13 +1367,6 @@ function optionHTML( value, name, selected, disabled ) {
 								option( '', 'Voting Results', false, true ),
 								infoOption( 'stateVotes' ),
 								infoOption( 'countyVotes', true ),
-								option( 'demographic', 'Demographic and Political Factors', false, true ),
-								infoOption( 'age' ),
-								infoOption( 'population' ),
-								infoOption( 'religion' ),
-								infoOption( 'ethnic' ),
-								infoOption( 'gub2002' ),
-								infoOption( 'spreadsheet' ),
 							'</select>',
 						'</div>',
 					'</td>',
@@ -2767,27 +2760,31 @@ function following() {
 	return ! chk  ||  chk.checked;
 }
 
+stateFactors = {
+	'in': 'religion',
+	'nc': 'religion',
+	'pa': 'age population religion ethnic gub2002 spreadsheet'
+};
+
 function loadState() {
 	var abbr = opt.state;
 	var $select = $('#stateInfoSelector');
-	function enable( value, name ) {
-		var $option = $('#option-'+value), option = $option[0];
-		if( opt.state == 'pa' ) {
-			if( ! option )
-				$select.append( optionHTML( value, name || infoTips[value].title, false, !! name ) );
-		}
-		else {
-			if( option && option.selected ) $('#stateInfoSelector')[0].selectedIndex = 2;
-			$option.remove();
-		}
+	var oldValue = $select[0].selectedIndex > 2 && $select.val();
+	$select.find('option:gt(2)').remove();
+	var values = stateFactors[abbr];
+	var iSelect = 2;
+	if( values ) {
+		add( 'demographic', 'Demographic and Political Factors' );
+		values.words( function( value, i ) {
+			var selected = value === oldValue;
+			if( selected ) iSelect = i + 4;
+			add( value, null, selected );
+		});
 	}
-	enable( 'demographic', 'Demographic and Political Factors' );
-	enable( 'age' );
-	enable( 'population' );
-	enable( 'religion' );
-	enable( 'ethnic' );
-	enable( 'gub2002' );
-	enable( 'spreadsheet' );
+	function add( value, name, selected ) {
+		$select.append( optionHTML( value, name || infoTips[value].title, false, !! name ) );
+	}
+	$select[0].selectedIndex = iSelect;
 	if( opt.state == 'us' ) {
 		$('#option-stateVotes').html( 'Nationwide Voting Results' );
 		$('#option-countyVotes').html( 'State Voting Results' );
@@ -2810,10 +2807,6 @@ function loadState() {
 }
 
 function loadInfo() {
-	if( opt.state != 'pa' ) {
-		if( opt.infoType != 'stateVotes'  &&  opt.infoType != 'countyVotes' )
-		   opt.infoType = 'countyVotes';
-	}
 	if( opt.infoType == 'stateVotes' || opt.infoType == 'countyVotes' )
 		$('#partyButtons').show();
 	else
