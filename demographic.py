@@ -128,7 +128,7 @@ class Reader:
 			percent = len(header)
 			for i in xrange(percent):
 				col = row[i]
-				if col == '': continue
+				if col == '': col = 0
 				n = float(col)
 				total += n
 				if min > n: min = n
