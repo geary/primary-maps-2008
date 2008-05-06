@@ -645,7 +645,7 @@ var infoTips = {
 		text: "Obama has had some difficulty winning a significant share of support of white voters in most of the 2008 Democratic presidential primaries, but at the same time he has overwhelmed Clinton about African-American voters in these contests."
 	},
 	occupation: {
-		title: 'Occupations',
+		title: 'Occupation',
 		text: ""
 	},
 	gub2002: {
