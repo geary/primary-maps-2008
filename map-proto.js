@@ -1432,7 +1432,7 @@ function writeCommon() {
 			'.attribution { border-bottom:1px solid #DDD; padding-bottom:4px; margin-bottom:4px; }',
 			'.attribution * { font-size:85%; }',
 			'.legend {}',
-			'.legend * { font-size:12px; }',
+			'.legend td, .legend * { font-size:12px; white-space:pre; }',
 			'.legend div { float:left; }',
 			'.placerow { padding:2px; margin:1px; border:2px solid white; cursor:pointer; }',
 			'.placerow-hilite { border-color:#444; }',
@@ -2800,12 +2800,13 @@ function following() {
 }
 
 stateFactors = {
-	'in': 'population occupation religion urbanrural',
+	'in': 'population occupation religion ethnic urbanrural',
 	'nc': 'population occupation religion urbanrural',
 	'pa': 'age population religion ethnic gub2002 spreadsheet'
 };
 
 function loadState() {
+	map.clearOverlays();
 	var abbr = opt.state;
 	var $select = $('#stateInfoSelector');
 	var oldValue = $select[0].selectedIndex > 2 && $select.val();
@@ -3046,7 +3047,17 @@ function listReligion() {
 
 function listEthnic() {
 	var factors = getFactors();
-	var colors = [ '18A221', 'EFBA00', '1851CE', 'AD1400' ];
+	// temp hack for PA vs IN
+	if( opt.state == 'pa' ) {
+		var nLabels = 4;
+		var labels = factors.labels.ethnic;
+		var colors = [ '18A221', 'EFBA00', '1851CE', 'DDDDDD' ];
+	}
+	else {
+		var nLabels = 5;
+		var labels = factors.labels.ethnic1;
+		var colors = [ '18A221', 'EFBA00', '1851CE', 'AD1400', 'DDDDDD' ];
+	}
 	var width = 75, height = 22;
 	var html = factors.places.mapjoin( function( place ) {
 		var ethnic = place.ethnic;
@@ -3083,7 +3094,7 @@ function listEthnic() {
 					' ',
 				'</div>',
 				'<div style="margin:0 18px 4px 0;">',
-					factors.labels.ethnic[i],
+					labels[i],
 				'</div>',
 			'</td>'
 		);
@@ -3093,7 +3104,20 @@ function listEthnic() {
 		censusAttribution,
 		'<div class="legend">',
 			'<div>',
-					label(0), label(1), label(2), label(3),
+				'<table cellspacing="0" cellpadding="0">',
+					nLabels == 4 ? S(
+						'<tr>',
+							label(0), label(1), label(2), label(3),
+						'</tr>'
+					) : S(
+						'<tr>',
+							label(0), label(1), label(2),
+						'</tr>',
+						'<tr>',
+							label(3), label(4),
+						'</tr>'
+					),
+				'</table>',
 			'</div>',
 			'<div style="float:right;">',
 				infoIcon,
@@ -3163,7 +3187,11 @@ function listPopulation() {
 		parties ? censusPaAttribution : censusAttribution,
 		'<div class="legend">',
 			'<div>',
-					labels.mapjoin( label ),
+				'<table cellspacing="0" cellpadding="0">',
+					'<tr>',
+						labels.mapjoin( label ),
+					'</tr>',
+				'</table>',
 			'</div>',
 			'<div style="float:right;">',
 				infoIcon,
@@ -3227,7 +3255,7 @@ function listGub2002() {
 		);
 	});
 	
-	function label( i ) {
+	function label( label, i ) {
 		return S(
 			'<td>',
 				'<div style="width:16px; height:16px; margin:0 4px 4px 0; background-color:#', colors[i], ';">',
@@ -3244,7 +3272,11 @@ function listGub2002() {
 		caseyAttribution,
 		'<div class="legend">',
 			'<div>',
-					label(0), label(1),
+				'<table cellspacing="0" cellpadding="0">',
+					'<tr>',
+						labels.mapjoin( label ),
+					'</tr>',
+				'</table>',
 			'</div>',
 			'<div style="float:right;">',
 				infoIcon,
@@ -3306,14 +3338,14 @@ function listOccupation() {
 		);
 	});
 	
-	function label( i ) {
+	function label( label, i ) {
 		return S(
 			'<td>',
 				'<div style="width:16px; height:16px; margin:0 4px 4px 0; background-color:#', colors[i], ';">',
 					' ',
 				'</div>',
 				'<div style="margin:0 12px 4px 0;">',
-					labels[i],
+					label,
 				'</div>',
 			'</td>'
 		);
@@ -3323,7 +3355,11 @@ function listOccupation() {
 		occupationAttribution,
 		'<div class="legend">',
 			'<div>',
-					label(0), label(1), label(2),
+				'<table cellspacing="0" cellpadding="0">',
+					'<tr>',
+						labels.mapjoin( label ),
+					'</tr>',
+				'</table>',
 			'</div>',
 			'<div style="float:right;">',
 				infoIcon,
@@ -3385,7 +3421,7 @@ function listUrbanRural() {
 		);
 	});
 	
-	function label( i ) {
+	function label( label, i ) {
 		return S(
 			'<td>',
 				'<div style="width:16px; height:16px; margin:0 4px 4px 0; background-color:#', colors[i], ';">',
@@ -3402,7 +3438,11 @@ function listUrbanRural() {
 		urbanruralAttribution,
 		'<div class="legend">',
 			'<div>',
-					label(0), label(1),
+				'<table cellspacing="0" cellpadding="0">',
+					'<tr>',
+						labels.mapjoin( label ),
+					'</tr>',
+				'</table>',
 			'</div>',
 			'<div style="float:right;">',
 				infoIcon,
