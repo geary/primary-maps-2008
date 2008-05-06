@@ -1357,37 +1357,41 @@ var hotStates = [ 'IN!', 'NC!' ]/*.index()*/;
 	}
 	
 	var hot;
-	stateSelector = ! opt.stateSelector ? '' : S(
+	stateSelector = S(
 		'<div style="background-color:#EEE; width:100%; padding:4px 4px 0 0; border-bottom:1px solid #CCC; margin:0 0 4px 0;">',
 			'<div style="margin-bottom:2px;">',
-				'Choose a state and select information to view:',
+				opt.stateSelector ?
+					'Choose a state and select information to view:' :
+					'Select information to view:',
 			'</div>',
 			'<table class="selects" cellspacing="0" cellpadding="0">',
-				'<tr>',
-					'<td class="labelcell">',
-						'<label for="stateSelector">',
-							'State:',
-						'</label>',
-					'</td>',
-					'<td class="selectcell">',
-						'<div class="selectdiv">',
-							'<select id="stateSelector">',
-								option( 'us', 'Entire USA' ),
-								option( '', 'May 6 Primary', false, true ),
-								hotStates.mapjoin( function( abbr ) {
-									abbr = abbr.replace( '!', '' ).toLowerCase();
-									var select;
-									if( abbr == opt.state ) hot = select = true;
-									return stateOption( stateByAbbr(abbr), select, false );
-								}),
-								option( '', 'All States and Voting Dates', false, true ),
-								states.mapjoin( function( state ) {
-									return /*hotStates.by[state.abbr] ? '' :*/ stateOption( state, ! hot && state.abbr.toLowerCase() == opt.state, true );
-								}),
-							'</select>',
-						'</div>',
-					'</td>',
-				'</tr>',
+				! opt.stateSelector ? '' : S(
+					'<tr>',
+						'<td class="labelcell">',
+							'<label for="stateSelector">',
+								'State:',
+							'</label>',
+						'</td>',
+						'<td class="selectcell">',
+							'<div class="selectdiv">',
+								'<select id="stateSelector">',
+									option( 'us', 'Entire USA' ),
+									option( '', 'May 6 Primary', false, true ),
+									hotStates.mapjoin( function( abbr ) {
+										abbr = abbr.replace( '!', '' ).toLowerCase();
+										var select;
+										if( abbr == opt.state ) hot = select = true;
+										return stateOption( stateByAbbr(abbr), select, false );
+									}),
+									option( '', 'All States and Voting Dates', false, true ),
+									states.mapjoin( function( state ) {
+										return /*hotStates.by[state.abbr] ? '' :*/ stateOption( state, ! hot && state.abbr.toLowerCase() == opt.state, true );
+									}),
+								'</select>',
+							'</div>',
+						'</td>',
+					'</tr>'
+				),
 				'<tr>',
 					'<td class="labelcell">',
 						'<label for="stateInfoSelector">',
