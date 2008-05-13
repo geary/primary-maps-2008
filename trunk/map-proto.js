@@ -1387,7 +1387,7 @@ function optionHTML( value, name, selected, disabled ) {
 	);
 }
 
-var hotStates = [ 'NE!', 'WV!' ]/*.index()*/;
+var hotStates = [ 'WV!' ]/*.index()*/;
 
 (function() {
 	var index = 0;
@@ -1720,9 +1720,10 @@ var map;
 opt.codeUrl = opt.codeUrl || 'http://primary-maps-2008.googlecode.com/svn/trunk/';
 opt.frameUrl = opt.frameUrl || opt.codeUrl;
 opt.dataUrl = opt.dataUrl || 'http://primary-maps-2008-data.googlecode.com/svn/trunk/';
-opt.state = opt.state || 'wv';
+opt.state = opt.state || 'us';
 if( opt.state == 'zz' )
-	opt.state = hotStates.random().replace( '!', '' ).toLowerCase();
+	//opt.state = hotStates.random().replace( '!', '' ).toLowerCase();
+	opt.state = 'wv';
 
 var state = states[opt.state];
 
