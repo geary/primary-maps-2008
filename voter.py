@@ -93,6 +93,7 @@ def setData( feed, header, row ):
 	setVotes( state, header, row )
 
 def getPrecincts( row ):
+	#print 'getPrecincts %s %s %s %s' %( row[0], row[1], row[2], row[3] )
 	return {
 		'reporting': int(row[3]),
 		'total': int(row[2])
@@ -113,12 +114,21 @@ def fixCountyName( name ):
 	return name
 
 def setVotes( entity, header, row ):
+	#print 'setVotes', row
 	counties = entity['counties']
 	countyname = fixCountyName( row[1] )
 	if countyname != '*':
 		if countyname not in counties:
 			counties[countyname] = { 'parties':{ 'dem':{}, 'gop':{} } }
 		entity = counties[countyname]
+	if ( row[0] == 'NE' or row[0] == 'WV' ) and row[4] != '':
+		if row[5] == '':
+			#print 'fixing 5'
+			row[5] = '0'
+		if row[6] == '':
+			#print 'fixing 6'
+			row[6] = '0'
+		#print row
 	for col in xrange( 4, len(header) ):
 		if col >= len(row) or row[col] == '': continue
 		name = header[col]
@@ -296,7 +306,7 @@ def cleankey(key):
 
 def write( name, text ):
 	print 'Writing %s' % name
-	f = open( name, 'w' )
+	f = open( name, 'wb' )
 	f.write( text )
 	f.close()
 	
