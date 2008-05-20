@@ -1387,7 +1387,7 @@ function optionHTML( value, name, selected, disabled ) {
 	);
 }
 
-var hotStates = [ 'WV!' ]/*.index()*/;
+var hotStates = [ 'KY!', 'OR!' ]/*.index()*/;
 
 (function() {
 	var index = 0;
@@ -1426,7 +1426,7 @@ var hotStates = [ 'WV!' ]/*.index()*/;
 							'<div class="selectdiv">',
 								'<select id="stateSelector">',
 									option( 'us', 'Entire USA' ),
-									option( '', 'May 13 Primary', false, true ),
+									option( '', 'May 20 Primary', false, true ),
 									hotStates.mapjoin( function( abbr ) {
 										abbr = abbr.replace( '!', '' ).toLowerCase();
 										var select;
@@ -1722,8 +1722,7 @@ opt.frameUrl = opt.frameUrl || opt.codeUrl;
 opt.dataUrl = opt.dataUrl || 'http://primary-maps-2008-data.googlecode.com/svn/trunk/';
 opt.state = opt.state || 'us';
 if( opt.state == 'zz' )
-	//opt.state = hotStates.random().replace( '!', '' ).toLowerCase();
-	opt.state = 'wv';
+	opt.state = hotStates.random().replace( '!', '' ).toLowerCase();
 
 var state = states[opt.state];
 
