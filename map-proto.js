@@ -1722,8 +1722,7 @@ opt.frameUrl = opt.frameUrl || opt.codeUrl;
 opt.dataUrl = opt.dataUrl || 'http://primary-maps-2008-data.googlecode.com/svn/trunk/';
 opt.state = opt.state || 'us';
 if( opt.state == 'zz' )
-	opt.state = 'ky';
-	//opt.state = hotStates.random().replace( '!', '' ).toLowerCase();
+	opt.state = hotStates.random().replace( '!', '' ).toLowerCase();
 
 var state = states[opt.state];
 
