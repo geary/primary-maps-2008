@@ -90,7 +90,7 @@ def readVotes( feed ):
 def setData( feed, header, row ):
 	entity = state = states.byAbbr[ row[0] ]
 	if 'counties' not in state: state['counties'] = {}
-	setVotes( state, header, row )
+	setVotes( feed, state, header, row )
 
 def getPrecincts( row ):
 	#print 'getPrecincts %s %s %s %s' %( row[0], row[1], row[2], row[3] )
@@ -113,7 +113,7 @@ def fixCountyName( name ):
 	#print 'County: %s' % name
 	return name
 
-def setVotes( entity, header, row ):
+def setVotes( feed, entity, header, row ):
 	#print 'setVotes', row
 	counties = entity['counties']
 	countyname = fixCountyName( row[1] )
@@ -130,6 +130,8 @@ def setVotes( entity, header, row ):
 			row[6] = '0'
 		#print row
 	for col in xrange( 4, len(header) ):
+		# TEMP HACK
+		if feed['file'] == '0205.csv'  and  4 <= col < 14: continue
 		if col >= len(row) or row[col] == '': continue
 		name = header[col]
 		name = fixcols.get( name, name )
