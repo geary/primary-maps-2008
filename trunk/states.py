@@ -102,7 +102,9 @@ array = [
 		'abbr': 'ID',
 		'name': 'Idaho',
 		'parties': {
-			'dem': { 'date': '02-05', 'type': 'caucus' },
+			# TEMP FOR 5-27 IDAHO PRIMARY
+			#'dem': { 'date': '02-05', 'type': 'caucus' },
+			'dem': { 'date': '05-27' },
 			'gop': { 'date': '05-27' }
 		}
 	},
