@@ -1388,7 +1388,7 @@ function optionHTML( value, name, selected, disabled ) {
 	);
 }
 
-var hotStates = [ 'KY!', 'OR!' ]/*.index()*/;
+var hotStates = [ 'ID!' ]/*.index()*/;
 
 (function() {
 	var index = 0;
@@ -1427,7 +1427,7 @@ var hotStates = [ 'KY!', 'OR!' ]/*.index()*/;
 							'<div class="selectdiv">',
 								'<select id="stateSelector">',
 									option( 'us', 'Entire USA' ),
-									option( '', 'May 20 Primary', false, true ),
+									option( '', 'May 27 Primary', false, true ),
 									hotStates.mapjoin( function( abbr ) {
 										abbr = abbr.replace( '!', '' ).toLowerCase();
 										var select;
