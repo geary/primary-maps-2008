@@ -323,7 +323,7 @@ array = [
 		'abbr': 'PR',
 		'name': 'Puerto Rico',
 		'parties': {
-			'dem': { 'date': '06-07' },
+			'dem': { 'date': '06-01' },
 			'gop': { 'date': '02-24' }
 		}
 	},
