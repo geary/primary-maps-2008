@@ -2,6 +2,7 @@
 
 # makepolys.py
 
+import codecs
 import math
 import os
 import random
@@ -111,7 +112,7 @@ def readShapefile( filename ):
 		shape = feature['shape']
 		if shape['type'] != 5: continue
 		info = feature['info']
-		name = info['NAME']
+		name = info['NAME'].decode( 'cp850' ).encode( 'utf-8' )
 		name = re.sub( '^(\d+)\x00.*$', 'CD\\1', name )  # congressional district
 		name = districtNames.get( name, name )
 		state = info['STATE']
