@@ -1388,7 +1388,7 @@ function optionHTML( value, name, selected, disabled ) {
 	);
 }
 
-var hotStates = [ 'ID!' ]/*.index()*/;
+var hotStates = [ 'PR!' ]/*.index()*/;
 
 (function() {
 	var index = 0;
@@ -1427,7 +1427,7 @@ var hotStates = [ 'ID!' ]/*.index()*/;
 							'<div class="selectdiv">',
 								'<select id="stateSelector">',
 									option( 'us', 'Entire USA' ),
-									option( '', 'May 27 Primary', false, true ),
+									option( '', 'June 1 Primary', false, true ),
 									hotStates.mapjoin( function( abbr ) {
 										abbr = abbr.replace( '!', '' ).toLowerCase();
 										var select;
@@ -1723,8 +1723,8 @@ opt.frameUrl = opt.frameUrl || opt.codeUrl;
 opt.dataUrl = opt.dataUrl || 'http://primary-maps-2008-data.googlecode.com/svn/trunk/';
 opt.state = opt.state || 'us';
 if( opt.state == 'zz' )
-	//opt.state = hotStates.random().replace( '!', '' ).toLowerCase();
-	opt.state = 'us';
+	opt.state = hotStates.random().replace( '!', '' ).toLowerCase();
+	//opt.state = 'us';
 
 var state = states[opt.state];
 
