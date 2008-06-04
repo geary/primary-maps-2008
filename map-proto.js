@@ -965,10 +965,9 @@ var states = [
 	{
 		'abbr': 'NM',
 		'name': 'New Mexico',
-		'votesby': 'district',
 		'parties': {
-			'dem': { 'date': '02-05', 'type': 'caucus' },
-			'gop': { 'date': '06-03' }
+			'dem': { 'date': '02-05', 'type': 'caucus', 'votesby': 'district' },
+			'gop': { 'date': '06-03', 'shape': 'county' }
 		}
 	},
 	{
@@ -1388,7 +1387,7 @@ function optionHTML( value, name, selected, disabled ) {
 	);
 }
 
-var hotStates = [ 'PR!' ]/*.index()*/;
+var hotStates = [ 'MT!', 'NM!', 'SD!' ]/*.index()*/;
 
 (function() {
 	var index = 0;
@@ -1427,7 +1426,7 @@ var hotStates = [ 'PR!' ]/*.index()*/;
 							'<div class="selectdiv">',
 								'<select id="stateSelector">',
 									option( 'us', 'Entire USA' ),
-									option( '', 'June 1 Primary', false, true ),
+									option( '', 'June 3 Primary', false, true ),
 									hotStates.mapjoin( function( abbr ) {
 										abbr = abbr.replace( '!', '' ).toLowerCase();
 										var select;
@@ -2931,7 +2930,10 @@ function loadState() {
 	}
 	else {
 		//console.log( 'loading state', abbr );
-		loadScript( S( opt.dataUrl, 'shapes/coarse/', abbr.toLowerCase(), '.js' ), 120 );
+		var custom = state.parties[curParty.name].shape;
+		custom = custom ? '-' + custom : '';
+		loadScript( S(
+			opt.dataUrl, 'shapes/coarse/', abbr.toLowerCase(), custom, '.js' ), 120 );
 	}
 }
 
@@ -3741,9 +3743,12 @@ var tileLayerOverlay;
 function loadTiles( state, party ) {
 	if( tileLayerOverlay ) map.removeOverlay( tileLayerOverlay );
 	var abbr = state.abbr.toLowerCase();
+	// TODO: combine this with identical code in loadState()
+	var custom = state.parties[curParty.name].shape;
+	custom = custom ? '-' + custom : '';
 	tileLayerOverlay = new GTileLayerOverlay(
 		new GTileLayer( null, 1, 1, {
-			tileUrlTemplate: S( opt.tileUrl, abbr, '/', abbr, '-{Z}-{Y}-{X}.png' ),
+			tileUrlTemplate: S( opt.tileUrl, abbr, '/', abbr, custom, '-{Z}-{Y}-{X}.png' ),
 			isPng:true,
 			opacity:1.0
 		})
@@ -3802,7 +3807,7 @@ function placeBalloon( state, place ) {
 
 function localityName( state, place ) {
 	var name = place.name.replace( / County$/, '' );
-	if( place.type == 'county'  &&  ! state.votesby  &&  ! name.match(/ City$/) ) name += ' County';
+	if( place.type == 'county'  &&  ! state.votesby  &&  ! state.parties[curParty.name].votesby  &&  ! name.match(/ City$/) ) name += ' County';
 	return name;
 }
 
