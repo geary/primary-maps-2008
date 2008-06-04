@@ -3565,6 +3565,12 @@ function objToSortedKeys( obj ) {
 	return result.sort();
 }
 
+var nmcd = {
+	CD1: 'First Congressional District',
+	CD2: 'Second Congressional District',
+	CD3: 'Third Congressional District'
+};
+
 function listVotes() {
 	var state = stateByAbbr(opt.state), party = curParty;
 	var votes = state.votes[party.name];
@@ -3575,6 +3581,18 @@ function listVotes() {
 	
 	var width = 125, height = 22;
 	var html = placenames.mapjoin( function( placename ) {
+		// temp NM hack
+		var fullplacename = placename;
+		if( opt.state == 'nm' ) {
+			var cd = nmcd[placename];
+			if( cd ) {
+				if( curParty.name == 'dem' )
+					fullplacename = cd;
+				else
+					return '';
+			}
+		}
+		// end hack
 		var local = locals[placename];
 		var reporting = ! local.precincts ? 1 : local.precincts.reporting / local.precincts.total;
 		var votes = local.votes;
@@ -3600,13 +3618,13 @@ function listVotes() {
 			//	place.name, ': Population 
 		});
 		return S(
-			'<div class="placerow" id="place-', placename.replace( ' ', '+' ), '" style="vertical-align:middle;">',
+			'<div class="placerow" id="place-', fullplacename.replace( ' ', '+' ), '" style="vertical-align:middle;">',
 				'<div>',
 					'<div style="float:left; margin-right:8px; padding:2px; background-color:#F4F4F4; border:1px solid #DDD;">',
 						img,
 					'</div>',
 					'<div style="float:left; margin-top:3px;">',
-						' ', placename, // ' County',
+						' ', fullplacename, // ' County',
 					'</div>',
 					'<div style="clear:left;">',
 					'</div>',
