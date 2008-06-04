@@ -3762,7 +3762,7 @@ function loadTiles( state, party ) {
 	if( tileLayerOverlay ) map.removeOverlay( tileLayerOverlay );
 	var abbr = state.abbr.toLowerCase();
 	// TODO: combine this with identical code in loadState()
-	var custom = state.parties[curParty.name].shape;
+	var custom = state.parties && state.parties[curParty.name] && state.parties[curParty.name].shape;
 	custom = custom ? '-' + custom : '';
 	tileLayerOverlay = new GTileLayerOverlay(
 		new GTileLayer( null, 1, 1, {
