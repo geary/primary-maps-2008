@@ -222,9 +222,9 @@ def setVotes( feed, entity, header, row ):
 			#print 'fixing 6'
 			row[6] = '0'
 		#print row
-	for col in xrange( 4, len(header) ):
-		# TEMP HACK
-		if feed['file'] == '0205.csv'  and  4 <= col < 14: continue
+	first = 4
+	if feed['file'] == '0205.csv'  and  row[0] == 'ID': first = 14
+	for col in xrange( first, len(header) ):
 		if col >= len(row) or row[col] == '': continue
 		name = header[col]
 		name = fixcols.get( name, name )
