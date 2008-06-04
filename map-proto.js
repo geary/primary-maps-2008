@@ -2930,7 +2930,7 @@ function loadState() {
 	}
 	else {
 		//console.log( 'loading state', abbr );
-		var custom = state.parties[curParty.name].shape;
+		var custom = state.parties && state.parties[curParty.name] && state.parties[curParty.name].shape;
 		custom = custom ? '-' + custom : '';
 		loadScript( S(
 			opt.dataUrl, 'shapes/coarse/', abbr.toLowerCase(), custom, '.js' ), 120 );
