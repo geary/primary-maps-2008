@@ -297,14 +297,20 @@ def addDelegates( usparty, partyname, party, state ):
 		if not n: return
 		print state['name'], 'delegates:', name, n
 		party['delegatelist'][name] = n
-		if name in usparty['delegatelist']:
-			usparty['delegatelist'][name] += n
-		else:
-			usparty['delegatelist'][name] = n
+		#if name in usparty['delegatelist']:
+		#	usparty['delegatelist'][name] += n
+		#else:
+		#	usparty['delegatelist'][name] = n
 	if partyname == 'dem':
+		usparty['delegatelist']['obama'] = 2191
+		usparty['delegatelist']['clinton'] = 1914
 		set( -2, 'obama' )
 		set( -1, 'clinton' )
 	else:
+		usparty['delegatelist']['mccain'] = 1563
+		usparty['delegatelist']['romney'] = 272
+		usparty['delegatelist']['huckabee'] = 282
+		usparty['delegatelist']['paul'] = 29
 		set( -4, 'mccain' )
 		set( -3, 'romney' )
 		set( -2, 'huckabee' )
