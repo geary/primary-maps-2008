@@ -1387,7 +1387,8 @@ function optionHTML( value, name, selected, disabled ) {
 	);
 }
 
-var hotStates = [ 'MT!', 'NM!', 'SD!' ]/*.index()*/;
+//var hotStates = [ 'MT!', 'NM!', 'SD!' ]/*.index()*/;
+var hotStates = [];
 
 (function() {
 	var index = 0;
@@ -1426,14 +1427,14 @@ var hotStates = [ 'MT!', 'NM!', 'SD!' ]/*.index()*/;
 							'<div class="selectdiv">',
 								'<select id="stateSelector">',
 									option( 'us', 'Entire USA' ),
-									option( '', 'June 3 Primary', false, true ),
-									hotStates.mapjoin( function( abbr ) {
-										abbr = abbr.replace( '!', '' ).toLowerCase();
-										var select;
-										if( abbr == opt.state ) hot = select = true;
-										return stateOption( stateByAbbr(abbr), select, false );
-									}),
-									option( '', 'All States and Voting Dates', false, true ),
+									//option( '', 'June 3 Primary', false, true ),
+									//hotStates.mapjoin( function( abbr ) {
+									//	abbr = abbr.replace( '!', '' ).toLowerCase();
+									//	var select;
+									//	if( abbr == opt.state ) hot = select = true;
+									//	return stateOption( stateByAbbr(abbr), select, false );
+									//}),
+									//option( '', 'All States and Voting Dates', false, true ),
 									states.mapjoin( function( state ) {
 										return /*hotStates.by[state.abbr] ? '' :*/ stateOption( state, ! hot && state.abbr.toLowerCase() == opt.state, true );
 									}),
@@ -1722,8 +1723,8 @@ opt.frameUrl = opt.frameUrl || opt.codeUrl;
 opt.dataUrl = opt.dataUrl || 'http://primary-maps-2008-data.googlecode.com/svn/trunk/';
 opt.state = opt.state || 'us';
 if( opt.state == 'zz' )
-	opt.state = hotStates.random().replace( '!', '' ).toLowerCase();
-	//opt.state = 'us';
+	//opt.state = hotStates.random().replace( '!', '' ).toLowerCase();
+	opt.state = 'us';
 
 var state = states[opt.state];
 
