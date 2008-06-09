@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Module>
+<ModulePrefs
+	title="Twitter Election Map"
+	author="Michael Geary"
+	author_affiliation="Google, Inc."
+	author_location="San Jose, CA"
+	author_email="elections@google.com"
+	description="Twitter Election Map"
+	category="politics"
+	thumbnail=""
+	screenshot=""
+	width="620"
+	height="480"
+	scaling="false"
+	scrolling="false"
+>
+</ModulePrefs>
+<Content type="html"><![CDATA[
+
+<script type="text/javascript" src="http://maps.google.com/maps?file=api&amp;v=2&amp;key=ABQIAAAAL7MXzZBubnPtVtBszDCxeRTZqGWfQErE9pT-IucjscazSdFnjBSzjqfxm1CQj7RDgG-OoyNfebJK0w">
+</script>
+
+<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.2.6/jquery.min.js">
+</script>
+
+<script type="text/javascript">
+	function script( url, seconds ) {
+		document.write(
+			'<script type="text/javascript" src="',
+				_IG_GetCachedUrl( url, { refreshInterval:seconds } ),
+			'">',
+			'<\/script>'
+		);
+	}
+	
+	script( 'http://primary-maps-2008.googlecode.com/svn/trunk/twitter-map.js', 10 );  // TODO: 300
+</script>
+
+]]></Content>
+</Module>
