@@ -2,11 +2,12 @@
 <Module>
 <ModulePrefs
 	title="Twitter Election Map"
+	title_url="http://gmodules.com/ig/creator?synd=open&amp;url=http://primary-maps-2008.googlecode.com/svn/trunk/twitter-gadget.xml"
 	author="Michael Geary"
 	author_affiliation="Google, Inc."
 	author_location="San Jose, CA"
 	author_email="elections@google.com"
-	description="Twitter Election Map"
+	description="View live comments from Twitter users about the 2008 elections"
 	category="politics"
 	thumbnail="http://primary-maps-2008.googlecode.com/svn/trunk/twitter-thumbnail.png"
 	screenshot="http://primary-maps-2008.googlecode.com/svn/trunk/twitter-screenshot.png"
@@ -15,6 +16,7 @@
 	scaling="false"
 	scrolling="false"
 >
+	<Require feature="minimessage" />
 </ModulePrefs>
 <Content type="html"><![CDATA[
 
@@ -34,7 +36,7 @@
 		);
 	}
 	
-	script( 'http://primary-maps-2008.googlecode.com/svn/trunk/twitter-map.js', 10 );  // TODO: 300
+	script( 'http://primary-maps-2008.googlecode.com/svn/trunk/twitter-map.js', 300 );
 </script>
 
 ]]></Content>
