@@ -480,6 +480,7 @@ function randomInt( n ) {
 
 var opt = window.GoogleElectionMapOptions || {};
 var mapplet = opt.mapplet;
+opt.fontsize = mapplet ? '10pt' : '15px';
 
 function getFactors() {
 	var state = stateByAbbr(opt.state);
@@ -520,34 +521,24 @@ function initStateBounds( places ) {
 
 if( opt.gadget ) {
 	var p = new _IG_Prefs();
-	//opt.sidebarWidth = p.getInt('sidebarwidth');
-	opt.sidebarWidth = 350;
-	opt.mapWidth = $(window).width() - opt.sidebarWidth ;
-	opt.mapHeight = $(window).height();
+	function str( key, def ) { return p.getString(key) || ''+def || ''; }
+	function nopx( key, def ) { return str(key,def).replace( /px$/, '' ); }
+	var win = { height:$(window).height(), width:$(window).width() };
+	//opt.twitter = p.getBool('twitter');
+	//opt.youtube = p.getBool('youtube');
 	opt.state = p.getString('state');
 	opt.party = p.getString('party');
 	opt.stateSelector = p.getBool('stateselector');
 	opt.partySelector = p.getBool('partyselector');
-	//opt.twitter = p.getBool('twitter');
-	//opt.youtube = p.getBool('youtube');
-	if( $(window).width() < 625 ) {
-		opt.mapWidth = opt.sidebarWidth = $(window).width();
-		var winHeight = $(window).height();
-		opt.mapHeight = winHeight * .35;
-		opt.sidebarHeight = winHeight - opt.mapHeight;
-	}
 }
+
+opt.sidebarWidth = 300;
+opt.sidebarHeight = 240;
 
 opt.twitter = false;
 opt.youtube = false;
 
 opt.zoom = opt.zoom || 3;
-opt.sidebarWidth = opt.sidebarWidth || 280;
-opt.mapWidth = opt.mapWidth || 400;
-opt.mapHeight = opt.mapHeight || 300;
-
-opt.mapWidth = ( '' + opt.mapWidth ).replace( /px$/, '' );
-opt.mapHeight = ( '' + opt.mapHeight ).replace( /px$/, '' );
 
 if( opt.stateSelector == null ) opt.stateSelector = true;
 if( opt.partySelector == null ) opt.partySelector = true;
@@ -711,6 +702,7 @@ var states = [
 	{
 		'abbr': 'AL',
 		'name': 'Alabama',
+		'tall': true,
 		'parties': {
 			'dem': { 'date': '02-05' },
 			'gop': { 'date': '02-05' }
@@ -727,6 +719,7 @@ var states = [
 	{
 		'abbr': 'AZ',
 		'name': 'Arizona',
+		'tall': true,
 		'parties': {
 			'dem': { 'date': '02-05' },
 			'gop': { 'date': '02-05' }
@@ -735,6 +728,7 @@ var states = [
 	{
 		'abbr': 'AR',
 		'name': 'Arkansas',
+		'tall': true,
 		'parties': {
 			'dem': { 'date': '02-05' },
 			'gop': { 'date': '02-05' }
@@ -743,6 +737,7 @@ var states = [
 	{
 		'abbr': 'CA',
 		'name': 'California',
+		'tall': true,
 		'parties': {
 			'dem': { 'date': '02-05' },
 			'gop': { 'date': '02-05' }
@@ -768,6 +763,7 @@ var states = [
 	{
 		'abbr': 'DE',
 		'name': 'Delaware',
+		'tall': true,
 		'parties': {
 			'dem': { 'date': '02-05' },
 			'gop': { 'date': '02-05' }
@@ -792,6 +788,7 @@ var states = [
 	{
 		'abbr': 'GA',
 		'name': 'Georgia',
+		'tall': true,
 		'parties': {
 			'dem': { 'date': '02-05' },
 			'gop': { 'date': '02-05' }
@@ -808,6 +805,7 @@ var states = [
 	{
 		'abbr': 'ID',
 		'name': 'Idaho',
+		'tall': true,
 		'parties': {
 			'dem': { 'date': '02-05', 'type': 'caucus' },
 			'gop': { 'date': '05-27' }
@@ -816,6 +814,7 @@ var states = [
 	{
 		'abbr': 'IL',
 		'name': 'Illinois',
+		'tall': true,
 		'parties': {
 			'dem': { 'date': '02-05' },
 			'gop': { 'date': '02-05' }
@@ -824,6 +823,7 @@ var states = [
 	{
 		'abbr': 'IN',
 		'name': 'Indiana',
+		'tall': true,
 		'parties': {
 			'dem': { 'date': '05-06' },
 			'gop': { 'date': '05-06' }
@@ -866,6 +866,7 @@ var states = [
 	{
 		'abbr': 'ME',
 		'name': 'Maine',
+		'tall': true,
 		'parties': {
 			'dem': { 'date': '02-10', 'type': 'caucus' },
 			'gop': { 'date': '02-01', 'type': 'caucus' }
@@ -891,6 +892,7 @@ var states = [
 	{
 		'abbr': 'MI',
 		'name': 'Michigan',
+		'tall': true,
 		'parties': {
 			'dem': { 'date': '01-15' },
 			'gop': { 'date': '01-15' }
@@ -899,6 +901,7 @@ var states = [
 	{
 		'abbr': 'MN',
 		'name': 'Minnesota',
+		'tall': true,
 		'parties': {
 			'dem': { 'date': '02-05', 'type': 'caucus' },
 			'gop': { 'date': '02-05', 'type': 'caucus' }
@@ -907,6 +910,7 @@ var states = [
 	{
 		'abbr': 'MS',
 		'name': 'Mississippi',
+		'tall': true,
 		'parties': {
 			'dem': { 'date': '03-11' },
 			'gop': { 'date': '03-11' }
@@ -940,6 +944,7 @@ var states = [
 	{
 		'abbr': 'NV',
 		'name': 'Nevada',
+		'tall': true,
 		'parties': {
 			'dem': { 'date': '01-19', 'type': 'caucus' },
 			'gop': { 'date': '01-19', 'type': 'caucus' }
@@ -948,6 +953,7 @@ var states = [
 	{
 		'abbr': 'NH',
 		'name': 'New Hampshire',
+		'tall': true,
 		'votesby': 'town',
 		'parties': {
 			'dem': { 'date': '01-08' },
@@ -957,6 +963,7 @@ var states = [
 	{
 		'abbr': 'NJ',
 		'name': 'New Jersey',
+		'tall': true,
 		'parties': {
 			'dem': { 'date': '02-05' },
 			'gop': { 'date': '02-05' }
@@ -965,6 +972,7 @@ var states = [
 	{
 		'abbr': 'NM',
 		'name': 'New Mexico',
+		'tall': true,
 		'parties': {
 			'dem': { 'date': '02-05', 'type': 'caucus', 'votesby': 'district' },
 			'gop': { 'date': '06-03', 'shape': 'county' }
@@ -1040,6 +1048,7 @@ var states = [
 	{
 		'abbr': 'RI',
 		'name': 'Rhode Island',
+		'tall': true,
 		'parties': {
 			'dem': { 'date': '03-04' },
 			'gop': { 'date': '03-04' }
@@ -1080,6 +1089,7 @@ var states = [
 	{
 		'abbr': 'UT',
 		'name': 'Utah',
+		'tall': true,
 		'parties': {
 			'dem': { 'date': '02-05' },
 			'gop': { 'date': '02-05' }
@@ -1088,6 +1098,7 @@ var states = [
 	{
 		'abbr': 'VT',
 		'name': 'Vermont',
+		'tall': true,
 		'votesby': 'town',
 		'parties': {
 			'dem': { 'date': '03-04' },
@@ -1121,6 +1132,7 @@ var states = [
 	{
 		'abbr': 'WI',
 		'name': 'Wisconsin',
+		'tall': true,
 		'parties': {
 			'dem': { 'date': '02-19' },
 			'gop': { 'date': '02-19' }
@@ -1409,10 +1421,10 @@ var hotStates = [];
 	
 	var hot;
 	stateSelector = S(
-		'<div style="background-color:#EEE; width:100%; padding:4px 4px 0 0; border-bottom:1px solid #CCC; margin:0 0 4px 0;">',
+		'<div style="background-color:#EEE; width:100%; padding:4px 4px 0 0; border-bottom:1px solid #CCC; margin:0 4px 4px 0;">',
 			'<div style="margin-bottom:2px;">',
 				opt.stateSelector ?
-					'Choose a state and select information to view:' :
+					'Choose a state and select a view:' :
 					'Select information to view:',
 			'</div>',
 			'<table class="selects" cellspacing="0" cellpadding="0">',
@@ -1498,7 +1510,7 @@ function writeCommon() {
 //function writeProjectorHTML() {
 //	document.write(
 //		'<style type="text/css">',
-//			'* { font-family: Arial,sans-serif; font-size: 10pt; }',
+//			'* { font-family: Arial,sans-serif; font-size: ', opt.fontsize, '; }',
 //			'#outer {}',
 //			'#eventbar { display:none; }',
 //			'#links { margin-bottom:4px; }',
@@ -1512,14 +1524,14 @@ function writeCommon() {
 //			'.NewsList  a:hover { text-decoration:underline; }',
 //			'.NewsItem { padding:4px 2px 2px 2px; vertical-align:bottom; line-height:125%; }',
 //			'.favicon { width:16; height:16; float:left; padding:2px 4px 2px 2px; }',
-//			'#content table { width:100%; }',
-//			'#content .contentboxtd { width:7%; }',
-//			'#content .contentnametd { font-size:24px; width:18%; }',
-//			'#content .contentbox { height:36px; width:36px; float:left; margin-right:4px; }',
-//			'#content .contentname { font-size:24px; }',
-//			'#content .contentvotes { font-size:18px; }',
-//			'#content .contentclear { clear:left; }',
-//			'#content .contentreporting * { font-size:20px; }',
+//			'.content table { width:100%; }',
+//			'.content .contentboxtd { width:7%; }',
+//			'.content .contentnametd { font-size:24px; width:18%; }',
+//			'.content .contentbox { height:36px; width:36px; float:left; margin-right:4px; }',
+//			'.content .contentname { font-size:24px; }',
+//			'.content .contentvotes { font-size:18px; }',
+//			'.content .contentclear { clear:left; }',
+//			'.content .contentreporting * { font-size:20px; }',
 //		'</style>',
 //		'<div id="content" style="width: 700px; height: 140px">',
 //		'</div>',
@@ -1531,7 +1543,7 @@ function writeCommon() {
 function writeMappletHTML() {
 	document.write(
 		'<style type="text/css">',
-			'* { font-family: Arial,sans-serif; font-size: 10pt; }',
+			'* { font-family: Arial,sans-serif; font-size: ', opt.fontsize, '; }',
 			'#outer {}',
 			'#links { margin-bottom:4px; }',
 			'#news { margin-top:4px; padding:4px; }',
@@ -1550,16 +1562,16 @@ function writeMappletHTML() {
 			'.VideoThumb { float:left; margin-right:8px; }',
 			'.VideoBorder { clear:left; }',
 			'#votestitle { margin:12px 0 6px 0; padding:0; }',
-			'#content table { xwidth:100%; }',
-			'#content .contentboxtd { width:1%; }',
-			'#content .contentnametd { xfont-size:24px; xwidth:18%; }',
-			'#content .contentbox { height:24px; width:24px; xfloat:left; margin-right:4px; }',
-			'#content .contentname { xfont-size:12pt; white-space:pre; }',
-			'#content .contentvotestd { text-align:right; width:5em; }',
-			'#content .contentpercenttd { text-align:right; width:2em; }',
-			'#content .contentvotes, #content .contentpercent { xfont-size:10pt; margin-right:6px; }',
-			'#content .contentclear { clear:left; }',
-			'#content .contentreporting * { xfont-size:20px; }',
+			'.content table { xwidth:100%; }',
+			'.content .contentboxtd { width:1%; }',
+			'.content .contentnametd { xfont-size:24px; xwidth:18%; }',
+			'.content .contentbox { height:24px; width:24px; xfloat:left; margin-right:4px; }',
+			'.content .contentname { xfont-size:12pt; white-space:pre; }',
+			'.content .contentvotestd { text-align:right; width:5em; }',
+			'.content .contentpercenttd { text-align:right; width:2em; }',
+			'.content .contentvotes, .content .contentpercent { xfont-size:', opt.fontsize, '; margin-right:6px; }',
+			'.content .contentclear { clear:left; }',
+			'.content .contentreporting * { xfont-size:20px; }',
 			'.uftl {border:1px solid white;border-bottom:none;}',
 			'.uftl_reverse_directionality {border:1px solid white;border-bottom:none;clear: right;text-align: right;}',
 			'.uftl{padding:4px 0px 4px 0px;border:1px solid #fff;}',
@@ -1573,9 +1585,7 @@ function writeMappletHTML() {
 			'a.fmaxbox_reverse_directionality,a.fminbox_reverse_directionality{float:right;margin-left:4px;margin-top:2px;width:12px;height:12px;display:block;overflow:hidden;}',
 			'.fpad{padding-top:5px;padding-bottom:2px;padding-left:3%;padding-right:2%;width:92%;overflow:auto;}',
 		'</style>',
-		'<div id="outer">',
-			'<div id="resultlist">',
-			'</div>',
+		'<div id="outer" class="content">',
 			'<div style="padding-bottom:4px; border-bottom:1px solid #DDD; margin-bottom:4px;">',
 				'<span style="color:red;">New!</span> ',
 				'<a href="http://gmodules.com/ig/creator?synd=open&url=http://primary-maps-2008.googlecode.com/svn/trunk/gadget.xml" target="_blank">Get this map for your website</a>',
@@ -1601,8 +1611,10 @@ function writeMappletHTML() {
 			//	'&nbsp;|&nbsp;',
 			//	'<a href="http://www.desmoinesregister.com/apps/pbcs.dll/section?Category=caucus" target="_blank">Des Moines Register</a>',
 			//'</div>',
-			'<div id="content">',
+			'<div id="content-one" class="content">',
 				'Loading&#8230;',
+			'</div>',
+			'<div id="content-two" class="content">',
 			'</div>',
 			//'<div id="videos" style="margin-top:8px;">',
 			//'</div>',
@@ -1614,33 +1626,13 @@ function writeMappletHTML() {
 
 function writeApiMapHTML() {
 	document.body.scroll = 'no';
-	var mapWidth = opt.mapWidth ? opt.mapWidth + 'px' : '100%';
-	var mapHeight = opt.mapHeight ? opt.mapHeight + 'px' : '100%';
-	var mapHTML = S(
-		'<div id="map" style="width:', mapWidth, '; height:', mapHeight, ';">',
-		'</div>'
-	);
-	var sidebarHTML = S(
-		'<div id="NOT-outer">',
-			'<div id="resultlist">',
-			'</div>',
-			stateSelector,
-			'<div id="content">',
-				'Loading&#8230;',
-			'</div>',
-			'<div id="results">',
-				//'Roll the mouse over the map for county-by-county results.<br /><br />',
-				//'Roll the mouse over the map for state-by-state results.<br />',
-				//'Zoom in for county-by-county results.<br /><br />',
-				//'Scroll down for statewide details',
-			'</div>',
-		'</div>'
-	);
 	document.write(
 		'<style type="text/css">',
 			'html, body { margin:0; padding:0; border:0 none; overflow:hidden; height:100%; }',
-			'* { font-family: Arial,sans-serif; font-size: 10pt; }',
+			'* { font-family: Arial,sans-serif; font-size: ', opt.fontsize, '; }',
 			'#outer {}',
+			'.stack-wrapper { width:100%; height:100%; position:relative; }',
+			'.stack-block { position:absolute; }',
 			'#eventbar { display:none; }',
 			'#links { margin-bottom:4px; }',
 			'#news { margin-top:4px; padding:4px; }',
@@ -1659,56 +1651,42 @@ function writeApiMapHTML() {
 			'#fullstate th.countyname, #fullstate td.countyname { text-align:left; font-weight:bold; }',
 			'.statewide * { font-weight: bold; }',
 			'#votestitle { margin:12px 0 3px 0; padding:0; }',
-			'#content table { xwidth:100%; }',
-			'#content .contentboxtd { width:7%; }',
-			'#content .contentnametd { xfont-size:24px; xwidth:18%; }',
-			'#content .contentbox { height:24px; width:24px; xfloat:left; margin-right:4px; }',
-			'#content .contentname { xfont-size:12pt; white-space:pre; }',
-			'#content .contentvotestd { text-align:right; width:5em; }',
-			'#content .contentpercenttd { text-align:right; width:2em; }',
-			'#content .contentvotes, #content .contentpercent { xfont-size:10pt; margin-right:4px; }',
-			'#content .contentclear { clear:left; }',
-			'#content .contentreporting { margin-bottom:8px; }',
-			'#content .contentreporting * { xfont-size:20px; }',
-			'#content {}',
+			'.content table { xwidth:100%; }',
+			'.content .contentboxtd { width:7%; }',
+			'.content .contentnametd { xfont-size:24px; xwidth:18%; }',
+			'.content .contentbox { height:24px; width:24px; xfloat:left; margin-right:4px; }',
+			'.content .contentname { xfont-size:12pt; white-space:pre; }',
+			'.content .contentvotestd { text-align:right; width:5em; }',
+			'.content .contentpercenttd { text-align:right; width:2em; }',
+			'.content .contentvotes, .content .contentpercent { xfont-size:', opt.fontsize, '; margin-right:4px; }',
+			'.content .contentclear { clear:left; }',
+			'.content .contentreporting { margin-bottom:8px; }',
+			'.content .contentreporting * { xfont-size:20px; }',
+			'.content {}',
 			'#content-scroll { overflow:scroll; }',
 		'</style>'
 	);
 	
-	document.write( '<div id="outer">' );
-	
-	if( opt.sidebarHeight ) {
-		document.write(
-			mapHTML,
-			'<div style="margin-top:4px; width:', opt.sidebarWidth, 'px; height:', opt.sidebarHeight, 'px;">',
-				'<div style="width:99%;">',
-					sidebarHTML,
+	document.write(
+		'<div id="outer">' ,
+			'<div id="stack-wrapper">' ,
+				'<div class="stack-block" id="stack-one">',
+					stateSelector,
+					'<div id="content-one" class="content">',
+						'Loading&#8230;',
+					'</div>',
 				'</div>',
-			'</td>',
-				'</tr>',
-			'</table>',
-			'<div id="fullstate">',
-			'</div>'
-		);
-	}
-	else {
-		document.write(
-			'<table style="width:100%;">',
-				'<tr valign="top">',
-					'<td>',
-						mapHTML,
-					'</td>',
-					'<td valign="top" style="width:', opt.sidebarWidth, 'px;">',
-						sidebarHTML,
-					'</td>',
-				'</tr>',
-			'</table>',
-			'<div id="fullstate">',
-			'</div>'
-		);
-	}
-	
-	document.write( '</div>' );
+				'<div class="stack-block" id="stack-two">',
+					'<div id="content-two" class="content">',
+					'</div>',
+				'</div>',
+				'<div class="stack-block" id="stack-three">',
+					'<div id="map" style="width:100%; height:100%;">',
+					'</div>',
+				'</div>',
+			'</div>',
+		'</div>'
+	);
 }
 
 var feed = {
@@ -2068,8 +2046,60 @@ function hh() {
 	return xx.length == 2 ? xx : '0'+xx;
 }
 
+function layoutBlocks( tall ) {
+	var $win = $(window), width = $win.width(), height = $win.height();
+	var $one = $('#stack-one'), $two = $('#stack-two'), $three = $('#stack-three');
+	var sw = opt.sidebarWidth, sh = opt.sidebarHeight;
+	function z() { return { left:'0px', top:'0px', width:width+'px', height:height+'px' }; }
+	var one = z(), two = z(), three = z();
+	one.width = sw;
+	if( tall ) {
+		$one.css({
+			left: '0px',
+			top: '0px',
+			width: sw + 'px',
+			height: sh + 'px'
+		});
+		$two.css({
+			left: '0px',
+			top: sh + 'px',
+			width: sw + 'px',
+			height: ( height - $one.height() ) + 'px'
+		});
+		$three.css({
+			left: sw + 'px',
+			top: '0px',
+			width: ( width - sw ) + 'px',
+			height: height + 'px'
+		});
+	}
+	else {
+		$one.css({
+			left: '0px',
+			top: '0px',
+			width: sw + 'px',
+			height: sh + 'px'
+		});
+		$two.css({
+			left: sw + 'px',
+			top: '0px',
+			width: ( width - sw ) + 'px',
+			height: sh + 'px'
+		});
+		$three.css({
+			left: '0px',
+			top: sh + 'px',
+			width: width + 'px',
+			height: ( height - sh ) + 'px'
+		});
+	}
+}
+
 function stateReady( state ) {
-	if( ! map ) return;
+	$('#content-two').empty();
+	layoutBlocks( state.tall );
+	initMap();
+	if( ! mapplet ) map.checkResize();
 	loadInfo();
 	map.clearOverlays();
 	//$('script[title=jsonresult]').remove();
@@ -2094,6 +2124,7 @@ function stateReady( state ) {
 	else {
 		polys();
 	}
+	
 	function polys() {
 		// Let map display before drawing polys
 		setTimeout( function() {
@@ -2162,7 +2193,7 @@ function formatNumber( nStr ) {
 //		'</div>'
 //	];
 //	
-//	$('#content').html( html );
+//	$('.content').html( html );
 //	
 //	function addRow( start, end ) {
 //		var cols = [];
@@ -2236,31 +2267,35 @@ function stateSidebar() {
 		'</div>'
 	);
 	
-	return S(
-		votesAttribution,
-		'<div id="votestitle">',
-		'</div>',
-		'<table>',
-			'<thead>',
-				'<th>',
-					'Votes',
-				'</th>',
-				'<th style="padding-right:8px;">',
-					'Delegates',
-				'</th>',
-				'<th>',
-					' ',
-				'</th>',
-				'<th style="text-align:left;">',
-					'Candidate',
-				'</th>',
-			'</thead>',
-			'<tbody>',
-				rows.join(''),
-			'</tbody>',
-		'</table>',
-		reporting
-	);
+	return {
+		one: S(
+			votesAttribution,
+			'<div id="votestitle">',
+			'</div>'
+		),
+		two: S(
+			'<table>',
+				'<thead>',
+					'<th>',
+						'Votes',
+					'</th>',
+					'<th style="padding-right:8px;">',
+						'Delegates',
+					'</th>',
+					'<th>',
+						' ',
+					'</th>',
+					'<th style="text-align:left;">',
+						'Candidate',
+					'</th>',
+				'</thead>',
+				'<tbody>',
+					rows.join(''),
+				'</tbody>',
+			'</table>',
+			reporting
+		)
+	}
 	
 	function addRows() {
 		var cols = [];
@@ -2528,40 +2563,9 @@ function openInfo( place, bind ) {
 		map[method]( pointLatLng(place.centroid), html, options );
 }
 
-function load() {
-
-	loadResults = function( party ) {
-		if( party ) curParty = party;  // vs. opt.party?
-		else party = curParty;
-		setPartyButtons();
-		//map.clearOverlays();
-		//$('#votestitle').html(
-		//	'<div>',
-		//		'<b>', primaryTitle( stateByAbbr(opt.state), party ), '</b>',
-		//	'</div>',
-		//	'<div id="votesattrib" style="text-align:right;">',
-		//		attribution,
-		//	'</div>'
-		//);
-		$('#content').html( 'Loading&#8230;' );
-		setStateByAbbr( opt.state );
-		//loadVotes( opt.state );
-		
-		//loadScript( 'http://mg.to/iowa/server/' + q + '_results.js' );
-		//if( testdata )
-		//	loadScript( 'http://gigapad/iowa/server/test.' + party + '_results.js' );
-		//else
-			//loadScript( 'http://gmaps-samples.googlecode.com/svn/trunk/elections/iowa/caucus/live/' + party.name + '_results.js' );
-		//var kmlBaseUrl = 'http://mg.to/', opt.state, '/';
-		//var kmlBaseUrl = 'http://gmaps-samples.googlecode.com/svn/trunk/elections/2008/primary/', opt.state, '/';
-		//var kml = new GGeoXml( kmlBaseUrl + 'maps-', opt.state, '-' + party.name + '.kml?t=' + new Date().getTime() );
-		//map.addOverlay( kml );
-		//GEvent.addListener( kml, 'click', function( overlay, latlng ) {
-		//	console.log( 'kml', overlay, latlng );
-		//	//marker.openInfoWindowHtml( formatEvent(event), { maxWidth:500 } );
-		//});
-	}
-
+function initMap() {
+	if( map ) return;
+	
 	if( mapplet ) {
 		map = new GMap2;
 		//zoomRegion();
@@ -2588,7 +2592,43 @@ function load() {
 		setHilite( where && where.place.name, true );
 		openInfo( where && where.place );
 	});
-	
+}
+
+function load() {
+
+	loadResults = function( party ) {
+		if( party ) curParty = party;  // vs. opt.party?
+		else party = curParty;
+		setPartyButtons();
+		//map.clearOverlays();
+		//$('#votestitle').html(
+		//	'<div>',
+		//		'<b>', primaryTitle( stateByAbbr(opt.state), party ), '</b>',
+		//	'</div>',
+		//	'<div id="votesattrib" style="text-align:right;">',
+		//		attribution,
+		//	'</div>'
+		//);
+		$('#content-one').html( 'Loading&#8230;' );
+		$('#content-two').html( '' );
+		setStateByAbbr( opt.state );
+		//loadVotes( opt.state );
+		
+		//loadScript( 'http://mg.to/iowa/server/' + q + '_results.js' );
+		//if( testdata )
+		//	loadScript( 'http://gigapad/iowa/server/test.' + party + '_results.js' );
+		//else
+			//loadScript( 'http://gmaps-samples.googlecode.com/svn/trunk/elections/iowa/caucus/live/' + party.name + '_results.js' );
+		//var kmlBaseUrl = 'http://mg.to/', opt.state, '/';
+		//var kmlBaseUrl = 'http://gmaps-samples.googlecode.com/svn/trunk/elections/2008/primary/', opt.state, '/';
+		//var kml = new GGeoXml( kmlBaseUrl + 'maps-', opt.state, '-' + party.name + '.kml?t=' + new Date().getTime() );
+		//map.addOverlay( kml );
+		//GEvent.addListener( kml, 'click', function( overlay, latlng ) {
+		//	console.log( 'kml', overlay, latlng );
+		//	//marker.openInfoWindowHtml( formatEvent(event), { maxWidth:500 } );
+		//});
+	}
+
 	makeIcons();
 	
 	//if( mapplet ) showVotes();
@@ -2641,7 +2681,7 @@ function load() {
 	
 	$('#partyButtons').click( partyButtonClick );
 	
-	$('#content')
+	$('#content-one,#content-two')
 		.click( contentClick )
 		.mouseover( contentMouseOver )
 		.mouseout( contentMouseOut );
@@ -2892,7 +2932,7 @@ stateFactors = {
 };
 
 function loadState() {
-	map.clearOverlays();
+	map && map.clearOverlays();
 	var abbr = opt.state;
 	var $select = $('#stateInfoSelector');
 	var index = $select[0].selectedIndex;
@@ -2943,18 +2983,18 @@ function loadInfo() {
 		$('#partyButtons').show();
 	else
 		$('#partyButtons').hide();
-	$('#content').html( infoHtml[opt.infoType]() );
+	var html = infoHtml[opt.infoType]();
+	//debugger;
+	$('#content-one').html( html.one );
+	$('#content-two').html( html.two );
 	setContentScroll();
 	adjustHeight();
 }
 
 function setContentScroll() {
 	if( mapplet ) return;
-	var $c = $('#content'), $cs = $('#content-scroll');
-	var height = $(window).height() - $c.offset().top;
-	$c.height( height + 'px' );
-	if( $cs[0] )
-		$cs.height( ( $c.offset().top + height - $cs.offset().top ) + 'px' );
+	var $cs = $('#content-scroll');
+	if( $cs[0] ) $cs.height( $('#stack-two').height() - $cs[0].offsetTop );
 }
 
 var infoIcon = S( '<img id="infoicon" style="width:16px; height:16px;" src="', imgUrl('help'), '" />' );
@@ -3034,39 +3074,43 @@ function listAges() {
 		scale: [ 0, 100 ]
 	});
 
-	return S(
-		paDosAttribution,
-		'<div class="legend">',
-			'<div>',
-				'<div style="margin-left:4px; width:24px;">18</div>',
-				'<div style="width:30px;">35</div>',
-				'<div style="width:26px;">65+</div>',
-				//'<div style="width:12px;"> </div>',
+	return {
+		one: S(
+			paDosAttribution
+		),
+		two: S(
+			'<div class="legend">',
+				'<div>',
+					'<div style="margin-left:4px; width:24px;">18</div>',
+					'<div style="width:30px;">35</div>',
+					'<div style="width:26px;">65+</div>',
+					//'<div style="width:12px;"> </div>',
+				'</div>',
+				'<div style="margin:0 4px 0 8px; width:', width, 'px;">',
+					'<img style="width:', width, 'px; height:', height, 'px;" src="', imgDem, '" />',
+				'</div>',
+				'<div>',
+					'Democratic',
+				'</div>',
+				'<div style="margin:0 4px 0 8px; width:', width, 'px;">',
+					'<img style="width:', width, 'px; height:', height, 'px;" src="', imgGop, '" />',
+				'</div>',
+				'<div>',
+					'Republican',
+				'</div>',
+				'<div style="float:right;">',
+					infoIcon,
+				'</div>',
 			'</div>',
-			'<div style="margin:0 4px 0 8px; width:', width, 'px;">',
-				'<img style="width:', width, 'px; height:', height, 'px;" src="', imgDem, '" />',
+			'<div style="clear:both;">',
 			'</div>',
-			'<div>',
-				'Democratic',
+			'<div style="padding-bottom:4px; border-bottom:1px solid #DDD; margin-bottom:4px;">',
 			'</div>',
-			'<div style="margin:0 4px 0 8px; width:', width, 'px;">',
-				'<img style="width:', width, 'px; height:', height, 'px;" src="', imgGop, '" />',
-			'</div>',
-			'<div>',
-				'Republican',
-			'</div>',
-			'<div style="float:right;">',
-				infoIcon,
-			'</div>',
-		'</div>',
-		'<div style="clear:both;">',
-		'</div>',
-		'<div style="padding-bottom:4px; border-bottom:1px solid #DDD; margin-bottom:4px;">',
-		'</div>',
-		'<div id="content-scroll">',
-			html,
-		'</div>'
-	);
+			'<div id="content-scroll">',
+				html,
+			'</div>'
+		)
+	}
 }
 
 function listReligion() {
@@ -3109,31 +3153,35 @@ function listReligion() {
 		);
 	}
 	
-	return S(
-		ardaAttribution,
-		'<div class="legend">',
-			'<div>',
-				'<table cellspacing="0" cellpadding="0">',
-					'<tr>',
-						label(0), label(1), label(2),
-					'</tr>',
-					'<tr>',
-						label(3), label(4), label(5),
-					'</tr>',
-				'</table>',
+	return {
+		one: S(
+			ardaAttribution,
+			'<div class="legend">',
+				'<div>',
+					'<table cellspacing="0" cellpadding="0">',
+						'<tr>',
+							label(0), label(1), label(2),
+						'</tr>',
+						'<tr>',
+							label(3), label(4), label(5),
+						'</tr>',
+					'</table>',
+				'</div>',
+				'<div style="float:right;">',
+					infoIcon,
+				'</div>',
 			'</div>',
-			'<div style="float:right;">',
-				infoIcon,
+			'<div style="clear:both;">',
 			'</div>',
-		'</div>',
-		'<div style="clear:both;">',
-		'</div>',
-		'<div style="border-bottom:1px solid #DDD; margin-bottom:4px;">',
-		'</div>',
-		'<div id="content-scroll">',
-			html,
-		'</div>'
-	);
+			'<div style="border-bottom:1px solid #DDD; margin-bottom:4px;">',
+			'</div>'
+		),
+		two: S(
+			'<div id="content-scroll">',
+				html,
+			'</div>'
+		)
+	}
 }
 
 function listEthnic() {
@@ -3191,37 +3239,41 @@ function listEthnic() {
 		);
 	}
 	
-	return S(
-		censusAttribution,
-		'<div class="legend">',
-			'<div>',
-				'<table cellspacing="0" cellpadding="0">',
-					nLabels == 4 ? S(
-						'<tr>',
-							label(0), label(1), label(2), label(3),
-						'</tr>'
-					) : S(
-						'<tr>',
-							label(0), label(1), label(2),
-						'</tr>',
-						'<tr>',
-							label(3), label(4),
-						'</tr>'
-					),
-				'</table>',
+	return {
+		one: S(
+			censusAttribution,
+			'<div class="legend">',
+				'<div>',
+					'<table cellspacing="0" cellpadding="0">',
+						nLabels == 4 ? S(
+							'<tr>',
+								label(0), label(1), label(2), label(3),
+							'</tr>'
+						) : S(
+							'<tr>',
+								label(0), label(1), label(2),
+							'</tr>',
+							'<tr>',
+								label(3), label(4),
+							'</tr>'
+						),
+					'</table>',
+				'</div>',
+				'<div style="float:right;">',
+					infoIcon,
+				'</div>',
 			'</div>',
-			'<div style="float:right;">',
-				infoIcon,
+			'<div style="clear:right;">',
 			'</div>',
-		'</div>',
-		'<div style="clear:both;">',
-		'</div>',
-		'<div style="border-bottom:1px solid #DDD; margin-bottom:4px;">',
-		'</div>',
-		'<div id="content-scroll">',
-			html,
-		'</div>'
-	);
+			'<div style="border-bottom:1px solid #DDD; margin-bottom:4px;">',
+			'</div>'
+		),
+		two: S(
+			'<div id="content-scroll">',
+				html,
+			'</div>'
+		)
+	}
 }
 
 function listPopulation() {
@@ -3274,40 +3326,44 @@ function listPopulation() {
 		);
 	}
 	
-	return S(
-		parties ? censusPaAttribution : censusAttribution,
-		'<div class="legend">',
-			'<div>',
-				'<table cellspacing="0" cellpadding="0">',
-					'<tr>',
-						labels.mapjoin( label ),
-					'</tr>',
-				'</table>',
+	return {
+		one: S(
+			parties ? censusPaAttribution : censusAttribution,
+			'<div class="legend">',
+				'<div>',
+					'<table cellspacing="0" cellpadding="0">',
+						'<tr>',
+							labels.mapjoin( label ),
+						'</tr>',
+					'</table>',
+				'</div>',
+				'<div style="float:right;">',
+					infoIcon,
+				'</div>',
 			'</div>',
-			'<div style="float:right;">',
-				infoIcon,
+			'<div style="clear:both;">',
 			'</div>',
-		'</div>',
-		'<div style="clear:both;">',
-		'</div>',
-		'<div style="border-bottom:1px solid #DDD; margin-bottom:4px;">',
-		'</div>',
-		'<div class="legend">',
-			'<div>',
-				'<div style="width:39px;">-25%</div>',
-				'<div style="width:59px;">0</div>',
-				'<div style="width:46px;">+70%</div>',
-				'<div>Changes from 2000 to 2008</div>',
+			'<div style="border-bottom:1px solid #DDD; margin-bottom:4px;">',
+			'</div>'
+		),
+		two: S(
+			'<div class="legend">',
+				'<div>',
+					'<div style="width:39px;">-25%</div>',
+					'<div style="width:59px;">0</div>',
+					'<div style="width:46px;">+70%</div>',
+					'<div>Changes from 2000 to 2008</div>',
+				'</div>',
 			'</div>',
-		'</div>',
-		'<div style="clear:left;">',
-		'</div>',
-		'<div style="border-bottom:1px solid #DDD; margin-bottom:4px;">',
-		'</div>',
-		'<div id="content-scroll">',
-			html,
-		'</div>'
-	);
+			'<div style="clear:left;">',
+			'</div>',
+			'<div style="border-bottom:1px solid #DDD; margin-bottom:4px;">',
+			'</div>',
+			'<div id="content-scroll">',
+				html,
+			'</div>'
+		)
+	}
 }
 
 function listGub2002() {
@@ -3359,39 +3415,43 @@ function listGub2002() {
 		);
 	}
 	
-	return S(
-		caseyAttribution,
-		'<div class="legend">',
-			'<div>',
-				'<table cellspacing="0" cellpadding="0">',
-					'<tr>',
-						labels.mapjoin( label ),
-					'</tr>',
-				'</table>',
+	return {
+		one: S(
+			caseyAttribution,
+			'<div class="legend">',
+				'<div>',
+					'<table cellspacing="0" cellpadding="0">',
+						'<tr>',
+							labels.mapjoin( label ),
+						'</tr>',
+					'</table>',
+				'</div>',
+				'<div style="float:right;">',
+					infoIcon,
+				'</div>',
 			'</div>',
-			'<div style="float:right;">',
-				infoIcon,
+			'<div style="clear:both;">',
 			'</div>',
-		'</div>',
-		'<div style="clear:both;">',
-		'</div>',
-		'<div style="border-bottom:1px solid #DDD; margin-bottom:4px;">',
-		'</div>',
-		'<div class="legend">',
-			'<div>',
-				'<div style="margin-left:4px; width:96px;">0%</div>',
-				'<div style="width:45px;">100%</div>',
-				'<div>2002 Gubernatorial Primary</div>',
+			'<div style="border-bottom:1px solid #DDD; margin-bottom:4px;">',
+			'</div>'
+		),
+		two: S(
+			'<div class="legend">',
+				'<div>',
+					'<div style="margin-left:4px; width:96px;">0%</div>',
+					'<div style="width:45px;">100%</div>',
+					'<div>2002 Gubernatorial Primary</div>',
+				'</div>',
 			'</div>',
-		'</div>',
-		'<div style="clear:left;">',
-		'</div>',
-		'<div style="border-bottom:1px solid #DDD; margin-bottom:4px;">',
-		'</div>',
-		'<div id="content-scroll">',
-			html,
-		'</div>'
-	);
+			'<div style="clear:left;">',
+			'</div>',
+			'<div style="border-bottom:1px solid #DDD; margin-bottom:4px;">',
+			'</div>',
+			'<div id="content-scroll">',
+				html,
+			'</div>'
+		)
+	}
 }
 
 function listOccupation() {
@@ -3442,39 +3502,43 @@ function listOccupation() {
 		);
 	}
 	
-	return S(
-		occupationAttribution,
-		'<div class="legend">',
-			'<div>',
-				'<table cellspacing="0" cellpadding="0">',
-					'<tr>',
-						labels.mapjoin( label ),
-					'</tr>',
-				'</table>',
+	return {
+		one: S(
+			occupationAttribution,
+			'<div class="legend">',
+				'<div>',
+					'<table cellspacing="0" cellpadding="0">',
+						'<tr>',
+							labels.mapjoin( label ),
+						'</tr>',
+					'</table>',
+				'</div>',
+				'<div style="float:right;">',
+					infoIcon,
+				'</div>',
 			'</div>',
-			'<div style="float:right;">',
-				infoIcon,
+			'<div style="clear:both;">',
 			'</div>',
-		'</div>',
-		'<div style="clear:both;">',
-		'</div>',
-		'<div style="border-bottom:1px solid #DDD; margin-bottom:4px;">',
-		'</div>',
-		'<div class="legend">',
-			'<div>',
-				'<div style="margin-left:4px; width:96px;">0%</div>',
-				'<div style="width:45px;">100%</div>',
-				'<div>Voters by Occupation</div>',
+			'<div style="border-bottom:1px solid #DDD; margin-bottom:4px;">',
+			'</div>'
+		),
+		two: S(
+			'<div class="legend">',
+				'<div>',
+					'<div style="margin-left:4px; width:96px;">0%</div>',
+					'<div style="width:45px;">100%</div>',
+					'<div>Voters by Occupation</div>',
+				'</div>',
 			'</div>',
-		'</div>',
-		'<div style="clear:left;">',
-		'</div>',
-		'<div style="border-bottom:1px solid #DDD; margin-bottom:4px;">',
-		'</div>',
-		'<div id="content-scroll">',
-			html,
-		'</div>'
-	);
+			'<div style="clear:left;">',
+			'</div>',
+			'<div style="border-bottom:1px solid #DDD; margin-bottom:4px;">',
+			'</div>',
+			'<div id="content-scroll">',
+				html,
+			'</div>'
+		)
+	}
 }
 
 function listUrbanRural() {
@@ -3525,39 +3589,43 @@ function listUrbanRural() {
 		);
 	}
 	
-	return S(
-		urbanruralAttribution,
-		'<div class="legend">',
-			'<div>',
-				'<table cellspacing="0" cellpadding="0">',
-					'<tr>',
-						labels.mapjoin( label ),
-					'</tr>',
-				'</table>',
+	return {
+		one: S(
+			urbanruralAttribution,
+			'<div class="legend">',
+				'<div>',
+					'<table cellspacing="0" cellpadding="0">',
+						'<tr>',
+							labels.mapjoin( label ),
+						'</tr>',
+					'</table>',
+				'</div>',
+				'<div style="float:right;">',
+					infoIcon,
+				'</div>',
 			'</div>',
-			'<div style="float:right;">',
-				infoIcon,
+			'<div style="clear:both;">',
 			'</div>',
-		'</div>',
-		'<div style="clear:both;">',
-		'</div>',
-		'<div style="border-bottom:1px solid #DDD; margin-bottom:4px;">',
-		'</div>',
-		'<div class="legend">',
-			'<div>',
-				'<div style="margin-left:4px; width:96px;">0%</div>',
-				'<div style="width:45px;">100%</div>',
-				'<div>Urban vs. Rural</div>',
+			'<div style="border-bottom:1px solid #DDD; margin-bottom:4px;">',
+			'</div>'
+		),
+		two: S(
+			'<div class="legend">',
+				'<div>',
+					'<div style="margin-left:4px; width:96px;">0%</div>',
+					'<div style="width:45px;">100%</div>',
+					'<div>Urban vs. Rural</div>',
+				'</div>',
 			'</div>',
-		'</div>',
-		'<div style="clear:left;">',
-		'</div>',
-		'<div style="border-bottom:1px solid #DDD; margin-bottom:4px;">',
-		'</div>',
-		'<div id="content-scroll">',
-			html,
-		'</div>'
-	);
+			'<div style="clear:left;">',
+			'</div>',
+			'<div style="border-bottom:1px solid #DDD; margin-bottom:4px;">',
+			'</div>',
+			'<div id="content-scroll">',
+				html,
+			'</div>'
+		)
+	}
 }
 
 function objToSortedKeys( obj ) {
@@ -3647,44 +3715,48 @@ function listVotes() {
 		);
 	}
 	
-	return S(
-		votesAttribution,
-		'<div class="legend">',
-			'<div>',
-				'<table cellspacing="0" cellpadding="0" style="width:320px;">',
-					'<tr>',
-						leaders.mapjoin( function( name, i ) {
-							return S(
-								( i > 0  &&  i % 3 == 0 ) ? '</tr><tr>' : '',
-								label( candidates[party.name].by.name[name] )
-							);
-						}),
-					'</tr>',
-				'</table>',
+	return {
+		one: S(
+			votesAttribution,
+			'<div class="legend">',
+				'<div>',
+					'<table cellspacing="0" cellpadding="0" style="width:320px;">',
+						'<tr>',
+							leaders.mapjoin( function( name, i ) {
+								return S(
+									( i > 0  &&  i % 3 == 0 ) ? '</tr><tr>' : '',
+									label( candidates[party.name].by.name[name] )
+								);
+							}),
+						'</tr>',
+					'</table>',
+				'</div>',
+				//'<div style="float:right;">',
+				//	infoIcon,
+				//'</div>',
 			'</div>',
-			//'<div style="float:right;">',
-			//	infoIcon,
-			//'</div>',
-		'</div>',
-		'<div style="clear:both;">',
-		'</div>',
-		'<div style="border-bottom:1px solid #DDD; margin-bottom:4px;">',
-		'</div>',
-		'<div class="legend">',
-			'<div>',
-				'<div style="margin-left:4px; width:96px;">0%</div>',
-				'<div style="width:45px;">100%</div>',
-				'<div>2008 Primary</div>',
+			'<div style="clear:both;">',
 			'</div>',
-		'</div>',
-		'<div style="clear:left;">',
-		'</div>',
-		'<div style="border-bottom:1px solid #DDD; margin-bottom:4px;">',
-		'</div>',
-		'<div id="content-scroll">',
-			html,
-		'</div>'
-	);
+			'<div style="border-bottom:1px solid #DDD; margin-bottom:4px;">',
+			'</div>'
+		),
+		two: S(
+			'<div class="legend">',
+				'<div>',
+					'<div style="margin-left:4px; width:96px;">0%</div>',
+					'<div style="width:45px;">100%</div>',
+					'<div>2008 Primary</div>',
+				'</div>',
+			'</div>',
+			'<div style="clear:left;">',
+			'</div>',
+			'<div style="border-bottom:1px solid #DDD; margin-bottom:4px;">',
+			'</div>',
+			'<div id="content-scroll">',
+				html,
+			'</div>'
+		)
+	}
 }
 
 function listSpreadsheet() {
@@ -3692,28 +3764,31 @@ function listSpreadsheet() {
 	function link( params, text ) {
 		return S( '<a href="', url, '&', params, '" target="_blank">', text, '</a>' );
 	}
-	return S(
-		'<div>',
-			'<div style="margin-bottom:16px">',
-				//'<span style="color:red;">New! </span> ',
-				'View all county demographics, political factors, and voting results in a spreadsheet',
-			'</div>',
+	return {
+		one: '',
+		two: S(
 			'<div>',
-				link( 'hl=en', 'Google Docs spreadsheet with live updates and chat' ),
-				' (recommended)',
-				'<br />',
-				'<br />',
-				link( 'hl=en&newcopy', 'Editable copy of Google Docs spreadsheet' ),
-				'<br />',
-				'<br />',
-				link( 'output=html', 'Static HTML table' ),
-				'<br />',
-				link( 'output=csv&gid=0', 'Download CSV file' ),
-				'<br />',
-				link( 'output=xls', 'Download XLS file' ),
-			'</div>',
-		'</div>'
-	);
+				'<div style="margin-bottom:16px">',
+					//'<span style="color:red;">New! </span> ',
+					'View all county demographics, political factors, and voting results in a spreadsheet',
+				'</div>',
+				'<div>',
+					link( 'hl=en', 'Google Docs spreadsheet with live updates and chat' ),
+					' (recommended)',
+					'<br />',
+					'<br />',
+					link( 'hl=en&newcopy', 'Editable copy of Google Docs spreadsheet' ),
+					'<br />',
+					'<br />',
+					link( 'output=html', 'Static HTML table' ),
+					'<br />',
+					link( 'output=csv&gid=0', 'Download CSV file' ),
+					'<br />',
+					link( 'output=xls', 'Download XLS file' ),
+				'</div>',
+			'</div>'
+		)
+	}
 }
 
 //function loadVotes() {
@@ -3814,7 +3889,7 @@ function placeBalloon( state, place ) {
 	}
 	
 	return S(
-		'<div style="font-size:10pt;">',
+		'<div style="font-size:', opt.fontsize, ';">',
 			placeTable( state, place, true ),
 			'<div style="margin-top:10px;">',
 				link,
@@ -3838,7 +3913,7 @@ function primaryTitle( state, party ) {
 }
 
 function placeTable( state, place, balloon ) {
-	var fontsize = 'font-size:10pt;';
+	var fontsize = 'font-size:' + opt.fontsize + ';';
 	var pad = balloon ? '8px' : '4px';
 	var party = state.parties[curParty.name];
 	var header = S(
