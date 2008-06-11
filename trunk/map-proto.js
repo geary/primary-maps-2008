@@ -1177,8 +1177,12 @@ function infoTip( state, type ) {
 }
 
 function adjustHeight() {
-	if( mapplet )
+	if( mapplet ) {
 		_IG_AdjustIFrameHeight();
+	}
+	else {
+		layoutState();
+	}
 }
 
 function cacheUrl( url, cache, always ) {
@@ -1633,6 +1637,7 @@ function writeApiMapHTML() {
 			'#outer {}',
 			'.stack-wrapper { width:100%; height:100%; position:relative; }',
 			'.stack-block { position:absolute; }',
+			'.stack-sidebar { width:', opt.sidebarWidth, 'px; }',
 			'#eventbar { display:none; }',
 			'#links { margin-bottom:4px; }',
 			'#news { margin-top:4px; padding:4px; }',
@@ -1670,13 +1675,13 @@ function writeApiMapHTML() {
 	document.write(
 		'<div id="outer">' ,
 			'<div id="stack-wrapper">' ,
-				'<div class="stack-block" id="stack-one">',
+				'<div class="stack-block stack-sidebar" id="stack-one">',
 					stateSelector,
 					'<div id="content-one" class="content">',
 						'Loading&#8230;',
 					'</div>',
 				'</div>',
-				'<div class="stack-block" id="stack-two">',
+				'<div class="stack-block stack-sidebar" id="stack-two">',
 					'<div id="content-two" class="content">',
 					'</div>',
 				'</div>',
@@ -2046,6 +2051,10 @@ function hh() {
 	return xx.length == 2 ? xx : '0'+xx;
 }
 
+function layoutState() {
+	layoutBlocks( curState.tall );
+}
+
 function layoutBlocks( tall ) {
 	var $win = $(window), width = $win.width(), height = $win.height();
 	var $one = $('#stack-one'), $two = $('#stack-two'), $three = $('#stack-three');
@@ -2058,13 +2067,14 @@ function layoutBlocks( tall ) {
 			left: '0px',
 			top: '0px',
 			width: sw + 'px',
-			height: sh + 'px'
+			height: ''
 		});
+		var top = $one.height();
 		$two.css({
 			left: '0px',
-			top: sh + 'px',
+			top: top + 'px',
 			width: sw + 'px',
-			height: ( height - $one.height() ) + 'px'
+			height: ( height - top ) + 'px'
 		});
 		$three.css({
 			left: sw + 'px',
@@ -2093,14 +2103,16 @@ function layoutBlocks( tall ) {
 			height: ( height - sh ) + 'px'
 		});
 	}
+	var $cs = $('#content-scroll');
+	$cs[0] && $cs.height( $('#stack-two').height() - $cs[0].offsetTop );
 }
 
 function stateReady( state ) {
-	$('#content-two').empty();
-	layoutBlocks( state.tall );
+	$('#content-one,#content-two').empty();
+	loadInfo();
+	layoutState();
 	initMap();
 	if( ! mapplet ) map.checkResize();
-	loadInfo();
 	map.clearOverlays();
 	//$('script[title=jsonresult]').remove();
 	//if( json.status == 'later' ) return;
@@ -2987,14 +2999,7 @@ function loadInfo() {
 	//debugger;
 	$('#content-one').html( html.one );
 	$('#content-two').html( html.two );
-	setContentScroll();
 	adjustHeight();
-}
-
-function setContentScroll() {
-	if( mapplet ) return;
-	var $cs = $('#content-scroll');
-	if( $cs[0] ) $cs.height( $('#stack-two').height() - $cs[0].offsetTop );
 }
 
 var infoIcon = S( '<img id="infoicon" style="width:16px; height:16px;" src="', imgUrl('help'), '" />' );
