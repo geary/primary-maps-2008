@@ -2059,9 +2059,6 @@ function layoutBlocks( tall ) {
 	var $win = $(window), width = $win.width(), height = $win.height();
 	var $one = $('#stack-one'), $two = $('#stack-two'), $three = $('#stack-three');
 	var sw = opt.sidebarWidth, sh = opt.sidebarHeight;
-	function z() { return { left:'0px', top:'0px', width:width+'px', height:height+'px' }; }
-	var one = z(), two = z(), three = z();
-	one.width = sw;
 	if( tall ) {
 		$one.css({
 			left: '0px',
