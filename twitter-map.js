@@ -243,7 +243,8 @@ function imgUrl( name ) {
 $(window).bind( 'load', load ).bind( 'onunload', GUnload );
 
 function loadTwitter() {
-	var url = 'http://primary-maps-2008-data.googlecode.com/svn/trunk/tweets/tweets.js?t=' + new Date().getTime();
+	//var url = 'http://primary-maps-2008-data.googlecode.com/svn/trunk/tweets/tweets.js?t=' + new Date().getTime();
+	var url = 'http://primary-maps-2008-data.googlecode.com/svn/trunk/tweets/tweets.js';
 	_IG_FetchContent( url, function( t ) {
 		window.tweets = eval( '(' + t + ')' );
 		//var list = [], markers = [];
@@ -286,7 +287,7 @@ function addTweetMarker( tweet ) {
 	var bubble = tweetBubble(tweet);
 	tweetMarker.openInfoWindowHtml( bubble, { maxWidth:300, disableGoogleLinks:true } );
 	
-	setTimeout( showTweet, 15000 );
+	//setTimeout( showTweet, 15000 );
 }
 
 function tweetBubble( tweet ) {
