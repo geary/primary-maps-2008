@@ -188,24 +188,17 @@ var opt = window.GoogleElectionMapOptions || {};
 var mapplet = opt.mapplet;
 
 if( opt.gadget ) {
+	var $window = $(window), ww = $window.width(), wh = $window.height();
 	var p = new _IG_Prefs();
-	opt.sidebarWidth = p.getInt('sidebarwidth');
-	opt.zoom = p.getInt('zoom');
-	opt.mapWidth = window.innerWidth - opt.sidebarWidth;
-	opt.mapHeight = window.innerHeight;
-	if( window.innerWidth < 500 ) {
-		opt.mapWidth = opt.sidebarWidth = window.innerWidth;
-		opt.mapHeight = opt.sidebarHeight = ( window.innerHeight - 4 ) / 2;
+	opt.sidebarWidth = p.getInt('sidebarwidth') || 300;
+	opt.zoom = p.getInt('zoom') || 3;
+	opt.mapWidth = ww - opt.sidebarWidth;
+	opt.mapHeight = wh;
+	if( ww < 500 ) {
+		opt.mapWidth = opt.sidebarWidth = ww;
+		opt.mapHeight = opt.sidebarHeight = ( wh - 4 ) / 2;
 	}
 }
-
-opt.zoom = opt.zoom || 3;
-opt.sidebarWidth = opt.sidebarWidth || 280;
-opt.mapWidth = opt.mapWidth || 400;
-opt.mapHeight = opt.mapHeight || 300;
-
-opt.mapWidth = ( '' + opt.mapWidth ).replace( /px$/, '' );
-opt.mapHeight = ( '' + opt.mapHeight ).replace( /px$/, '' );
 
 opt.imgUrl = opt.imgUrl || 'http://primary-maps-2008.googlecode.com/svn/trunk/images/';
 
@@ -334,13 +327,17 @@ function fmtDate( date ) {
 	return shortMonths[ d[0] - 1 ] + ' ' + (+d[1]);
 }
 
-if( mapplet ) writeMappletHTML();
-else writeApiMapHTML();
+document.body.scroll = 'no';
+var html = mapplet ? htmlMapplet() : htmlApiMap();
+document.write( html );
+//$(function() {
+//	$('body').html( html );
+//});
 
-function writeCSS() {
-	document.write(
+function htmlCSS() {
+	return S(
 		'<style type="text/css">',
-			'body { margin:0; padding:0; }',
+			'html, body { margin:0; padding:0; border:0 none; overflow:hidden; width:', $(window).width(), 'px; height:', $(window).height(), 'px; }',
 			'* { font-family: Arial,sans-serif; font-size: 10pt; }',
 			'#outer {}',
 			'#links { margin-bottom:4px; }',
@@ -386,9 +383,9 @@ function writeCSS() {
 	);
 }
 
-function writeMappletHTML() {
-	writeCSS();
-	document.write(
+function htmlMapplet() {
+	return S(
+		htmlCSS(),
 		'<div id="outer">',
 			'<div style="padding-bottom:4px; border-bottom:1px solid #DDD; margin-bottom:4px;">',
 				'<span style="color:red;">New!</span> ',
@@ -405,8 +402,7 @@ function writeMappletHTML() {
 	);
 }
 
-function writeApiMapHTML() {
-	writeCSS();
+function htmlApiMap() {
 	var mapWidth = opt.mapWidth ? opt.mapWidth + 'px' : '100%';
 	var mapHeight = opt.mapHeight ? opt.mapHeight + 'px' : '100%';
 	var mapHTML = S(
@@ -461,32 +457,29 @@ function writeApiMapHTML() {
 	//	'</style>'
 	//);
 	
-	if( opt.sidebarHeight ) {
-		document.write(
+	return htmlCSS() + (
+		opt.sidebarHeight ? S(
 			mapHTML,
 			'<div style="margin-top:4px; width:', opt.sidebarWidth, 'px; height:', opt.sidebarHeight, 'px; overflow:auto;">',
 				'<div style="width:99%;">',
 					sidebarHTML,
 				'</div>',
 			'</div>'
-		);
-	}
-	else {
-		document.write(
+		) : S(
 			'<table cellspacing="0" cellpadding="0">',
 				'<tr valign="top">',
 					'<td>',
 						mapHTML,
 					'</td>',
 					'<td valign="top" style="width:', opt.sidebarWidth, 'px;">',
-						'<div style="margin-left:4px; width:100%; height:100%; overflow:auto;">',
+						'<div style="margin-left:4px; width:', opt.sidebarWidth-4, 'px; height:', $(window).height(), 'px; overflow:auto;">',
 							sidebarHTML,
 						'</div>',
 					'</td>',
 				'</tr>',
 			'</table>'
-		);
-	}
+		)
+	);
 }
 
 var map;
@@ -532,8 +525,8 @@ function feedEvents( feeds ) {
 	events = [];
 	feeds.forEach( function( feed, i ) {
 		$('feed>entry',feed).each( function() {
-			var lat = $('extendedProperty[name=NYTlatitude]',this).attr('value');
-			var lng = $('extendedProperty[name=NYTlongitude]',this).attr('value');
+			var lat = $('[name=NYTlatitude]',this).attr('value');
+			var lng = $('[name=NYTlongitude]',this).attr('value');
 			if( ! lat  ||  lat == 'None'  ||  ! lng  ||  lng == 'None' ) return;
 			var summary = $('summary',this).text();
 			var date = feedDate( summary );
