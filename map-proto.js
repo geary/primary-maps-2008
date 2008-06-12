@@ -1487,7 +1487,7 @@ var hotStates = [];
 		htmlApiMap()
 	);
 	
-	// TODO: either one should work, but document.write doesn't
+	// TODO: either one should work, but document.write doesn't work in IE
 	//document.write( html );
 	$(function() { $('body').html( html ); });
 	
