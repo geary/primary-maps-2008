@@ -1641,8 +1641,6 @@ var hotStates = [];
 				'* { font-family: Arial,sans-serif; font-size: ', opt.fontsize, '; }',
 				'#outer {}',
 				'.stack-wrapper { width:', ww, 'px; height:', wh, 'px; position:relative; }',
-				'.stack-block { position:absolute; overflow:hidden; }',
-				'.stack-sidebar { width:', opt.sidebarWidth, 'px; }',
 				'#eventbar { display:none; }',
 				'#links { margin-bottom:4px; }',
 				'#news { margin-top:4px; padding:4px; }',
@@ -2060,45 +2058,37 @@ function layoutState() {
 }
 
 function layoutBlocks( tall ) {
+	function css( $e, styles ) {
+		$e.css( $.extend( {
+				position: 'absolute', overflow: 'hidden',
+				left: '0px', top: '0px', width: sw + 'px', height: sh + 'px'
+			}, styles || {} ) );
+	}
 	var $win = $(window), width = $win.width(), height = $win.height();
 	var $one = $('#stack-one'), $two = $('#stack-two'), $three = $('#stack-three');
 	var sw = opt.sidebarWidth, sh = opt.sidebarHeight;
 	if( tall ) {
-		$one.css({
-			left: '0px',
-			top: '0px',
-			width: sw + 'px',
+		css( $one, {
 			height: ''
 		});
 		var top = $one.height();
-		$two.css({
-			left: '0px',
+		css( $two, {
 			top: top + 'px',
-			width: sw + 'px',
 			height: ( height - top ) + 'px'
 		});
-		$three.css({
+		css( $three, {
 			left: sw + 'px',
-			top: '0px',
 			width: ( width - sw ) + 'px',
 			height: height + 'px'
 		});
 	}
 	else {
-		$one.css({
-			left: '0px',
-			top: '0px',
-			width: sw + 'px',
-			height: sh + 'px'
-		});
-		$two.css({
+		css( $one );
+		css( $two, {
 			left: sw + 'px',
-			top: '0px',
-			width: ( width - sw ) + 'px',
 			height: sh + 'px'
 		});
-		$three.css({
-			left: '0px',
+		css( $three, {
 			top: sh + 'px',
 			width: width + 'px',
 			height: ( height - sh ) + 'px'
