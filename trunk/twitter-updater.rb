@@ -4,6 +4,7 @@
 
 require 'rubygems'
 
+require 'election-words'
 require 'banned-words'
 require 'secret'
 
@@ -54,7 +55,7 @@ class Updater
 	def writeupdates
 		p 'Writing updates'
 		# Add newlines to JSON output to make it more Subversion-friendly
-		json = @updatelist.to_json.sub( /^\[/, "[\n" ).sub( /\]\s*$/, "\n]\n" ).gsub( /"\},\{"/, "\"},\n{\"" )
+		json = @updatelist.to_json.sub( /^\[/, "[\n" ).sub( /\]\s*$/, ",\nnull]\n" ).gsub( /"\},\{"/, "\"},\n{\"" )
 		File.open( @JSON, 'w' ) do |f|
 			f.puts json
 		end
@@ -69,14 +70,18 @@ class Updater
 		#p msg.body
 		return if msg.type != :chat or msg.from != 'twitter@twitter.com' or @updates[msg.body]
 		body = msg.body
+		if ! Search.search(body)
+			#p "Skipped: #{body}"
+			return
+		end
+		if Banned.banned(body)
+			p "Blocked: #{body}"
+			return
+		end
 		match = /^(.*):(.*)$/.match(body)
 		return if not match
 		username = match[1].strip
 		message = match[2].strip
-		if Banned.banned(body)
-			p "Blocked: #{message}"
-			return
-		end
 		doc = Hpricot::XML(msg.to_s)
 		author = (doc/:author/:name).text
 		user = getuser( username, author )
@@ -90,12 +95,11 @@ class Updater
 			p "Blocked location: #{update['where']}"
 			return
 		end
-		p "Posting: #{message}"
+		p "Posting: #{body}"
 		@updates[msg.body] = update
 		@updatelist.push( update )
 		@updatelist.delete_at(0) if @updatelist.length > @MAX_UPDATES
-		#if Time.now - @lastwrite > 300 and @updatelist.length >= 20
-		if @updatelist.length >= 5
+		if Time.now - @lastwrite > 300 and @updatelist.length >= 20
 			@lastwrite = Time.now
 			writeupdates
 		end
@@ -129,9 +133,9 @@ class Updater
 	end
 	
 	def receive
-		p "Start receive"
+		#p "Start receive"
 		@im.received_messages do |msg|
-			#p "Got msg: #{msg}"
+			#p "Got msg"
 			onemsg msg
 		end
 	end
