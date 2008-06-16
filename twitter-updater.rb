@@ -59,9 +59,9 @@ class Updater
 		File.open( @JSON, 'w' ) do |f|
 			f.puts json
 		end
-		#p 'Checking in updates'
-		#`svn ci -m "Twitter update" #{@JSON}`
-		#p 'Done checking in'
+		p 'Checking in updates'
+		`svn ci -m "Twitter update" #{@JSON}`
+		p 'Done checking in'
 	end
 	
 	#readupdates
