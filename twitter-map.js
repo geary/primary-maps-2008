@@ -292,7 +292,7 @@ function addTweetMarker( tweet ) {
 	var bubble = tweetBubble(tweet);
 	tweetMarker.openInfoWindowHtml( bubble, { maxWidth:300, disableGoogleLinks:true } );
 	
-	//setTimeout( showTweet, 15000 );
+	setTimeout( showTweet, 15000 );
 }
 
 function tweetBubble( tweet ) {
