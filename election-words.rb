@@ -5,6 +5,7 @@ module Search
 	
 	WORDS = <<END
 barack
+barr
 biden
 candidate
 candidates
