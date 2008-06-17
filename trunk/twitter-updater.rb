@@ -24,9 +24,9 @@ class Updater
 		@updates = {}
 		@updatelist = []
 		@im = Jabber::Simple.new( Secret::USERNAME, Secret::PASSWORD )
-		p "Sending 'on'"
+		print "Sending 'on'\n"
 		@im.deliver( 'twitter@twitter.com', 'on' )
-		#p "Sending 'track'"
+		#print "Sending 'track'\n"
 		#@im.deliver( 'twitter@twitter.com', 'track' )
 	end
 	
@@ -36,7 +36,8 @@ class Updater
 				receive
 				sleep 1
 			rescue
-				p "Exception raised!"
+				backtrace = $!.backtrace.join("\n")
+				print "\n\nEXCEPTION! #{$!}:\n#{backtrace}\n\n\n"
 			end
 		end
 	end
@@ -53,29 +54,29 @@ class Updater
 	#end
 	
 	def writeupdates
-		p 'Writing updates'
+		print 'Writing updates\n'
 		# Add newlines to JSON output to make it more Subversion-friendly
 		json = @updatelist.to_json.sub( /^\[/, "[\n" ).sub( /\]\s*$/, ",\nnull]\n" ).gsub( /"\},\{"/, "\"},\n{\"" )
 		File.open( @JSON, 'w' ) do |f|
 			f.puts json
 		end
-		p 'Checking in updates'
+		print 'Checking in updates\n'
 		`svn ci -m "Twitter update" #{@JSON}`
-		p 'Done checking in'
+		print 'Done checking in\n'
 	end
 	
 	#readupdates
 	
 	def onemsg( msg )
-		#p msg.body
+		#print "#{msg.body}\n"
 		return if msg.type != :chat or msg.from != 'twitter@twitter.com' or @updates[msg.body]
 		body = msg.body
 		if ! Search.search(body)
-			#p "Skipped: #{body}"
+			#print "Skipped: #{body}\n"
 			return
 		end
 		if Banned.banned(body)
-			p "Blocked: #{body}"
+			print "Blocked: #{body}\n"
 			return
 		end
 		match = /^(.*):(.*)$/.match(body)
@@ -92,10 +93,10 @@ class Updater
 			'time' => Time.xmlschema( (doc/:published).text ).to_i
 		}.merge( user )
 		if Banned.banned( update['where'] )
-			p "Blocked location: #{update['where']}"
+			print "Blocked location: #{update['where']}\n"
 			return
 		end
-		p "Posting: #{body}"
+		print "Posting: #{body}\n"
 		@updates[msg.body] = update
 		@updatelist.push( update )
 		@updatelist.delete_at(0) if @updatelist.length > @MAX_UPDATES
@@ -107,7 +108,7 @@ class Updater
 	
 	def getuser( username, author )
 		if not @users[username]
-			#p "Getting twittervision user #{username}"
+			#print "Getting twittervision user #{username}\n"
 			http = Net::HTTP.new( 'twittervision.com' )
 			headers, body = http.get( "/user/current_status/#{username}.xml" )
 			if headers.code == '200'
@@ -133,9 +134,9 @@ class Updater
 	end
 	
 	def receive
-		#p "Start receive"
+		#print "Start receive\n"
 		@im.received_messages do |msg|
-			#p "Got msg"
+			#print "Got msg\n"
 			onemsg msg
 		end
 	end
