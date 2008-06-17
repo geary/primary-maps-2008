@@ -586,13 +586,13 @@ var caseyAttribution = S(
 
 var censusAttribution = S(
 	'<div class="attribution">',
-		'<a href="http://factfinder.census.gov/servlet/GCTGeoSearchByListServlet" target="_blank">US Census Bureau</a>',
+		'<a href="http://factfinder.census.gov/" target="_blank">US Census Bureau</a>',
 	'</div>'
 );
 
 var censusPaAttribution = S(
 	'<div class="attribution">',
-		'<a href="http://factfinder.census.gov/servlet/GCTGeoSearchByListServlet" target="_blank">US Census Bureau</a>',
+		'<a href="http://factfinder.census.gov/" target="_blank">US Census Bureau</a>',
 		'<span> / </span>',
 		'<a href="http://www.dos.state.pa.us/elections/cwp/view.asp?a=1310&q=446974&electionsNav=|" target="_blank">Pennsylvania Dept. of State</a>',
 	'</div>'
@@ -1356,6 +1356,88 @@ function GAsync( obj ) {
 		callback();
 }
 
+function showCredits() {
+	showInfoTip( true, {
+		width: 290,
+		top: 40,
+		title: 'Credits',
+		text: S(
+			'<div class="credits">',
+				'<div class="credit">',
+					'Designed and developed by:',
+					'<div class="source">',
+						'<a target="_blank" href="http://mg.to/">Michael Geary</a>',
+					'</div>',
+				'</div>',
+				'<div class="credit">',
+					'With contributions by:',
+					'<div class="source">',
+						'<a target="_blank" href="http://www.imagine-it.org/">Pamela Fox</a>',
+					'</div>',
+					'<div class="source">',
+						'<a target="_blank" href="http://www.ernestdelgado.com/">Ernest Delgado</a>',
+					'</div>',
+				'</div>',
+				'<div class="credit">',
+					'Commentary by:',
+					'<div class="source">',
+						'<a target="_blank" href="http://www.nationaljournal.com/">National Journal</a>',
+					'</div>',
+				'</div>',
+				'<div class="credit">',
+					'Data provided by:',
+					'<div class="source">',
+						'<a target="_blank" href="http://www.ap.org/">Associated&nbsp;Press</a>',
+					'</div>',
+					'<div class="source">',
+						'<a target="_blank" href="http://www.boston.com/">Boston&nbsp;Globe</a>',
+					'</div>',
+					'<div class="source">',
+		'<a target="_blank" href="http://www.realclearpolitics.com/">RealClearPolitics</a>',
+					'</div>',
+					'<div class="source">',
+		'<a target="_blank" href="http://www.dos.state.pa.us/elections/">Pennsylvania Department of State</a>',
+					'</div>',
+					'<div class="source">',
+		'<a target="_blank" href="http://factfinder.census.gov/">US Census Bureau</a>',
+					'</div>',
+					'<div class="source">',
+		'<a target="_blank" href="http://www.thearda.com/Archive/Browse.asp">Association of Religion Data Archives</a>',
+					'</div>',
+				'</div>',
+				'<div class="credit">',
+					'Special thanks to:',
+					'<div class="source">',
+						'<a target="_blank" href="http://code.google.com/apis/maps/">Google Maps API Team</a>',
+					'</div>',
+				'</div>',
+			'</div>'
+		)
+	});
+}
+
+// TODO: generalize this
+CreditsControl = function( show ) {
+	return $.extend( new GControl, {
+		initialize: function( map ) {
+			var $control = $(S(
+				'<div style="color:black; font-family:Arial,sans-serif;">',
+					'<div style="background-color:white; border:1px solid black; cursor:pointer; text-align:center; width:3.5em;">',
+						'<div style="border-color:white #B0B0B0 #B0B0B0 white; border-style:solid; border-width:1px; font-size:12px;">',
+							'Credits',
+						'</div>',
+					'</div>',
+				'</div>'
+			)).click( showCredits ).appendTo( map.getContainer() );
+			return $control[0];
+		},
+		
+		getDefaultPosition: function() {
+			return new GControlPosition( G_ANCHOR_BOTTOM_LEFT, new GSize( 4, 40 ) );
+		}
+	});
+};
+
 function setPartyButtons() {
 	if( ! opt.partySelector ) return;
 	$('#partyButtons').html(
@@ -1511,6 +1593,9 @@ var hotStates = [];
 				'.placerow-hilite { border-color:#444; }',
 				'a.delbox { background-position:-60px 0px; float:right; height:12px; overflow:hidden; position:relative; width:12px; background-image:url(http://img0.gmodules.com/ig/images/sprite_arrow_enlarge_max_min_shrink_x_blue.gif); }',
 				'a.delbox:hover { background-position:-60px -12px; }',
+				'.credits {}',
+				'.credits .credit { margin-top:8px; }',
+				'.credits .source { margin-left:16px; }',
 			'</style>'
 		);
 	}
@@ -2583,6 +2668,7 @@ function initMap() {
 		map.enableScrollWheelZoom();
 		//map.addControl( new GLargeMapControl() );
 		map.addControl( new GSmallMapControl() );
+		map.addControl( new CreditsControl() );
 		
 		GEvent.addListener( map, 'click', closeInfoTip );
 		GEvent.addListener( map, 'dragstart', closeInfoTip );
@@ -2806,16 +2892,25 @@ function contentMouseOut( event ) {
 	setHilite();
 }
 
-function showInfoTip( show ) {
+function showInfoTip( show, tip ) {
 	var $infotip = $('#infotip');
 	if( show ) {
 		if( $infotip[0] ) return;
-		var tip = infoTip();
-		var $outer = $('#outer');
+		var footer = '';
+		if( ! tip ) {
+			tip = infoTip();
+			footer = S(
+				'<div style="margin-top:12px;">',
+					'Commentary by <a target="_blank" href="http://www.nationaljournal.com/">National Journal</a>',
+				'</div>'
+			);
+		}
+		var $outer = $('#outer'), ow = $outer.width();
+		var width = tip.width || ow - 40;
 		var offset = $outer.offset();
-		var top = offset.top + 8;
-		var left = offset.left + 8;
-		var width = $outer.width() - 40;
+		var top = offset.top + ( tip.top || 8 );
+		//var left = offset.left + 8;
+		var left = offset.left + ( ow - width ) / 2 - 8;
 		
 		$('body').append( S(
 			//'<div id="infotip" style="z-index:999; position:absolute; top:', top, 'px; left:', left, 'px; width:', width, 'px; padding:8px; background-color:#F2EFE9; border: 1px solid black;">',
@@ -2833,12 +2928,10 @@ function showInfoTip( show ) {
 						'</tr>',
 					'</div>',
 				'</div>',
-				'<div>',
+				'<div margin-top:12px;>',
 					tip.text,
 				'</div>',
-				'<div style="margin-top:12px;">',
-					'Commentary by <a target="_blank" href="http://www.nationaljournal.com/">National Journal</a>',
-				'</div>',
+				footer,
 			'</div>'
 		) );
 		
@@ -2848,7 +2941,7 @@ function showInfoTip( show ) {
 		) );
 		
 		$('#infoclose').click( function() { showInfoTip( false ); })
-		$(document).bind( 'keydown', infoTipKeyDown ).bind( 'mousedown', closeInfoTip );
+		$(document).bind( 'keydown', infoTipKeyDown ).bind( 'mousedown', infoTipMouseDown );
 	}
 	else {
 		$(document).unbind( 'keydown', infoTipKeyDown ).unbind( 'mousedown', closeInfoTip );
@@ -2859,6 +2952,11 @@ function showInfoTip( show ) {
 
 function infoTipKeyDown( event ) {
 	if( event.keyCode == 27 )
+		closeInfoTip();
+}
+
+function infoTipMouseDown( event ) {
+	if( ! $(event.target).is('a') )
 		closeInfoTip();
 }
 
