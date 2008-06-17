@@ -201,15 +201,6 @@ function showInfoTip( show, tip ) {
 	var $infotip = $('#infotip');
 	if( show ) {
 		if( $infotip[0] ) return;
-		var footer = '';
-		if( ! tip ) {
-			tip = infoTip();
-			footer = S(
-				'<div style="margin-top:12px;">',
-					'Commentary by <a target="_blank" href="http://www.nationaljournal.com/">National Journal</a>',
-				'</div>'
-			);
-		}
 		var $outer = $('#outer'), ow = $outer.width();
 		var width = tip.width || ow - 40;
 		var offset = $outer.offset();
@@ -236,7 +227,6 @@ function showInfoTip( show, tip ) {
 				'<div margin-top:12px;>',
 					tip.text,
 				'</div>',
-				footer,
 			'</div>'
 		) );
 		
