@@ -54,15 +54,15 @@ class Updater
 	#end
 	
 	def writeupdates
-		print 'Writing updates\n'
+		print "Writing updates\n"
 		# Add newlines to JSON output to make it more Subversion-friendly
 		json = @updatelist.to_json.sub( /^\[/, "[\n" ).sub( /\]\s*$/, ",\nnull]\n" ).gsub( /"\},\{"/, "\"},\n{\"" )
 		File.open( @JSON, 'w' ) do |f|
 			f.puts json
 		end
-		print 'Checking in updates\n'
+		print "Checking in updates\n"
 		`svn ci -m "Twitter update" #{@JSON}`
-		print 'Done checking in\n'
+		print "Done checking in\n"
 	end
 	
 	#readupdates
