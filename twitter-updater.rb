@@ -32,12 +32,12 @@ class Updater
 	
 	def run
 		while true
-			#begin
+			begin
 				receive
 				sleep 1
-			#rescue
-			#	p "Exception raised!"
-			#end
+			rescue
+				p "Exception raised!"
+			end
 		end
 	end
 	
