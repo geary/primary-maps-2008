@@ -7,8 +7,6 @@ module Search
 barack
 barr
 biden
-candidate
-candidates
 caucus
 caucused
 caucuses
@@ -21,9 +19,6 @@ dodd
 edwards
 election
 elections
-endorse
-endorses
-frontrunner
 giuliani
 gop
 hillary
@@ -31,22 +26,12 @@ huckabee
 libertarian
 mccain
 obama
-poll
-polls
-primaries
-primary
 republican
 republicans
 romney
 ron paul
 super tuesday
 tancredo
-vote
-voted
-voter
-voters
-votes
-voting
 END
 
 	SEARCH = Regexp.new( '(^|\\W)('+ WORDS.strip().gsub( /\n/, '|' ) + ')(\\W|$)', Regexp::IGNORECASE )
