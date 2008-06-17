@@ -1,15 +1,16 @@
-<?xml version="1.0" encoding="UTF-8" ?>
+<?xml version="1.0" encoding="UTF-8"?>
 <Module>
+	
 <ModulePrefs
 	title="2008 Campaign Trail"
-	title_url="http://maps.google.com/decision2008"
-	description="View live election results for the 2008 primaries."
+	title_url="http://maps.google.com/help/maps/elections/#campaign_trail"
+	description="Follow the presidential candidates' travels."
 	category="politics"
 	thumbnail=""
 	screenshot=""
 	author="Michael Geary"
-	author_affiliation="Google, Inc."
-	author_email="elections@google.com"
+	author_affiliation="Geary Labs"
+	author_email="gearylabs.feedback@gmail.com"
 	author_location="San Jose, CA"
 	width="620"
 	height="480"
@@ -23,18 +24,14 @@
 	<EnumValue value="4"/>
 	<EnumValue value="5"/>
 </UserPref>
-<UserPref name="sidebarwidth" default_value="350" datatype="string" display_name="Sidebar&#160;width"/>
-<!--<UserPref name="party" default_value="" datatype="enum" display_name="Party">-->
-<!--	<EnumValue value="" display_value="Both"/>-->
-<!--	<EnumValue value="democrat" display_value="Democratic"/>-->
-<!--	<EnumValue value="republican" display_value="Republican"/>-->
-<!--</UserPref>-->
-<!--<UserPref name="twitter" default_value="true" datatype="bool" display_name="Twitter&#160;updates"/>-->
-<!--<UserPref name="youtube" default_value="false" datatype="bool" display_name="YouTube&#160;videos"/>-->
+<UserPref name="sidebarwidth" default_value="250" datatype="string" display_name="Sidebar&#160;width"/>
 <Content type="html">
 <![CDATA[
 
-<script src="http://maps.google.com/maps?file=api&amp;v=2&amp;key=ABQIAAAAL7MXzZBubnPtVtBszDCxeRTZqGWfQErE9pT-IucjscazSdFnjBSzjqfxm1CQj7RDgG-OoyNfebJK0w" type="text/javascript">
+<script type="text/javascript" src="http://maps.google.com/maps?file=api&amp;v=2&amp;key=ABQIAAAAL7MXzZBubnPtVtBszDCxeRTZqGWfQErE9pT-IucjscazSdFnjBSzjqfxm1CQj7RDgG-OoyNfebJK0w">
+</script>
+
+<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.2.6/jquery.min.js">
 </script>
 
 <script type="text/javascript">
@@ -52,10 +49,10 @@
 		);
 	}
 	
-	script( 'http://primary-maps-2008.googlecode.com/svn/trunk/jquery-1.2.3-no-ajax.min.js', 3600 );
-	script( 'http://primary-maps-2008.googlecode.com/svn/trunk/campaign-trail.js', 120 );
+	script( 'http://primary-maps-2008.googlecode.com/svn/trunk/campaign-trail.js', 300 );
 </script>
 
 ]]>
 </Content>
+
 </Module>
