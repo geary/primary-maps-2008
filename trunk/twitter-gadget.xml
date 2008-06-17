@@ -1,24 +1,25 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Module>
+	
 <ModulePrefs
 	title="Twitter Election Map"
-	title_url="http://gmodules.com/ig/creator?synd=open&amp;url=http://primary-maps-2008.googlecode.com/svn/trunk/twitter-gadget.xml"
-	author="Michael Geary"
-	author_affiliation="Google, Inc."
-	author_location="San Jose, CA"
-	author_email="elections@google.com"
-	description="View live comments from Twitter users about the 2008 elections"
+	title_url="http://maps.google.com/help/maps/elections/#twitter"
+	description="Follow live Twitter updates about the 2008 elections."
 	category="politics"
 	thumbnail="http://primary-maps-2008.googlecode.com/svn/trunk/twitter-thumbnail.png"
 	screenshot="http://primary-maps-2008.googlecode.com/svn/trunk/twitter-screenshot.png"
+	author="Michael Geary"
+	author_affiliation="Geary Labs"
+	author_email="gearylabs.feedback@gmail.com"
+	author_location="San Jose, CA"
 	width="620"
 	height="480"
 	scaling="false"
 	scrolling="false"
 >
-	<Require feature="minimessage" />
 </ModulePrefs>
-<Content type="html"><![CDATA[
+<Content type="html">
+<![CDATA[
 
 <script type="text/javascript" src="http://maps.google.com/maps?file=api&amp;v=2&amp;key=ABQIAAAAL7MXzZBubnPtVtBszDCxeRTZqGWfQErE9pT-IucjscazSdFnjBSzjqfxm1CQj7RDgG-OoyNfebJK0w">
 </script>
@@ -39,5 +40,7 @@
 	script( 'http://primary-maps-2008.googlecode.com/svn/trunk/twitter-map.js', 300 );
 </script>
 
-]]></Content>
+]]>
+</Content>
+
 </Module>

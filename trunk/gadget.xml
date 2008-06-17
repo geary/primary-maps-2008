@@ -1,16 +1,16 @@
-<?xml version="1.0" encoding="UTF-8" ?>
+<?xml version="1.0" encoding="UTF-8"?>
 <Module>
 	
 <ModulePrefs
-	title="Election Map from Google"
-	title_url="http://maps.google.com/decision2008"
-	description="View live election results for the 2008 primaries."
+	title="2008 Presidential Primary Results"
+	title_url="http://maps.google.com/help/maps/elections/#primary_results"
+	description="View election results for the 2008 primaries."
 	category="politics"
 	thumbnail="http://gmaps-samples.googlecode.com/svn/trunk/elections/2008/primary/supermap-thumb.png"
 	screenshot="http://gmaps-samples.googlecode.com/svn/trunk/elections/2008/primary/supermap-screenshot.png"
 	author="Michael Geary"
-	author_affiliation="Google, Inc."
-	author_email="elections@google.com"
+	author_affiliation="Geary Labs"
+	author_email="gearylabs.feedback@gmail.com"
 	author_location="San Jose, CA"
 	width="620"
 	height="480"
@@ -19,7 +19,6 @@
 >
 </ModulePrefs>
 
-<!--<UserPref name="sidebarwidth" default_value="350" datatype="string" display_name="Sidebar&#160;width"/>-->
 <UserPref name="state" default_value="zz" datatype="enum" display_name="State">
 	<EnumValue value="zz" display_value="Current Primary States"/>
 	<EnumValue value="us" display_value="USA"/>
@@ -83,13 +82,14 @@
 	<EnumValue value="gop" display_value="Republican"/>
 </UserPref>
 <UserPref name="partyselector" default_value="true" datatype="bool" display_name="Party&#160;selector"/>
-<!--<UserPref name="twitter" default_value="true" datatype="bool" display_name="Twitter&#160;updates"/>-->
-<!--<UserPref name="youtube" default_value="false" datatype="bool" display_name="YouTube&#160;videos"/>-->
 
 <Content type="html">
 <![CDATA[
 
-<script src="http://maps.google.com/maps?file=api&amp;v=2&amp;key=ABQIAAAAL7MXzZBubnPtVtBszDCxeRTZqGWfQErE9pT-IucjscazSdFnjBSzjqfxm1CQj7RDgG-OoyNfebJK0w" type="text/javascript">
+<script type="text/javascript" src="http://maps.google.com/maps?file=api&amp;v=2&amp;key=ABQIAAAAL7MXzZBubnPtVtBszDCxeRTZqGWfQErE9pT-IucjscazSdFnjBSzjqfxm1CQj7RDgG-OoyNfebJK0w">
+</script>
+
+<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.2.6/jquery.min.js">
 </script>
 
 <script type="text/javascript">
@@ -110,11 +110,11 @@
 		);
 	}
 	
-	script( 'http://primary-maps-2008.googlecode.com/svn/trunk/jquery-1.2.3-no-ajax.min.js', 3600 );
-	script( 'http://primary-maps-2008.googlecode.com/svn/trunk/map-proto.js', 120 );
-	script( 'http://primary-maps-2008-data.googlecode.com/svn/trunk/demographic/demographic.js', 120 );
+	script( 'http://primary-maps-2008.googlecode.com/svn/trunk/map-proto.js', 300 );
+	script( 'http://primary-maps-2008-data.googlecode.com/svn/trunk/demographic/demographic.js', 300 );
 </script>
 
 ]]>
 </Content>
+
 </Module>
