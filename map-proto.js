@@ -1584,6 +1584,7 @@ var hotStates = [];
 			'<style type="text/css">',
 				'.selects tr { vertical-align:middle; }',
 				'.selects label { font-weight:bold; margin:0; }',
+				'.selects .selectdiv { margin:0 0 4px 6px; }',
 				'.attribution { border-bottom:1px solid #DDD; padding-bottom:4px; margin-bottom:4px; }',
 				'.attribution * { font-size:85%; }',
 				'.legend {}',
