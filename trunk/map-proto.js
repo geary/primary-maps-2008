@@ -130,8 +130,8 @@ IconFactory.createMarkerIcon = function(opts) {
 	//icon.shadowSize = new GSize( 0, 0 );
 	icon.iconAnchor = new GPoint(width/2, height);
 	icon.infoWindowAnchor = new GPoint(width/2, Math.floor(height/12));
-	icon.printImage = iconUrl + "&chof=gif";
-	icon.mozPrintImage = iconUrl + "&chf=bg,s,ECECD8" + "&chof=gif";
+	icon.printImage = null;
+	icon.mozPrintImage = null;
 	var iconUrl = baseUrl + "&chs=" + width + "x" + height + 
 		"&chco=" + cornerColor.replace("#", "") + "," + primaryColor.replace("#", "") + "," + strokeColor.replace("#", "");
 	icon.transparent = iconUrl + "&chf=a,s,ffffff01&ext=.png";
