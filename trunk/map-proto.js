@@ -2835,7 +2835,7 @@ var hiliteOneshot = oneshot();
 
 function setHilite( name, scroll ) {
 	hiliteOneshot( function() {
-		var id = name && ( 'place-' + name.replace( ' ', '+' ) );
+		var id = name && ( 'place-' + name.replace( ' ', '_' ) );
 		if( id == hilite.id ) return;
 		
 		if( hilite.id ) $('#'+hilite.id).removeClass( 'placerow-hilite' );
@@ -2888,7 +2888,7 @@ function shapeVertices( shape ) {
 function contentMouseOver( event ) {
 	var target = event.target, $target = $(target);
 	var row = $target.parents('.placerow')[0];
-	setHilite( row && row.id.replace( /^place-/, '' ).replace( '+', ' ' ) );
+	setHilite( row && row.id.replace( /^place-/, '' ).replace( '_', ' ' ) );
 }
 
 function contentMouseOut( event ) {
@@ -3145,7 +3145,7 @@ function listAges() {
 		});
 		//alert( img );
 		return S(
-			'<div class="placerow" id="place-', place.name.replace( ' ', '+' ), '">',
+			'<div class="placerow" id="place-', place.name.replace( ' ', '_' ), '">',
 				'<div style="vertical-align:middle;">',
 					'<img style="width:', width, 'px; height:', height, 'px;" src="', img, '" />',
 					' ', place.name, ' County',
@@ -3222,7 +3222,7 @@ function listReligion() {
 			data: place.religion.percents
 		});
 		return S(
-			'<div class="placerow" id="place-', place.name.replace( ' ', '+' ), '" style="vertical-align:middle;">',
+			'<div class="placerow" id="place-', place.name.replace( ' ', '_' ), '" style="vertical-align:middle;">',
 				'<div>',
 					'<div style="float:left; margin-right:8px;">',
 						img,
@@ -3308,7 +3308,7 @@ function listEthnic() {
 			scale: [ 0, total ]
 		});
 		return S(
-			'<div class="placerow" id="place-', place.name.replace( ' ', '+' ), '" style="vertical-align:middle;">',
+			'<div class="placerow" id="place-', place.name.replace( ' ', '_' ), '" style="vertical-align:middle;">',
 				'<div>',
 					'<div style="float:left; margin-right:8px;">',
 						img,
@@ -3395,7 +3395,7 @@ function listPopulation() {
 			background: S( 'bg,ls,0,E0E0E0,', left, ',F4F4F4,', right )
 		});
 		return S(
-			'<div class="placerow" id="place-', place.name.replace( ' ', '+' ), '" style="vertical-align:middle;">',
+			'<div class="placerow" id="place-', place.name.replace( ' ', '_' ), '" style="vertical-align:middle;">',
 				'<div>',
 					'<div style="float:left; margin-right:8px; padding:2px; background-color:#F4F4F4; border:1px solid #DDD;">',
 						img,
@@ -3484,7 +3484,7 @@ function listGub2002() {
 			//	place.name, ': Population 
 		});
 		return S(
-			'<div class="placerow" id="place-', place.name.replace( ' ', '+' ), '" style="vertical-align:middle;">',
+			'<div class="placerow" id="place-', place.name.replace( ' ', '_' ), '" style="vertical-align:middle;">',
 				'<div>',
 					'<div style="float:left; margin-right:8px; padding:2px; background-color:#F4F4F4; border:1px solid #DDD;">',
 						img,
@@ -3571,7 +3571,7 @@ function listOccupation() {
 			//	place.name, ': Population 
 		});
 		return S(
-			'<div class="placerow" id="place-', place.name.replace( ' ', '+' ), '" style="vertical-align:middle;">',
+			'<div class="placerow" id="place-', place.name.replace( ' ', '_' ), '" style="vertical-align:middle;">',
 				'<div>',
 					'<div style="float:left; margin-right:8px; padding:2px; background-color:#F4F4F4; border:1px solid #DDD;">',
 						img,
@@ -3658,7 +3658,7 @@ function listUrbanRural() {
 			//	place.name, ': Population 
 		});
 		return S(
-			'<div class="placerow" id="place-', place.name.replace( ' ', '+' ), '" style="vertical-align:middle;">',
+			'<div class="placerow" id="place-', place.name.replace( ' ', '_' ), '" style="vertical-align:middle;">',
 				'<div>',
 					'<div style="float:left; margin-right:8px; padding:2px; background-color:#F4F4F4; border:1px solid #DDD;">',
 						img,
@@ -3784,7 +3784,7 @@ function listVotes() {
 			//	place.name, ': Population 
 		});
 		return S(
-			'<div class="placerow" id="place-', fullplacename.replace( ' ', '+' ), '" style="vertical-align:middle;">',
+			'<div class="placerow" id="place-', fullplacename.replace( ' ', '_' ), '" style="vertical-align:middle;">',
 				'<div>',
 					'<div style="float:left; margin-right:8px; padding:2px; background-color:#F4F4F4; border:1px solid #DDD;">',
 						img,
