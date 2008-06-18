@@ -1510,57 +1510,59 @@ var hotStates = [];
 	
 	var hot;
 	stateSelector = S(
-		'<div style="background-color:#EEE; width:100%; padding:0; border-bottom:1px solid #CCC; margin:0 4px 4px 0;">',
-			'<div style="margin:2px 0;">',
-				opt.stateSelector ?
-					'Choose a state and select a view:' :
-					'Select information to view:',
-			'</div>',
-			'<table class="selects" cellspacing="0" cellpadding="0" style="margin-right:6px;">',
-				! opt.stateSelector ? '' : S(
+		'<div style="width:100%;">',
+			'<div style="background-color:#EEE; padding:0; border-bottom:1px solid #CCC; margin:0 4px 4px 0;">',
+				'<div style="margin:2px 0;">',
+					opt.stateSelector ?
+						'Choose a state and select a view:' :
+						'Select information to view:',
+				'</div>',
+				'<table class="selects" cellspacing="0" cellpadding="0" style="margin-right:6px;">',
+					! opt.stateSelector ? '' : S(
+						'<tr>',
+							'<td class="labelcell">',
+								'<label for="stateSelector">',
+									'State:',
+								'</label>',
+							'</td>',
+							'<td class="selectcell">',
+								'<div class="selectdiv">',
+									'<select id="stateSelector">',
+										option( 'us', 'Entire USA' ),
+										//option( '', 'June 3 Primary', false, true ),
+										//hotStates.mapjoin( function( abbr ) {
+										//	abbr = abbr.replace( '!', '' ).toLowerCase();
+										//	var select;
+										//	if( abbr == opt.state ) hot = select = true;
+										//	return stateOption( stateByAbbr(abbr), select, false );
+										//}),
+										//option( '', 'All States and Voting Dates', false, true ),
+										states.mapjoin( function( state ) {
+											return /*hotStates.by[state.abbr] ? '' :*/ stateOption( state, ! hot && state.abbr.toLowerCase() == opt.state, true );
+										}),
+									'</select>',
+								'</div>',
+							'</td>',
+						'</tr>'
+					),
 					'<tr>',
 						'<td class="labelcell">',
-							'<label for="stateSelector">',
-								'State:',
+							'<label for="stateInfoSelector">',
+								'View:',
 							'</label>',
 						'</td>',
 						'<td class="selectcell">',
 							'<div class="selectdiv">',
-								'<select id="stateSelector">',
-									option( 'us', 'Entire USA' ),
-									//option( '', 'June 3 Primary', false, true ),
-									//hotStates.mapjoin( function( abbr ) {
-									//	abbr = abbr.replace( '!', '' ).toLowerCase();
-									//	var select;
-									//	if( abbr == opt.state ) hot = select = true;
-									//	return stateOption( stateByAbbr(abbr), select, false );
-									//}),
-									//option( '', 'All States and Voting Dates', false, true ),
-									states.mapjoin( function( state ) {
-										return /*hotStates.by[state.abbr] ? '' :*/ stateOption( state, ! hot && state.abbr.toLowerCase() == opt.state, true );
-									}),
+								'<select id="stateInfoSelector">',
+									option( '', 'Voting Results', false, true ),
+									option( 'stateVotes', 'Statewide Voting Results' ),
+									option( 'countyVotes', 'Local Voting Results', true ),
 								'</select>',
 							'</div>',
 						'</td>',
-					'</tr>'
-				),
-				'<tr>',
-					'<td class="labelcell">',
-						'<label for="stateInfoSelector">',
-							'View:',
-						'</label>',
-					'</td>',
-					'<td class="selectcell">',
-						'<div class="selectdiv">',
-							'<select id="stateInfoSelector">',
-								option( '', 'Voting Results', false, true ),
-								option( 'stateVotes', 'Statewide Voting Results' ),
-								option( 'countyVotes', 'Local Voting Results', true ),
-							'</select>',
-						'</div>',
-					'</td>',
-				'</tr>',
-			'</table>',
+					'</tr>',
+				'</table>',
+			'</div>',
 		'</div>',
 		'<div id="partyButtons" style="display:none;">',
 		'</div>'
@@ -1574,7 +1576,7 @@ var hotStates = [];
 	
 	// TODO: either one should work, but document.write doesn't work in IE
 	//document.write( html );
-	$(function() { $('body').html( html ); });
+	$(function() { $('body').append( html ); });
 	
 	// TODO: migrate other CSS here
 	function htmlCommon() {
@@ -1582,9 +1584,6 @@ var hotStates = [];
 			'<style type="text/css">',
 				'.selects tr { vertical-align:middle; }',
 				'.selects label { font-weight:bold; margin:0; }',
-				'.selects .selectcell { width:99%; }',
-				'.selects .selectdiv { margin:0 0 4px 6px; width:100%; }',
-				'.selects select { width:98%; }',
 				'.attribution { border-bottom:1px solid #DDD; padding-bottom:4px; margin-bottom:4px; }',
 				'.attribution * { font-size:85%; }',
 				'.legend {}',
@@ -2182,6 +2181,7 @@ function layoutBlocks( tall ) {
 			height: ( height - sh ) + 'px'
 		});
 	}
+	$('#stateSelector,#stateInfoSelector').width( sw - $('#stateSelector').offset().left - 6 );
 	var $cs = $('#content-scroll');
 	$cs[0] && $cs.height( $('#stack-two').height() - $cs[0].offsetTop );
 }
