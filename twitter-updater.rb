@@ -34,6 +34,7 @@ class Updater
 		@users = {}
 		@updates = {}
 		@updatelist = []
+		@exit = false
 	end
 	
 	def connect
@@ -45,7 +46,7 @@ class Updater
 	end
 	
 	def run
-		while true
+		until @exit
 			begin
 				receive
 				sleep 1
@@ -109,7 +110,7 @@ class Updater
 			return
 		end
 		if Banned.banned(body)
-			#print "Blocked: #{body}\n"
+			print "Blocked: #{body}\n"
 			return
 		end
 		match = /^(.*):(.*)$/.match(body)
@@ -127,7 +128,7 @@ class Updater
 			'time' => Time.xmlschema( (doc/:published).text ).to_i
 		}.merge( user )
 		if Banned.banned( update['where'] )
-			#print "Blocked location: #{update['where']}\n"
+			print "Blocked location: #{update['where']}\n"
 			return
 		end
 		print "Posting: #{update['body']}\n"
@@ -137,6 +138,7 @@ class Updater
 		if Time.now - @lastwrite > 300
 			@lastwrite = Time.now
 			checkin
+			@exit = true
 		end
 	end
 	
