@@ -1510,13 +1510,13 @@ var hotStates = [];
 	
 	var hot;
 	stateSelector = S(
-		'<div style="background-color:#EEE; width:100%; padding:4px 4px 0 0; border-bottom:1px solid #CCC; margin:0 4px 4px 0;">',
-			'<div style="margin-bottom:2px;">',
+		'<div style="background-color:#EEE; width:100%; padding:0; border-bottom:1px solid #CCC; margin:0 4px 4px 0;">',
+			'<div style="margin:2px 0;">',
 				opt.stateSelector ?
 					'Choose a state and select a view:' :
 					'Select information to view:',
 			'</div>',
-			'<table class="selects" cellspacing="0" cellpadding="0">',
+			'<table class="selects" cellspacing="0" cellpadding="0" style="margin-right:6px;">',
 				! opt.stateSelector ? '' : S(
 					'<tr>',
 						'<td class="labelcell">',
