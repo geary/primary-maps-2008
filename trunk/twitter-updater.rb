@@ -35,6 +35,7 @@ class Updater
 		@updates = {}
 		@updatelist = []
 		@exit = false
+		@skiptimes = 0
 	end
 	
 	def connect
@@ -49,7 +50,7 @@ class Updater
 		until @exit
 			begin
 				receive
-				sleep 1
+				sleep 3
 			rescue
 				backtrace = $!.backtrace.join("\n")
 				print "\n\nEXCEPTION! #{$!}:\n#{backtrace}\n\n\n"
@@ -82,7 +83,7 @@ class Updater
 	end
 	
 	def writeupdates
-		print "Writing updates\n"
+		#print "Writing updates\n"
 		# Add newlines to JSON output to make it more Subversion-friendly
 		json = @updatelist.to_json.fix_json
 		File.open( @JSON, 'w' ) do |f|
@@ -92,7 +93,7 @@ class Updater
 	
 	def checkin
 		print "Checking in updates\n"
-		`svn ci -m "Twitter update" #{@JSON}`
+		print `svn ci -m "Twitter update" #{@JSON}`
 		print "Done checking in\n"
 	end
 	
@@ -106,10 +107,12 @@ class Updater
 		return if msg.type != :chat or msg.from != 'twitter@twitter.com' or @updates[msg.body]
 		body = msg.body
 		if ! Search.search(body)
+			@skipped += 1
 			#print "Skipped: #{body}\n"
 			return
 		end
 		if Banned.banned(body)
+			@blocked += 1
 			print "Blocked: #{body}\n"
 			return
 		end
@@ -128,6 +131,7 @@ class Updater
 			'time' => Time.xmlschema( (doc/:published).text ).to_i
 		}.merge( user )
 		if Banned.banned( update['where'] )
+			@blocked += 1
 			print "Blocked location: #{update['where']}\n"
 			return
 		end
@@ -135,7 +139,7 @@ class Updater
 		add update
 		@updatelist.delete_at(0) if @updatelist.length > @MAX_UPDATES
 		writeupdates
-		if Time.now - @lastwrite > 300
+		if Time.now - @lastwrite > 150
 			@lastwrite = Time.now
 			checkin
 			@exit = true
@@ -171,10 +175,20 @@ class Updater
 	
 	def receive
 		#print "Start receive\n"
+		@skipped = @blocked = 0
 		@im.received_messages do |msg|
 			#print "Got msg\n"
 			onemsg msg
 		end
+		if @skipped > 0
+			@skiptimes = 0
+		else
+			@skiptimes += 1
+		end
+		times = @skiptimes > 0 ? " (#{@skiptimes})" : ''
+		msg = "Skipped #{@skipped}#{times}"
+		msg += ", blocked #{@blocked}" if @blocked > 0
+		print msg + "\n"
 	end
 	
 end
