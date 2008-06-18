@@ -9,10 +9,21 @@ require 'banned-words'
 require 'secret'
 
 require 'hpricot'
+require 'htmlentities'
 require 'json'
 require 'net/http'
 require 'time'
 require 'xmpp4r-simple'
+
+$coder = HTMLEntities.new
+
+class String
+	
+	def fix_json
+		self.sub( /^\[/, "[\n" ).sub( /\]\s*$/, ",\nnull]\n" ).gsub( /"\},\{"/, "\"},\n{\"" )
+	end
+	
+end
 
 class Updater
 	
@@ -23,6 +34,9 @@ class Updater
 		@users = {}
 		@updates = {}
 		@updatelist = []
+	end
+	
+	def connect
 		@im = Jabber::Simple.new( Secret::USERNAME, Secret::PASSWORD )
 		print "Sending 'on'\n"
 		@im.deliver( 'twitter@twitter.com', 'on' )
@@ -42,30 +56,49 @@ class Updater
 		end
 	end
 	
-	#def readupdates
-	#	File.open( @JSON, 'r' ) do |f|
-	#		data = f.read
-	#		oldUpdates = JSON.parse( data )
-	#		oldUpdates.each { |update|
-	#			@updates[ update['message'] ] = update
-	#			@updatelist.push( update )
-	#		}
-	#	end
-	#end
+	def readupdates
+		print "Loading old tweets\n"
+		File.open( @JSON, 'r' ) { |f|
+			data = f.read
+			oldUpdates = JSON.parse( data )
+			oldUpdates.each { |update|
+				if update
+					# temp
+					update['body'] = $coder.decode( update['body'] )
+					update['message'] = $coder.decode( update['message'] )
+					# TODO: make a user object
+					user = update.dup
+					user.delete 'body'
+					user.delete 'message'
+					user.delete 'time'
+					@users[ update['user'] ] = user
+					add update
+				end
+			}
+			list = oldUpdates.map { |update| update ? update['body'] : '' }.join("\n")
+			print "Loaded #{oldUpdates.length-1} tweets:\n#{list}\n"
+		}
+	end
 	
 	def writeupdates
 		print "Writing updates\n"
 		# Add newlines to JSON output to make it more Subversion-friendly
-		json = @updatelist.to_json.sub( /^\[/, "[\n" ).sub( /\]\s*$/, ",\nnull]\n" ).gsub( /"\},\{"/, "\"},\n{\"" )
+		json = @updatelist.to_json.fix_json
 		File.open( @JSON, 'w' ) do |f|
 			f.puts json
 		end
+	end
+	
+	def checkin
 		print "Checking in updates\n"
 		`svn ci -m "Twitter update" #{@JSON}`
 		print "Done checking in\n"
 	end
 	
-	#readupdates
+	def add( update )
+		@updates[ update['body'] ] = update
+		@updatelist.push( update )
+	end
 	
 	def onemsg( msg )
 		#print "#{msg.body}\n"
@@ -76,7 +109,7 @@ class Updater
 			return
 		end
 		if Banned.banned(body)
-			print "Blocked: #{body}\n"
+			#print "Blocked: #{body}\n"
 			return
 		end
 		match = /^(.*):(.*)$/.match(body)
@@ -85,24 +118,25 @@ class Updater
 		message = match[2].strip
 		doc = Hpricot::XML(msg.to_s)
 		author = (doc/:author/:name).text
+		# TODO: make a user object
 		user = getuser( username, author )
 		return if not user
 		update = {
-			'body' => msg.body,
-			'message' => message,
+			'body' => $coder.decode(body),
+			'message' => $coder.decode(message),
 			'time' => Time.xmlschema( (doc/:published).text ).to_i
 		}.merge( user )
 		if Banned.banned( update['where'] )
-			print "Blocked location: #{update['where']}\n"
+			#print "Blocked location: #{update['where']}\n"
 			return
 		end
-		print "Posting: #{body}\n"
-		@updates[msg.body] = update
-		@updatelist.push( update )
+		print "Posting: #{update['body']}\n"
+		add update
 		@updatelist.delete_at(0) if @updatelist.length > @MAX_UPDATES
-		if Time.now - @lastwrite > 300 and @updatelist.length >= 20
+		writeupdates
+		if Time.now - @lastwrite > 300
 			@lastwrite = Time.now
-			writeupdates
+			checkin
 		end
 	end
 	
@@ -144,4 +178,6 @@ class Updater
 end
 
 updater = Updater.new
+updater.readupdates
+updater.connect
 updater.run
