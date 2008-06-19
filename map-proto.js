@@ -333,7 +333,7 @@ function randomInt( n ) {
 			duration /= 2;//let's keep the overall speed, the same.
 		settings.offset = both( settings.offset );
 		settings.over = both( settings.over );
-
+		
 		return this.each(function(){
 			var elem = this, $elem = $(elem),
 				t = target, toff, attr = {},
@@ -357,10 +357,10 @@ function randomInt( n ) {
 					act = elem[key],
 					Dim = axis == 'x' ? 'Width' : 'Height',
 					dim = Dim.toLowerCase();
-
+				
 				if( toff ){//jQuery/DOM
 					attr[key] = toff[pos] + ( win ? 0 : act - $elem.offset()[pos] );
-
+					
 					if( settings.margin ){//if it's a dom element, reduce the margin
 						attr[key] -= parseInt(t.css('margin'+Pos)) || 0;
 						attr[key] -= parseInt(t.css('border'+Pos+'Width')) || 0;
@@ -372,10 +372,10 @@ function randomInt( n ) {
 						attr[key] += t[dim]() * settings.over[pos];
 				}else
 					attr[key] = t[pos];//remove the unnecesary 'px'
-
+				
 				if( /^\d+$/.test(attr[key]) )//number or 'number'
 					attr[key] = attr[key] <= 0 ? 0 : Math.min( attr[key], max(Dim) );//check the limits
-
+				
 				if( !i && settings.queue ){//queueing each axis is required					
 					if( act != attr[key] )//don't waste time animating, if there's no need.
 						animate( settings.onAfterFirst );//intermediate animation
@@ -383,7 +383,7 @@ function randomInt( n ) {
 				}
 			});			
 			animate( settings.onAfter );			
-
+			
 			function animate( callback ){
 				$elem.animate( attr, duration, settings.easing, callback && function(){
 					callback.call(this, target);
@@ -2188,6 +2188,7 @@ function layoutBlocks( tall ) {
 		css( $one );
 		css( $two, {
 			left: sw + 'px',
+			width: ( width - sw ) + 'px',
 			height: sh + 'px'
 		});
 		css( $three, {
