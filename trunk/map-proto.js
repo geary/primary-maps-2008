@@ -558,7 +558,7 @@ var parties = [
 	{ name: 'gop', shortName: 'Republican', fullName: 'Republican Party' }
 ].index('name');
 
-opt.party = opt.party || 'dem';
+//opt.party = opt.party || 'dem';
 var q = opt.party;
 window.curParty = parties.by.name[q] || parties[ Math.random() < .5 ? 0 : 1 ];
 
@@ -1448,13 +1448,13 @@ function setPartyButtons() {
 			'<div style="padding-bottom:4px; border-bottom:1px solid #DDD; margin-bottom:4px;">',
 				'<b>Democratic</b>',
 				'<a href="#" style="margin-left:8px;" id="btnRep">Republican</a>',
-				'<button style="font-size:80%; margin-left:8px;" id="btnReload">Refresh</button>',
+				//'<button style="font-size:80%; margin-left:8px;" id="btnReload">Refresh</button>',
 			'</div>'
 		] : [
 			'<div style="padding-bottom:4px; border-bottom:1px solid #DDD; margin-bottom:4px;">',
 				'<a href="#" style="margin-right:8px;" id="btnDem">Democratic</a>',
 				'<b>Republican</b>',
-				'<button style="font-size:80%; margin-left:8px;" id="btnReload">Refresh</button>',
+				//'<button style="font-size:80%; margin-left:8px;" id="btnReload">Refresh</button>',
 			'</div>'
 		]
 	);
