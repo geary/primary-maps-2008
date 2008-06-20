@@ -1,3 +1,10 @@
+// twitter-map.js
+// Copyright (c) 2008 Michael Geary - http://mg.to/
+// Free Beer and Free Speech License (MIT+GPL)
+// http://freebeerfreespeech.org/
+// http://www.opensource.org/licenses/mit-license.php
+// http://www.opensource.org/licenses/gpl-2.0.php
+
 (function( $ ) {
 
 var opt = window.GoogleElectionMapOptions || {};

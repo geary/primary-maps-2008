@@ -1,3 +1,10 @@
+// map-proto.js
+// Copyright (c) 2008 Michael Geary - http://mg.to/
+// Free Beer and Free Speech License (MIT+GPL)
+// http://freebeerfreespeech.org/
+// http://www.opensource.org/licenses/mit-license.php
+// http://www.opensource.org/licenses/gpl-2.0.php
+
 var ChartApi = {
 	chart: function(  a ) {
 		return this.url( a );
@@ -107,6 +114,12 @@ var ChartApi = {
 	}
 };
 
+// Icon Factory
+// Copyright (c) 2008 Pamela Fox
+// http://www.imagine-it.org/
+// Apache License 2.0
+// http://www.apache.org/licenses/LICENSE-2.0
+
 var IconFactory = { icons:{} };
 
 IconFactory.createMarkerIcon = function(opts) {
@@ -156,6 +169,8 @@ IconFactory.createMarkerIcon = function(opts) {
 	
 	return icon;
 }
+
+// End IconFactory
 
 // TODO: combine this with code above
 
@@ -401,6 +416,8 @@ function randomInt( n ) {
 	};
 
 })( jQuery );
+
+// End jQuery.ScrollTo
 
 // hoverize.js
 // Based on hoverintent plugin for jQuery
