@@ -257,10 +257,15 @@ function join( array, delim ) {
 	return Array.prototype.join.call( array, delim || '' );
 }
 
-jQuery.fn.html = function( a ) {
-	if( a == null ) return this[0] && this[0].innerHTML;
-	return this.empty().append( join( a.charAt ? arguments : a ) );
-};
+jQuery.extend( jQuery.fn, {
+	html: function( a ) {
+		if( a == null ) return this[0] && this[0].innerHTML;
+		return this.empty().append( join( a.charAt ? arguments : a ) );
+	},
+	setClass: function( cls, yes ) {
+		return this[ yes ? 'addClass' : 'removeClass' ]( cls );
+	}
+});
 
 function randomInt( n ) {
 	return Math.floor( Math.random() * n );
@@ -1758,6 +1763,7 @@ var hotStates = [];
 					'* { font-family: Arial,sans-serif; font-size: ', opt.fontsize, '; }',
 					'#outer {}',
 					'.stack-wrapper { width:', ww, 'px; height:', wh, 'px; position:relative; }',
+					'.stack-wide #stack-one { border-right:1px solid #DDD; }',
 					'#eventbar { display:none; }',
 					'#links { margin-bottom:4px; }',
 					'#news { margin-top:4px; padding:4px; }',
@@ -2186,6 +2192,7 @@ function layoutBlocks( tall ) {
 	var $win = $(window), width = $win.width(), height = $win.height();
 	var $one = $('#stack-one'), $two = $('#stack-two'), $three = $('#stack-three');
 	var sw = opt.sidebarWidth, sh = opt.sidebarHeight;
+	$('#stack-wrapper').setClass( 'stack-tall', tall ).setClass( 'stack-wide', ! tall );
 	if( tall ) {
 		css( $one, {
 			height: ''
