@@ -1788,7 +1788,7 @@ var hotStates = [];
 					'.content .contentreporting { margin-bottom:8px; }',
 					'.content .contentreporting * { xfont-size:20px; }',
 					'.content {}',
-					'#content-scroll { overflow:scroll; }',
+					'#content-scroll { overflow:scroll; overflow-x:hidden; }',
 				'</style>'
 			),
 			body: S(
