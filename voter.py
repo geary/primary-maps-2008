@@ -2,6 +2,11 @@
 # coding: utf-8
 
 # voter.py - vote reader for 2008 primaries
+# Copyright (c) 2008 Michael Geary - http://mg.to/
+# Free Beer and Free Speech License (MIT+GPL)
+# http://freebeerfreespeech.org/
+# http://www.opensource.org/licenses/mit-license.php
+# http://www.opensource.org/licenses/gpl-2.0.php
 
 import csv
 import os
