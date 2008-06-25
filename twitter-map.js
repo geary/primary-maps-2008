@@ -268,6 +268,7 @@ function closeInfoTip() {
 
 (function() {
 	var $window = $(window), ww = $window.width(), wh = $window.height();
+	var fh = 20;
 	document.body.scroll = 'no';
 	var html = mapplet ? S(
 		//'<style type="text/css">',
@@ -317,7 +318,7 @@ function closeInfoTip() {
 		'<style type="text/css">',
 			'html, body { margin:0; padding:0; border:0 none; overflow:hidden; height:100%; }',
 			'* { font-family: Arial,sans-serif; font-size: 10pt; }',
-			'#map { width:', ww, 'px; height:', wh, 'px; }',
+			'#map { width:', ww, 'px; height:', wh - fh, 'px; }',
 			'#eventbar { display:none; }',
 			'#links { margin-bottom:4px; }',
 			'#news { margin-top:4px; padding:4px; }',
@@ -330,9 +331,15 @@ function closeInfoTip() {
 			'.credits {}',
 			'.credits .credit { margin-top:8px; }',
 			'.credits .source { margin-left:16px; }',
+			'#footer { width:', ww, 'px; height:', fh, 'px; text-align:center; padding-top:2px; background-color:#FBE6B6; overflow:hidden; }',
+			'#footer, #footer * { font-size:15px; }',
+			'#footer a { font-weight:bold; }',
 		'</style>',
 		'<div id="outer">',
 			'<div id="map">',
+			'</div>',
+			'<div id="footer">',
+				'See more maps in the <a href="http://maps.google.com/elections" target="_blank">Google Maps Elections Gallery</a>',
 			'</div>',
 		'</div>'
 	);
