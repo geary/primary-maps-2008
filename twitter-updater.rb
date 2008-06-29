@@ -47,7 +47,7 @@ class Updater
 	
 	def connect
 		@im = Jabber::Simple.new( Secret::USERNAME, Secret::PASSWORD )
-		print "Sending 'on'\n"
+		#print "Sending 'on'\n"
 		@im.deliver( 'twitter@twitter.com', 'on' )
 		#print "Sending 'track'\n"
 		#@im.deliver( 'twitter@twitter.com', 'track' )
@@ -66,7 +66,7 @@ class Updater
 	end
 	
 	def readupdates
-		print "Loading old tweets\n"
+		#print "Loading old tweets\n"
 		File.open( @JSON, 'r' ) { |f|
 			data = f.read
 			oldUpdates = JSON.parse( data )
@@ -85,7 +85,8 @@ class Updater
 				end
 			}
 			list = oldUpdates.map { |update| update ? update['body'] : '' }.join("\n")
-			print "Loaded #{oldUpdates.length-1} tweets:\n#{list}\n"
+			#print "Loaded #{oldUpdates.length-1} tweets:\n#{list}\n"
+			print "Loaded #{oldUpdates.length-1} tweets\n"
 		}
 	end
 	
