@@ -84,7 +84,7 @@ class Updater
 					user.delete 'message'
 					user.delete 'time'
 					@users[ update['user'] ] = user
-					add update
+					add update, false
 				end
 			}
 			list = oldUpdates.map { |update| update ? update['body'] : '' }.join("\n")
@@ -110,10 +110,10 @@ class Updater
 		print "Done uploading\n"
 	end
 	
-	def add( update )
+	def add( update, save )
 		@updates[ update['body'] ] = update
 		@updatelist.push( update )
-		File.open( @ALLTWEETS, 'a' ) { |f| f.puts update.to_json }
+		File.open( @ALLTWEETS, 'a' ) { |f| f.puts update.to_json } if save
 	end
 	
 	def onemsg( msg )
@@ -150,7 +150,7 @@ class Updater
 			return
 		end
 		print "Posting: #{update['body']}\n"
-		add update
+		add update, true
 		@updatelist.delete_at(0) if @updatelist.length > @MAX_UPDATES
 		writeupdates
 		#if Time.now - @lastwrite > 150
