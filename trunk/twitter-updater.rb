@@ -106,7 +106,7 @@ class Updater
 			:access_key_id     => Secret::S3_KEY,
 			:secret_access_key => Secret::S3_SECRET
 		)
-		AWS::S3::S3Object.store( "twitter/#{@JSON}", open(@JSON), 'elections' )
+		AWS::S3::S3Object.store( "twitter/#{@JSON}", open(@JSON), 'elections', :access => :public_read )
 		print "Done uploading\n"
 	end
 	
