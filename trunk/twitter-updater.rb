@@ -1,3 +1,4 @@
+
 #!/usr/bin/env ruby
 
 # twitter-updater.rb
@@ -15,6 +16,7 @@ require 'election-words'
 require 'banned-words'
 require 'secret'
 
+require 'aws/s3'
 require 'hpricot'
 require 'htmlentities'
 require 'json'
@@ -24,18 +26,19 @@ require 'xmpp4r-simple'
 
 $coder = HTMLEntities.new
 
-class String
-	
-	def fix_json
-		self.sub( /^\[/, "[\n" ).sub( /\]\s*$/, ",\nnull]\n" ).gsub( /"\},\{"/, "\"},\n{\"" )
-	end
-	
-end
+#class String
+#	
+#	def fix_json
+#		self.sub( /^\[/, "[\n" ).sub( /\]\s*$/, ",\nnull]\n" ).gsub( /"\},\{"/, "\"},\n{\"" )
+#	end
+#	
+#end
 
 class Updater
 	
 	def initialize
-		@JSON = '../election-data/tweets/tweets-new.js'
+		@ALLTWEETS = 'tweets-all.txt'
+		@JSON = 'tweets-latest.js'
 		@MAX_UPDATES = 50
 		@lastwrite = Time.now
 		@users = {}
@@ -93,21 +96,24 @@ class Updater
 	def writeupdates
 		#print "Writing updates\n"
 		# Add newlines to JSON output to make it more Subversion-friendly
-		json = @updatelist.to_json.fix_json
-		File.open( @JSON, 'w' ) do |f|
-			f.puts json
-		end
+		json = @updatelist.to_json #.fix_json
+		File.open( @JSON, 'w' ) { |f| f.puts json }
 	end
 	
 	def checkin
-		print "Checking in updates\n"
-		print `svn ci -m "Twitter update" #{@JSON}`
-		print "Done checking in\n"
+		print "Uploading updates to S3\n"
+		AWS::S3::Base.establish_connection!(
+			:access_key_id     => Secret::S3_KEY,
+			:secret_access_key => Secret::S3_SECRET
+		)
+		AWS::S3::S3Object.store( "twitter/#{@JSON}", open(@JSON), 'elections' )
+		print "Done uploading\n"
 	end
 	
 	def add( update )
 		@updates[ update['body'] ] = update
 		@updatelist.push( update )
+		File.open( @ALLTWEETS, 'a' ) { |f| f.puts update.to_json }
 	end
 	
 	def onemsg( msg )
@@ -147,11 +153,11 @@ class Updater
 		add update
 		@updatelist.delete_at(0) if @updatelist.length > @MAX_UPDATES
 		writeupdates
-		if Time.now - @lastwrite > 150
+		#if Time.now - @lastwrite > 150
 			@lastwrite = Time.now
 			checkin
 			@exit = true
-		end
+		#end
 	end
 	
 	def getuser( username, author )
