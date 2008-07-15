@@ -385,8 +385,7 @@ function imgUrl( name ) {
 $(window).bind( 'load', load ).bind( 'onunload', GUnload );
 
 function loadTwitter() {
-	//var url = 'http://primary-maps-2008-data.googlecode.com/svn/trunk/tweets/tweets.js?t=' + new Date().getTime();
-	var url = 'http://primary-maps-2008-data.googlecode.com/svn/trunk/tweets/tweets-new.js';
+	var url = 'http://elections.s3.amazonaws.com/twitter/tweets-latest.js';
 	_IG_FetchContent( url, function( t ) {
 		window.tweets = eval( '(' + t + ')' );
 		//var list = [], markers = [];
