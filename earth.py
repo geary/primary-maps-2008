@@ -59,9 +59,9 @@ def makeKML( region, party ):
 			</Document>
 		</kml>
 	''',
-		looklat = '20',
-		looklng = '-110',
-		range = '2000000',
+		looklat = '40',
+		looklng = '-108',
+		range = '5000000',
 		tilt = '55',
 		partyname = partyName( party ),
 		placemarks = makePlacemarksKML( region, places, party, votes )
@@ -79,6 +79,7 @@ def makePlacemarksKML( region, places, party, votes ):
 def makePlacemarkKML( place, party, votes ):
 	return T('''
 		<Placemark>
+			<name>%(name)s</name>
 			<MultiGeometry>
 				<Point>
 					<coordinates>%(centroid)s</coordinates>
@@ -104,9 +105,10 @@ def makePlacemarkKML( place, party, votes ):
 			</Style>
 		</Placemark>
 	''',
+		name = place['name'],
 		centroid = coord( place['centroid'] ),
 		icon = 'http://gmaps-samples.googlecode.com/svn/trunk/elections/2008/images/icons/obama-border.png', ###
-		polys = makePolygonsKML,
+		polys = makePolygonsKML( place['shapes'] ),
 		bordercolor = '808080', ###
 		fillcolor = '90B0D0', ###
 		balloon = 'balloon!'
@@ -115,16 +117,19 @@ def makePlacemarkKML( place, party, votes ):
 def makePolygonsKML( polys ):
 	xml = []
 	for poly in polys:
+		points = poly['points']
+		coords = [ coord(point) for point in points ]
+		coords.append( coord(points[0]) )  # Repeat first point
 		xml.append( T('''
 			<Polygon>
 				<outerBoundaryIs>
 					<LinearRing>
-						<coordinates>$(vertices)s</coordinates>
+						<coordinates>%(vertices)s</coordinates>
 					</LinearRing>
 				</outerBoundaryIs>
 			</Polygon>
 		''',
-			vertices = ' '.join([ coord(point) for point in polys ])
+			vertices = ' '.join(coords)
 		) )
 	return ''.join(xml)
 
@@ -251,7 +256,7 @@ def makeJson( party ):
 	)
 
 def coord( point ):
-	return str(point[1]) + ',' + str(point[0]) + ',0'
+	return str(point[0]) + ',' + str(point[1]) + ',0'
 
 def getColor( county, party ):
 	leader = getLeader( county, party )
