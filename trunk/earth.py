@@ -109,8 +109,8 @@ def makePlacemarkKML( place, party, votes ):
 		centroid = coord( place['centroid'] ),
 		icon = 'http://gmaps-samples.googlecode.com/svn/trunk/elections/2008/images/icons/obama-border.png', ###
 		polys = makePolygonsKML( place['shapes'] ),
-		bordercolor = '808080', ###
-		fillcolor = '90B0D0', ###
+		bordercolor = '80808000', ###
+		fillcolor = '90B0D020', ###
 		balloon = 'balloon!'
 	)
 
