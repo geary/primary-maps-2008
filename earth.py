@@ -9,6 +9,8 @@ iconBaseUrl = 'http://gmaps-samples.googlecode.com/svn/trunk/elections/2008/imag
 
 import re
 
+from candidates import candidates
+
 def T( text, **values ):
 	return re.sub( '(^\n*|\n+)[ \t]*', '', text % values )
 
@@ -45,13 +47,14 @@ def makeKML( region, party ):
 		<?xml version="1.0" encoding="utf-8" ?>
 		<kml xmlns="http://earth.google.com/kml/2.0">
 			<Document>
+				<name>US %(partyname)s Primary</name>
 				<LookAt>
 					<latitude>%(looklat)s</latitude>
 					<longitude>%(looklng)s</longitude>
 					<range>%(range)s</range>
 					<tilt>%(tilt)s</tilt>
+					<heading>0</heading>
 				</LookAt>
-				<name>US %(partyname)s Primary</name>
 				<Folder>
 					<name>States</name>
 					%(placemarks)s
@@ -60,7 +63,7 @@ def makeKML( region, party ):
 		</kml>
 	''',
 		looklat = '40',
-		looklng = '-108',
+		looklng = '-100',
 		range = '5000000',
 		tilt = '55',
 		partyname = partyName( party ),
@@ -77,13 +80,19 @@ def makePlacemarksKML( region, places, party, votes ):
 	return ''.join(marks)
 
 def makePlacemarkKML( place, party, votes ):
+	vote = votes['votes'][0]
+	altitude = vote['votes'] / 2 + 10000
+	name = vote['name']
+	candidate = candidates['byname'][name]
 	return T('''
 		<Placemark>
 			<name>%(name)s</name>
 			<MultiGeometry>
+<!--
 				<Point>
 					<coordinates>%(centroid)s</coordinates>
 				</Point>
+-->
 				%(polys)s
 			</MultiGeometry>
 			<Style>
@@ -106,22 +115,25 @@ def makePlacemarkKML( place, party, votes ):
 		</Placemark>
 	''',
 		name = place['name'],
-		centroid = coord( place['centroid'] ),
-		icon = 'http://gmaps-samples.googlecode.com/svn/trunk/elections/2008/images/icons/obama-border.png', ###
-		polys = makePolygonsKML( place['shapes'] ),
-		bordercolor = '80808000', ###
-		fillcolor = '90B0D020', ###
+		centroid = coord( place['centroid'], altitude ),
+		icon = 'http://gmaps-samples.googlecode.com/svn/trunk/elections/2008/images/icons/%s-border.png' % name,
+		polys = makePolygonsKML( place['shapes'], altitude ),
+		bordercolor = '80000000',
+		fillcolor = 'C0' + bgr(candidate['color']),
 		balloon = 'balloon!'
 	)
 
-def makePolygonsKML( polys ):
+def makePolygonsKML( polys, altitude ):
 	xml = []
 	for poly in polys:
 		points = poly['points']
-		coords = [ coord(point) for point in points ]
-		coords.append( coord(points[0]) )  # Repeat first point
+		coords = [ coord(points[0],altitude) ]  # Repeat first point
+		for i in xrange( len(points)-1, -1, -1 ):
+			coords.append( coord(points[i],altitude) )
 		xml.append( T('''
 			<Polygon>
+				<extrude>1</extrude>
+				<altitudeMode>relativeToGround</altitudeMode> 
 				<outerBoundaryIs>
 					<LinearRing>
 						<coordinates>%(vertices)s</coordinates>
@@ -255,24 +267,11 @@ def makeJson( party ):
 		'Json.%sResults(%s)' %( party, json(result) )
 	)
 
-def coord( point ):
-	return str(point[0]) + ',' + str(point[1]) + ',0'
+def coord( point, altitude='0' ):
+	return ','.join(( str(point[0]), str(point[1]), str(altitude) ))
 
-def getColor( county, party ):
-	leader = getLeader( county, party )
-	if not leader:
-		return '00000000';
-	else:
-		return 'C0' + bgr( leader['color'] )
-
-def getLeader( county, party ):
-	tally = county.get(party)
-	if tally == None  or  len(tally) == 0:
-		return None
-	return reader.candidates['byname'][party][ tally[0]['name'] ]
-
-def bgr( rgb ):
-	return rgb[5:7] + rgb[3:5] + rgb[1:3]
+def bgr( hrgb ):
+	return hrgb[5:7] + hrgb[3:5] + hrgb[1:3]
 
 def htmlBalloon( county, party ):
 	return T('''
