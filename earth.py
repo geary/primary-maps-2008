@@ -47,7 +47,7 @@ def makeKML( region, party ):
 		<?xml version="1.0" encoding="utf-8" ?>
 		<kml xmlns="http://earth.google.com/kml/2.0">
 			<Document>
-				<name>US %(partyname)s Primary</name>
+				<name>2008 %(partyname)s Primary</name>
 				<LookAt>
 					<latitude>%(looklat)s</latitude>
 					<longitude>%(looklng)s</longitude>
