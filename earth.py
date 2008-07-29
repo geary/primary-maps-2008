@@ -47,6 +47,7 @@ def makeKML( region, party ):
 		<?xml version="1.0" encoding="utf-8" ?>
 		<kml xmlns="http://earth.google.com/kml/2.0">
 			<Document>
+				<open>1</open>
 				<name>2008 %(partyname)s Primary</name>
 				<LookAt>
 					<latitude>%(looklat)s</latitude>
@@ -56,8 +57,12 @@ def makeKML( region, party ):
 					<heading>0</heading>
 				</LookAt>
 				<Folder>
-					<name>States</name>
-					%(placemarks)s
+					<name>Elevated States</name>
+					%(elevatedstates)s
+				</Folder>
+				<Folder>
+					<name>State Pins and Info</name>
+					%(elevatedpins)s
 				</Folder>
 			</Document>
 		</kml>
@@ -67,19 +72,20 @@ def makeKML( region, party ):
 		range = '5000000',
 		tilt = '55',
 		partyname = partyName( party ),
-		placemarks = makePlacemarksKML( region, places, party, votes )
+		elevatedstates = makePlacemarksKML( makeElevatedStateKML, region, places, party, votes ),
+		elevatedpins = makePlacemarksKML( makePinKML, region, places, party, votes )
 	)
 
-def makePlacemarksKML( region, places, party, votes ):
+def makePlacemarksKML( maker, region, places, party, votes ):
 	marks = []
 	for place in places:
 		locals = votes['locals']
 		name = place['name']
 		if name in locals:
-			marks.append( makePlacemarkKML( place, party, locals[name] ) )
+			marks.append( maker( place, party, locals[name] ) )
 	return ''.join(marks)
 
-def makePlacemarkKML( place, party, votes ):
+def makeElevatedStateKML( place, party, votes ):
 	vote = votes['votes'][0]
 	altitude = vote['votes'] / 2 + 10000
 	name = vote['name']
@@ -88,13 +94,40 @@ def makePlacemarkKML( place, party, votes ):
 		<Placemark>
 			<name>%(name)s</name>
 			<MultiGeometry>
-<!--
-				<Point>
-					<coordinates>%(centroid)s</coordinates>
-				</Point>
--->
 				%(polys)s
 			</MultiGeometry>
+			<Style>
+				<LineStyle>
+					<color>%(bordercolor)s</color>
+					<width>1</width>
+				</LineStyle>
+				<PolyStyle>
+					<color>%(fillcolor)s</color>
+				</PolyStyle>
+				<BalloonStyle>
+					<displayMode>hide</displayMode>
+				</BalloonStyle>
+			</Style>
+		</Placemark>
+	''',
+		name = place['name'],
+		polys = makePolygonsKML( place['shapes'], altitude ),
+		bordercolor = '80000000',
+		fillcolor = 'C0' + bgr(candidate['color'])
+	)
+
+def makePinKML( place, party, votes ):
+	vote = votes['votes'][0]
+	altitude = vote['votes'] / 2 + 10000
+	name = vote['name']
+	candidate = candidates['byname'][name]
+	return T('''
+		<Placemark>
+			<name>%(name)s</name>
+			<Point>
+				<altitudeMode>relativeToGround</altitudeMode> 
+				<coordinates>%(centroid)s</coordinates>
+			</Point>
 			<Style>
 				<IconStyle>
 					<Icon>
@@ -104,23 +137,13 @@ def makePlacemarkKML( place, party, votes ):
 				<BalloonStyle>
 					<text>%(balloon)s</text>
 				</BalloonStyle>
-				<LineStyle>
-					<color>%(bordercolor)s</color>
-					<width>1</width>
-				</LineStyle>
-				<PolyStyle>
-					<color>%(fillcolor)s</color>
-				</PolyStyle>
 			</Style>
 		</Placemark>
 	''',
 		name = place['name'],
 		centroid = coord( place['centroid'], altitude ),
 		icon = 'http://gmaps-samples.googlecode.com/svn/trunk/elections/2008/images/icons/%s-border.png' % name,
-		polys = makePolygonsKML( place['shapes'], altitude ),
-		bordercolor = '80000000',
-		fillcolor = 'C0' + bgr(candidate['color']),
-		balloon = 'balloon!'
+		balloon = place['name'] + ' temp balloon!'
 	)
 
 def makePolygonsKML( polys, altitude ):
