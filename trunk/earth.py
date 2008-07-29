@@ -143,7 +143,7 @@ def makePinKML( place, party, votes ):
 		name = place['name'],
 		centroid = coord( place['centroid'], altitude ),
 		icon = 'http://gmaps-samples.googlecode.com/svn/trunk/elections/2008/images/icons/%s-border.png' % name,
-		balloon = place['name'] + ' temp balloon!'
+		balloon = htmlBalloon( place, party, votes )
 	)
 
 def makePolygonsKML( polys, altitude ):
@@ -174,31 +174,33 @@ def coord( point, altitude='0' ):
 def bgr( hrgb ):
 	return hrgb[5:7] + hrgb[3:5] + hrgb[1:3]
 
-def htmlBalloon( county, party ):
+def htmlBalloon( place, party, votes ):
 	return T('''
-		<div style="font-weight:bold;">
-			%(placename)s
-		</div>
-		<div>
-			2008 %(party)s Primary
-		</div>
-		<table>
-			%(tally)s
-		</table>
+		<![CDATA[
+			<div style="font-weight:bold;">
+				%(placename)s
+			</div>
+			<div>
+				2008 %(party)s Primary
+			</div>
+			<table>
+				%(tally)s
+			</table>
+		]]>
 	''',
 		placename = place['name'],
 		party = partyName( party ),
-		tally = htmlBalloonTally( county, party )
+		tally = htmlBalloonTally( place, party, votes )
 	)
 
-def htmlBalloonTally( county, party ):
-	tally = county.get(party)
-	if tally == None  or  len(tally) == 0:
+def htmlBalloonTally( place, party, votes ):
+	list = votes.get('votes')
+	if list == None  or  len(list) == 0:
 		return '<tr><td>No votes reported</td></tr>'
-	return ''.join([ htmlBalloonTallyRow(party,who) for who in tally ])
+	return ''.join([ htmlBalloonTallyRow(party,vote) for vote in list ])
 
-def htmlBalloonTallyRow( party, who ):
-	candidate = reader.candidates['byname'][party][ who['name'] ]
+def htmlBalloonTallyRow( party, vote ):
+	candidate = candidates['byname'][ vote['name'] ]
 	return T('''
 		<tr>
 			<td style="text-align:right; width:1%%;">
@@ -221,9 +223,9 @@ def htmlBalloonTallyRow( party, who ):
 			</td>
 		</tr>
 	''',
-		votes = formatNumber( who['votes'] ),
+		votes = formatNumber( vote['votes'] ),
 		color = candidate['color'],
-		img = iconBaseUrl + who['name'] + '-border.png',
+		img = iconBaseUrl + vote['name'] + '-border.png',
 		name =candidate['fullName']
 	)
 
