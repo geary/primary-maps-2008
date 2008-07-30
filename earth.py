@@ -5,9 +5,8 @@
 shapespath = '../election-data/shapes/detailed'
 votespath = '../election-data/votes'
 
-iconBaseUrl = 'http://gmaps-samples.googlecode.com/svn/trunk/elections/2008/images/icons/'
-
 import re
+import zipfile
 
 from candidates import candidates
 
@@ -29,6 +28,14 @@ def readJSONP( path ):
 	exec re.sub( '^.+\(', 'data = (', readFile(path) )
 	return data
 
+def getIcon( party, candidate ):
+	if candidate['name'] == 'uncommitted-d':
+		pass
+	name = 'blank'
+	if candidate.get( 'icon', True ):
+		name = candidate['name']
+	return 'files/%s-border.png' % name
+	
 def getData( region, party ):
 	print 'Reading %s %s' %( region, party )
 	shapes = readJSONP( '%s/%s.js' %( shapespath, region ) )
@@ -38,7 +45,7 @@ def getData( region, party ):
 
 def generateKML( region, party ):
 	kml = makeKML( region, party )
-	path = 'earth-%s-%s.kml' %( region, party )
+	path = 'kmz/%s/doc.kml' % party
 	writeFile( path, kml )
 
 def makeKML( region, party ):
@@ -142,7 +149,7 @@ def makePinKML( place, party, votes ):
 	''',
 		name = place['name'],
 		centroid = coord( place['centroid'], altitude ),
-		icon = 'http://gmaps-samples.googlecode.com/svn/trunk/elections/2008/images/icons/%s-border.png' % name,
+		icon = getIcon( party, candidate ),
 		balloon = htmlBalloon( place, party, votes )
 	)
 
@@ -214,7 +221,7 @@ def htmlBalloonTallyRow( party, vote ):
 				</div>
 			</td>
 			<td style="width:1%%;">
-				<img style="height:16px; width:16px; margin: 1px 4px 1px 1px;" src="%(img)s" />
+				<img style="height:16px; width:16px; margin: 1px 4px 1px 1px;" src="%(icon)s" />
 			</td>
 			<td>
 				<div>
@@ -225,8 +232,8 @@ def htmlBalloonTallyRow( party, vote ):
 	''',
 		votes = formatNumber( vote['votes'] ),
 		color = candidate['color'],
-		img = iconBaseUrl + vote['name'] + '-border.png',
-		name =candidate['fullName']
+		icon = getIcon( party, candidate ),
+		name = candidate['fullName']
 	)
 
 def partyName( party ):
