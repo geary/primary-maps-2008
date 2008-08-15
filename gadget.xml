@@ -19,8 +19,8 @@
 >
 </ModulePrefs>
 
-<UserPref name="state" default_value="zz" datatype="enum" display_name="State">
-	<EnumValue value="zz" display_value="Current Primary States"/>
+<UserPref name="state" default_value="us" datatype="enum" display_name="State">
+	<!--<EnumValue value="zz" display_value="Current Primary States"/>-->
 	<EnumValue value="us" display_value="USA"/>
 	<EnumValue value="al" display_value="Alabama"/>
 	<EnumValue value="ak" display_value="Alaska"/>
