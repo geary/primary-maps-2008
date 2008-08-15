@@ -2221,7 +2221,7 @@ function layoutBlocks( tall ) {
 			height: ( height - sh ) + 'px'
 		});
 	}
-	$('#stateSelector,#stateInfoSelector').width( sw - $('#stateSelector').offset().left - 6 );
+	$('#stateSelector,#stateInfoSelector').width( sw - $('#stateInfoSelector').offset().left - 6 );
 	var $cs = $('#content-scroll');
 	$cs[0] && $cs.height( $('#stack-two').height() - $cs[0].offsetTop );
 }
@@ -3128,7 +3128,6 @@ function loadInfo() {
 	else
 		$('#partyButtons').hide();
 	var html = infoHtml[opt.infoType]();
-	//debugger;
 	$('#content-one').html( html.one );
 	$('#content-two').html( html.two );
 	adjustHeight();
