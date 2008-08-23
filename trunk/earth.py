@@ -5,10 +5,13 @@
 shapespath = '../election-data/shapes/detailed'
 votespath = '../election-data/votes'
 
+import locale
 import re
 import zipfile
 
 from earth_candidates import candidates
+
+locale.setlocale( locale.LC_ALL, '' )
 
 def T( text, **values ):
 	return re.sub( '(^\n*|\n+)[ \t]*', '', text % values )
@@ -186,15 +189,39 @@ def bgr( hrgb ):
 def htmlBalloon( place, party, votes ):
 	return T('''
 		<![CDATA[
-			<div style="font-weight:bold;">
-				%(placename)s
-			</div>
-			<div>
-				2008 %(party)s Primary
-			</div>
-			<table>
-				%(tally)s
-			</table>
+			<font size=5>
+				<div>
+					<b>%(placename)s</b>
+				</div>
+				<div>
+					2008 %(party)s Primary
+				</div>
+			</font>
+			<font size=4>
+				<table>
+					<thead>
+						<tr>
+							<td align=right>
+								<b>Delegates</b>
+								&nbsp;
+							</td>
+							<td align=right>
+								<b>Votes</b>
+								&nbsp;
+							</td>
+							<td>
+								&nbsp;
+							</td>
+							<td>
+								<b>Candidate</b>
+							</td>
+						</tr>
+					</thead>
+					<tbody>
+						%(tally)s
+					</tbody>
+				</table>
+			</font>
 		]]>
 	''',
 		placename = place['name'],
@@ -212,37 +239,36 @@ def htmlBalloonTallyRow( party, vote ):
 	candidate = candidates['byname'][ vote['name'] ]
 	return T('''
 		<tr>
-			<td style="text-align:right; width:1%%;">
-				<div style="margin-right:4px;">
-					%(votes)s
-				</div>
+			<td align=right>
+				%(delegates)s
+				&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 			</td>
-			<td style="width:1%%">
-				<div style="height:18px; width:18px; border:1px solid #888888; background-color:%(color)s; margin-right:4px;">
-					&nbsp;
-				</div>
-			</td>
-			<td style="width:1%%;">
-				<img style="height:16px; width:16px; margin: 1px 4px 1px 1px;" src="%(icon)s" />
+			<td align=right>
+				%(votes)s
+				&nbsp;
 			</td>
 			<td>
-				<div>
-					%(name)s
-				</div>
+				<img width=18 height=18 src="%(icon)s" />
+				&nbsp;
+			</td>
+			<td>
+				%(name)s
 			</td>
 		</tr>
 	''',
 		votes = formatNumber( vote['votes'] ),
+		delegates = formatNumber( vote.get( 'delegates', ' ' ) ),
 		color = candidate['color'],
 		icon = getIcon( party, candidate ),
-		name = candidate['fullName']
+		name = candidate['fullName'].replace( ' ', '&nbsp;' )
 	)
 
 def partyName( party ):
 	return { 'dem':'Democratic', 'gop':'Republican' }[ party ]
 
 def formatNumber( number ):
-	return str(number)
+	if number == ' ': return number
+	return locale.format( '%d', int(number), True )
 
 def write( name, text ):
 	print 'Writing ' + name
