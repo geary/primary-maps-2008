@@ -8,7 +8,7 @@ votespath = '../election-data/votes'
 import re
 import zipfile
 
-from candidates import candidates
+from earth_candidates import candidates
 
 def T( text, **values ):
 	return re.sub( '(^\n*|\n+)[ \t]*', '', text % values )
@@ -43,6 +43,14 @@ def getData( region, party ):
 	votes = readJSONP( '%s/%s_%s.js' %( votespath, region, party ) )
 	return places, votes
 
+def getCandidateAltitude( votes ):
+	first = votes['votes'][0]
+	second = votes['votes'][1]
+	altitude = ( first['votes'] - second['votes'] ) * 2.25 + 10000
+	name = first['name']
+	candidate = candidates['byname'][name]
+	return candidate, altitude
+	
 def generateKML( region, party ):
 	kml = makeKML( region, party )
 	path = 'kmz/%s/doc.kml' % party
@@ -75,7 +83,7 @@ def makeKML( region, party ):
 		</kml>
 	''',
 		looklat = '40',
-		looklng = '-100',
+		looklng = '-98',
 		range = '5000000',
 		tilt = '55',
 		partyname = partyName( party ),
@@ -93,10 +101,7 @@ def makePlacemarksKML( maker, region, places, party, votes ):
 	return ''.join(marks)
 
 def makeElevatedStateKML( place, party, votes ):
-	vote = votes['votes'][0]
-	altitude = vote['votes'] / 2 + 10000
-	name = vote['name']
-	candidate = candidates['byname'][name]
+	candidate, altitude = getCandidateAltitude( votes )
 	return T('''
 		<Placemark>
 			<name>%(name)s</name>
@@ -124,10 +129,7 @@ def makeElevatedStateKML( place, party, votes ):
 	)
 
 def makePinKML( place, party, votes ):
-	vote = votes['votes'][0]
-	altitude = vote['votes'] / 2 + 10000
-	name = vote['name']
-	candidate = candidates['byname'][name]
+	candidate, altitude = getCandidateAltitude( votes )
 	return T('''
 		<Placemark>
 			<name>%(name)s</name>
