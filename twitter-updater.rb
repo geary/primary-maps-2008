@@ -1,4 +1,3 @@
-
 #!/usr/bin/env ruby
 
 # twitter-updater.rb
@@ -17,12 +16,15 @@ require 'banned-words'
 require 'secret'
 
 require 'aws/s3'
+require 'cgi'
 require 'hpricot'
 require 'htmlentities'
 require 'json'
-require 'net/http'
+#require 'net/http'
+require 'open-uri'
 require 'time'
-require 'xmpp4r-simple'
+
+INFINITY = 1.0 / 0
 
 $coder = HTMLEntities.new
 
@@ -44,27 +46,15 @@ class Updater
 		@users = {}
 		@updates = {}
 		@updatelist = []
-		@exit = false
-		@skiptimes = 0
+		@max_id = INFINITY
 	end
 	
-	def connect
-		@im = Jabber::Simple.new( Secret::USERNAME, Secret::PASSWORD )
-		#print "Sending 'on'\n"
-		@im.deliver( 'twitter@twitter.com', 'on' )
-		#print "Sending 'track'\n"
-		#@im.deliver( 'twitter@twitter.com', 'track' )
-	end
-	
-	def run
-		until @exit
-			begin
-				receive
-				sleep 3
-			rescue
-				backtrace = $!.backtrace.join("\n")
-				print "\n\nEXCEPTION! #{$!}:\n#{backtrace}\n\n\n"
-			end
+	def getupdates
+		begin
+			receive
+		rescue
+			backtrace = $!.backtrace.join("\n")
+			print "\n\nEXCEPTION! #{$!}:\n#{backtrace}\n\n\n"
 		end
 	end
 	
@@ -117,32 +107,20 @@ class Updater
 	end
 	
 	def onemsg( msg )
+		body = msg['text']
+		username = msg['from_user']
 		#print "#{msg.body}\n"
-		return if msg.type != :chat or msg.from != 'twitter@twitter.com' or @updates[msg.body]
-		body = msg.body
-		if ! Search.search(body)
-			@skipped += 1
-			#print "Skipped: #{body}\n"
-			return
-		end
-		if Banned.banned(body)
+		if Banned.banned(body) or Banned.banned(username)
 			@blocked += 1
-			print "Blocked: #{body}\n"
+			print "Blocked: #{username}: #{body}\n"
 			return
 		end
-		match = /^(.*):(.*)$/.match(body)
-		return if not match
-		username = match[1].strip
-		message = match[2].strip
-		doc = Hpricot::XML(msg.to_s)
-		author = (doc/:author/:name).text
 		# TODO: make a user object
-		user = getuser( username, author )
+		user = getuser( username )
 		return if not user
 		update = {
 			'body' => $coder.decode(body),
-			'message' => $coder.decode(message),
-			'time' => Time.xmlschema( (doc/:published).text ).to_i
+			'time' => Time.rfc2822( msg['created_at'] ).to_i
 		}.merge( user )
 		if Banned.banned( update['where'] )
 			@blocked += 1
@@ -153,34 +131,35 @@ class Updater
 		add update, true
 		@updatelist.delete_at(0) if @updatelist.length > @MAX_UPDATES
 		writeupdates
-		#if Time.now - @lastwrite > 150
-			@lastwrite = Time.now
-			checkin
-			@exit = true
-		#end
+		#checkin
 	end
 	
-	def getuser( username, author )
+	def getuser( username )
 		if not @users[username]
-			#print "Getting twittervision user #{username}\n"
-			http = Net::HTTP.new( 'twittervision.com' )
-			headers, body = http.get( "/user/current_status/#{username}.xml" )
-			if headers.code == '200'
-				tv = Hpricot::XML(body)
-				loc = (tv/:location)
-				lat = (loc/:latitude).text
-				lon = (loc/:longitude).text
-				if lat != '' and lon != ''
-					@users[username] = {
-						'user' => username,
-						'author' => author,
-						'name' => (tv/:name).text,
-						'image' => (tv/'profile-image-url').text,
-						'lat' => (loc/:latitude).text,
-						'lon' => (loc/:longitude).text,
-						'where' => (tv/'current-location').text,
-						'status' => 0
-					}
+			print "Getting twittervision user #{username}\n"
+			open "http://twittervision.com/user/current_status/#{username}.xml" do |f|
+				print "Received twittervision user #{username}, status = #{f.status.inspect}\n"
+				if f.status[0] == '200'
+					xml = f.read
+					print "#{xml}\n"
+					tv = Hpricot::XML(xml)
+					loc = (tv/:location)
+					lat = (loc/:latitude).text
+					lon = (loc/:longitude).text
+					if lat != '' and lon != ''
+						print "Saving twittervision user #{username}\n"
+						@users[username] = {
+							'user' => username,
+							'name' => (tv/:name).text,
+							'image' => (tv/'profile-image-url').text,
+							'lat' => (loc/:latitude).text,
+							'lon' => (loc/:longitude).text,
+							'where' => (tv/'current-location').text,
+							'status' => 0
+						}
+					else
+						print "No lat/long for twittervision user #{username}\n"
+					end
 				end
 			end
 		end
@@ -190,24 +169,44 @@ class Updater
 	def receive
 		#print "Start receive\n"
 		@skipped = @blocked = 0
-		@im.received_messages do |msg|
-			#print "Got msg\n"
+		queries do |query|
+			url = 'http://search.twitter.com/search.json?rpp=5&q=' + CGI.escape(query)
+			print "#{query}\n#{url}\n"
+			open url do |f|
+				body = f.read
+				print "\n"
+				print body
+				print "\n\n"
+				process JSON.parse( body )
+			end
+		end
+		print "max_id = #{@max_id}\n"
+		#msg = ", blocked #{@blocked}" if @blocked > 0
+		#print msg + "\n"
+	end
+	
+	def process( json )
+		@max_id = [ @max_id, json['max_id'] ].min
+		json['results'].each do |msg|
 			onemsg msg
 		end
-		if @skipped > 0
-			@skiptimes = 0
-		else
-			@skiptimes += 1
+	end
+	
+	def queries
+		query = ''
+		ElectionWords::WORDS.strip().split(/\n/).each do |word|
+			more = ( query == '' ? '' : ' OR ' ) + word
+			if query.length + more.length > 140
+				yield query
+				query = word
+			end
+			query += more
 		end
-		times = @skiptimes > 0 ? " (#{@skiptimes})" : ''
-		msg = "Skipped #{@skipped}#{times}"
-		msg += ", blocked #{@blocked}" if @blocked > 0
-		print msg + "\n"
+		yield query if query != ''
 	end
 	
 end
 
 updater = Updater.new
-updater.readupdates
-updater.connect
-updater.run
+#updater.readupdates
+updater.getupdates
