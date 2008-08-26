@@ -1,7 +1,4 @@
-module Search
-	def Search.search( text )
-		!!( SEARCH =~ ' ' + text + ' ' )
-	end
+module ElectionWords
 	
 	WORDS = <<END
 barack
@@ -15,11 +12,8 @@ clinton
 democrat
 democratic
 democrats
-dodd
-edwards
 election
 elections
-giuliani
 gop
 hillary
 huckabee
@@ -29,14 +23,7 @@ obama
 republican
 republicans
 romney
-ron paul
-super tuesday
-tancredo
+"ron paul"
 END
 
-	SEARCH = Regexp.new( '(^|\\W)('+ WORDS.strip().gsub( /\n/, '|' ) + ')(\\W|$)', Regexp::IGNORECASE )
-	
 end
-
-#p Search.search( 'test' )
-#p Search.search( 'voter' )
