@@ -131,12 +131,13 @@ class Updater
 		add update, true
 		@updatelist.delete_at(0) if @updatelist.length > @MAX_UPDATES
 		writeupdates
-		#checkin
+		checkin
 	end
 	
 	def getuser( username )
 		if not @users[username]
 			print "Getting twittervision user #{username}\n"
+			sleep 5
 			open "http://twittervision.com/user/current_status/#{username}.xml" do |f|
 				print "Received twittervision user #{username}, status = #{f.status.inspect}\n"
 				if f.status[0] == '200'
@@ -168,7 +169,7 @@ class Updater
 	
 	def receive
 		#print "Start receive\n"
-		@skipped = @blocked = 0
+		@blocked = 0
 		queries do |query|
 			url = 'http://search.twitter.com/search.json?rpp=5&q=' + CGI.escape(query)
 			print "#{query}\n#{url}\n"
@@ -208,5 +209,5 @@ class Updater
 end
 
 updater = Updater.new
-#updater.readupdates
+updater.readupdates
 updater.getupdates
