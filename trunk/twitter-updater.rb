@@ -80,7 +80,7 @@ class Updater
 			list = oldUpdates.map { |update| update ? update['body'] : '' }.join("\n")
 			#print "Loaded #{oldUpdates.length-1} tweets:\n#{list}\n"
 			print "Loaded #{oldUpdates.length-1} tweets\n"
-			sleep 5
+			sleep 2
 		}
 	end
 	
@@ -151,15 +151,18 @@ class Updater
 					lon = (loc/:longitude).text
 					if lat != '' and lon != ''
 						print "Saving twittervision user #{username}\n"
-						@users[username] = {
+						image = (tv/'profile-image-url').text
+						image = '' if open(image).status[0] != '200'
+						@users[username] = user = {
 							'user' => username,
 							'name' => (tv/:name).text,
-							'image' => (tv/'profile-image-url').text,
 							'lat' => (loc/:latitude).text,
 							'lon' => (loc/:longitude).text,
 							'where' => (tv/'current-location').text,
 							'status' => 0
 						}
+						print "image: #{ image == '' ? 'None' : image }\n"
+						user['image'] = image if image != ''
 					else
 						print "No lat/long for twittervision user #{username}\n"
 					end
