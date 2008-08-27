@@ -80,6 +80,7 @@ class Updater
 			list = oldUpdates.map { |update| update ? update['body'] : '' }.join("\n")
 			#print "Loaded #{oldUpdates.length-1} tweets:\n#{list}\n"
 			print "Loaded #{oldUpdates.length-1} tweets\n"
+			sleep 5
 		}
 	end
 	
@@ -108,6 +109,7 @@ class Updater
 	
 	def onemsg( msg )
 		body = msg['text']
+		return if @updates[body]
 		username = msg['from_user']
 		#print "#{msg.body}\n"
 		if Banned.banned(body) or Banned.banned(username)
@@ -137,7 +139,7 @@ class Updater
 	def getuser( username )
 		if not @users[username]
 			print "Getting twittervision user #{username}\n"
-			sleep 5
+			sleep 2.5
 			open "http://twittervision.com/user/current_status/#{username}.xml" do |f|
 				print "Received twittervision user #{username}, status = #{f.status.inspect}\n"
 				if f.status[0] == '200'
@@ -171,7 +173,7 @@ class Updater
 		#print "Start receive\n"
 		@blocked = 0
 		queries do |query|
-			url = 'http://search.twitter.com/search.json?rpp=5&q=' + CGI.escape(query)
+			url = 'http://search.twitter.com/search.json?rpp=100&q=' + CGI.escape(query)
 			print "#{query}\n#{url}\n"
 			open url do |f|
 				body = f.read
