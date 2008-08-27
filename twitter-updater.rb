@@ -142,7 +142,7 @@ class Updater
 				print "Received twittervision user #{username}, status = #{f.status.inspect}\n"
 				if f.status[0] == '200'
 					xml = f.read
-					print "#{xml}\n"
+					#print "#{xml}\n"
 					tv = Hpricot::XML(xml)
 					loc = (tv/:location)
 					lat = (loc/:latitude).text
