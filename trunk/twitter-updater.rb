@@ -138,7 +138,7 @@ class Updater
 	def getuser( username )
 		if not @users[username]
 			print "Getting twittervision user #{username}\n"
-			sleep 5
+			sleep 2
 			open "http://twittervision.com/user/current_status/#{username}.xml" do |f|
 				print "Received twittervision user #{username}, status = #{f.status.inspect}\n"
 				if f.status[0] == '200'
@@ -151,7 +151,11 @@ class Updater
 					if lat != '' and lon != ''
 						#print "Saving twittervision user #{username}\n"
 						image = (tv/'profile-image-url').text
-						image = '' if open(image).status[0] != '200'
+						begin
+							image = '' if open(CGI.escape(image)).status[0] != '200'
+						rescue
+							image = ''
+						end
 						@users[username] = user = {
 							'user' => username,
 							'name' => (tv/:name).text,
