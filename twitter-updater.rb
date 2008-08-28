@@ -41,6 +41,7 @@ class Updater
 	def initialize
 		@ALLTWEETS = 'tweets-all.txt'
 		@JSON = 'tweets-latest.js'
+		@TWEETMAX = 'tweets-max.txt'
 		@MAX_UPDATES = 50
 		@lastwrite = Time.now
 		@users = {}
@@ -66,18 +67,16 @@ class Updater
 			oldUpdates.each { |update|
 				if update
 					# temp
-					update['body'] = $coder.decode( update['body'] )
 					update['message'] = $coder.decode( update['message'] )
 					# TODO: make a user object
 					user = update.dup
-					user.delete 'body'
 					user.delete 'message'
 					user.delete 'time'
 					@users[ update['user'] ] = user
 					add update, false
 				end
 			}
-			list = oldUpdates.map { |update| update ? update['body'] : '' }.join("\n")
+			list = oldUpdates.map { |update| update ? update['message'] : '' }.join("\n")
 			#print "Loaded #{oldUpdates.length-1} tweets:\n#{list}\n"
 			print "Loaded #{oldUpdates.length-1} tweets\n"
 			sleep 2
@@ -102,7 +101,7 @@ class Updater
 	end
 	
 	def add( update, save )
-		@updates[ update['body'] ] = update
+		@updates[ update['message'] ] = update
 		@updatelist.push( update )
 		File.open( @ALLTWEETS, 'a' ) { |f| f.puts update.to_json } if save
 	end
@@ -121,7 +120,7 @@ class Updater
 		user = getuser( username )
 		return if not user
 		update = {
-			'body' => $coder.decode(body),
+			'message' => $coder.decode(body),
 			'time' => Time.rfc2822( msg['created_at'] ).to_i
 		}.merge( user )
 		if Banned.banned( update['where'] )
@@ -129,7 +128,7 @@ class Updater
 			print "Blocked location: #{update['where']}\n"
 			return
 		end
-		print "Posting: #{update['body']}\n"
+		print "Posting: #{update['message']}\n"
 		add update, true
 		@updatelist.delete_at(0) if @updatelist.length > @MAX_UPDATES
 		writeupdates
@@ -139,7 +138,7 @@ class Updater
 	def getuser( username )
 		if not @users[username]
 			print "Getting twittervision user #{username}\n"
-			sleep 2.5
+			sleep 5
 			open "http://twittervision.com/user/current_status/#{username}.xml" do |f|
 				print "Received twittervision user #{username}, status = #{f.status.inspect}\n"
 				if f.status[0] == '200'
@@ -150,7 +149,7 @@ class Updater
 					lat = (loc/:latitude).text
 					lon = (loc/:longitude).text
 					if lat != '' and lon != ''
-						print "Saving twittervision user #{username}\n"
+						#print "Saving twittervision user #{username}\n"
 						image = (tv/'profile-image-url').text
 						image = '' if open(image).status[0] != '200'
 						@users[username] = user = {
@@ -164,7 +163,7 @@ class Updater
 						print "image: #{ image == '' ? 'None' : image }\n"
 						user['image'] = image if image != ''
 					else
-						print "No lat/long for twittervision user #{username}\n"
+						print "No lat/long for #{username}\n"
 					end
 				end
 			end
@@ -175,25 +174,30 @@ class Updater
 	def receive
 		#print "Start receive\n"
 		@blocked = 0
+		max_id = open( @TWEETMAX ).gets.chomp.to_i
+		print "Starting max_id = #{max_id}\n"
 		queries do |query|
-			url = 'http://search.twitter.com/search.json?rpp=100&q=' + CGI.escape(query)
+			url = "http://search.twitter.com/search.json?rpp=100&since_id=#{max_id}&q=#{CGI.escape(query)}"
 			print "#{query}\n#{url}\n"
 			open url do |f|
 				body = f.read
-				print "\n"
-				print body
-				print "\n\n"
+				#print "\n"
+				#print body
+				#print "\n\n"
 				process JSON.parse( body )
 			end
 		end
-		print "max_id = #{@max_id}\n"
+		print "New max_id = #{@max_id}\n"
 		#msg = ", blocked #{@blocked}" if @blocked > 0
 		#print msg + "\n"
 	end
 	
 	def process( json )
 		@max_id = [ @max_id, json['max_id'] ].min
-		json['results'].each do |msg|
+		open( @TWEETMAX, 'w' ) { |f| f.puts @max_id } if @max_id < INFINITY
+		results = json['results']
+		print "Received #{results.length} tweets\n"
+		results.each do |msg|
 			onemsg msg
 		end
 	end
