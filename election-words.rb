@@ -20,6 +20,7 @@ huckabee
 libertarian
 mccain
 obama
+palin
 republican
 republicans
 romney
