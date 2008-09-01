@@ -145,9 +145,9 @@ function GAsync( obj ) {
 
 function showCredits() {
 	showInfoTip( true, {
-		width: 250,
-		top: 40,
-		title: 'Credits',
+		width: 310,
+		top: 20,
+		title: 'Twitter Election Map by Geary Labs',
 		text: S(
 			'<div class="credits">',
 				'<div class="credit">',
@@ -175,6 +175,9 @@ function showCredits() {
 					'</div>',
 					'<div class="source">',
 						'<a target="_blank" href="http://code.google.com/apis/maps/">Google Maps API Team</a>',
+					'</div>',
+					'<div class="source">',
+						'<a target="_blank" href="http://jquery.com/">jQuery</a>',
 					'</div>',
 				'</div>',
 			'</div>'
