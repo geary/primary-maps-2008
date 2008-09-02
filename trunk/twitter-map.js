@@ -7,6 +7,33 @@
 
 (function( $ ) {
 
+tweets = {
+	interval: 15000,
+	max: 50,
+	index: 0,
+	array: [],
+	timer: null,
+	next: function() {
+		tweets.clearTimer();
+		if( ++tweets.index < tweets.array.length )
+			openTweet();
+		else
+			loadTwitter();
+	},
+	previous: function() {
+		tweets.clearTimer();
+		if( --tweets.index >= 0 )
+			openTweet();
+	},
+	setTimer: function() {
+		tweets.timer = setTimeout( tweets.next, tweets.interval );
+	},
+	clearTimer: function() {
+		clearTimeout( tweets.timer );
+		tweets.timer = null;
+	}
+};
+
 var opt = window.GoogleElectionMapOptions || {};
 
 var mapplet = opt.mapplet;
@@ -408,32 +435,25 @@ $(window).bind( 'load', load ).bind( 'onunload', GUnload );
 function loadTwitter() {
 	var url = 'http://elections.s3.amazonaws.com/twitter/tweets-latest.js';
 	_IG_FetchContent( url, function( t ) {
-		window.tweets = eval( '(' + t + ')' );
+		tweets.array = tweets.array.concat( eval( '(' + t + ')' ) );
+		if( tweets.array.length > tweets.max * 2 ) {
+			var cut = tweets.array.length - tweets.max;
+			tweets.index = Math.max( 0, tweets.index - cut );
+			tweets.array = tweets.array.slice( -tweets.max );
+		}
 		//var list = [], markers = [];
 		//tweets.forEach( function( tweet ) {
 		//	markers.push();
 		//});
-		showTweet();
+		openTweet();
 	}, {
 		refreshInterval: 120
 	});
 }
 
-function showTweet() {
-	var tweet = nextTweet();
-	if( tweet )
-		addTweetMarker( tweet );
-	else
-		loadTwitter();
-}
-
-function nextTweet() {
-	return tweets.shift();
-}
-
 var tweetMarker;
-function addTweetMarker( tweet ) {
-	//debugger;
+function openTweet() {
+	var tweet = tweets.array[tweets.index];
 	//if( tweetMarker ) {
 	//	//map.closeInfoWindow();
 	//	map.removeOverlay( tweetMarker );
@@ -455,10 +475,13 @@ function addTweetMarker( tweet ) {
 	var bubble = tweetBubble(tweet);
 	tweetMarker.openInfoWindowHtml( bubble, { maxWidth:300, disableGoogleLinks:true } );
 	
-	setTimeout( showTweet, 15000 );
+	tweets.setTimer();
 }
 
 function tweetBubble( tweet ) {
+	function link( text, which, yes ) {
+		return yes ? S( '<a href="javascript:tweets.', which, '()">', text, '</a>' ) : '';
+	}
 	var img = ! tweet.image ? '' : S(
 		'<img ',
 			'style="border:1px solid black; float:left; width:48px; height:48px; margin:0 6px 6px 0; vertical-align:top;" ',
@@ -475,11 +498,22 @@ function tweetBubble( tweet ) {
 			'<div>',
 				htmlClean(tweet.where),
 			'</div>',
-			'<div style="display: inline;">',
+			'<div>',
 				atLinks( httpLinks( htmlClean(tweet.message) ) ),
 				//atLinks( httpLinks( htmlClean(tweet.message) ) ),
 			'</div>',
 			//'<div id="statusupdated">less than a minute ago in WWW</div>
+			'<div style="margin-top:0.5em;">',
+				'<div style="float:left;">',
+					link( '&lt;&nbsp;Previous', 'previous', tweets.index > 0 ),
+				'</div>',
+				'<div style="float:right;">',
+					link( 'Next&nbsp;&gt;', 'next', tweets.index < tweets.array.length - 1 ),
+				'</div>',
+				'<div style="clear:both;">',
+				'</div>',
+				//atLinks( httpLinks( htmlClean(tweet.message) ) ),
+			'</div>',
 		'</div>'
 	);
 }
