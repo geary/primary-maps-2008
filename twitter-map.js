@@ -78,10 +78,27 @@ function S() {
 	return Array.prototype.join.call( arguments, '' );
 };
 
-function htmlEscape( str ) {
+function htmlClean( html ) {
+	return htmlEscape( htmlUnEntitize(html) );
+}
+
+function htmlEscape( html ) {
 	var div = document.createElement( 'div' );
-	div.appendChild( document.createTextNode( str ) );
+	div.appendChild( document.createTextNode( html ) );
 	return div.innerHTML;
+}
+
+//function htmlUnescape( html ) {
+//	return $('<div></div>').html( html ).text();
+//}
+
+function htmlUnEntitize( html ) {
+	return html
+		.replace( /&amp;/g, '&' )
+		.replace( /&apos;/g, "'" )
+		.replace( /&gt;/g, '>' )
+		.replace( /&lt;/g, '<' )
+		.replace( /&quot;/g, '"' );
 }
 
 //function atLinks( str ) {
@@ -402,12 +419,24 @@ function loadTwitter() {
 }
 
 function showTweet() {
-	var tweet = tweets.shift();
+	var tweet = nextTweet();
 	if( tweet )
 		addTweetMarker( tweet );
 	else
 		loadTwitter();
 }
+
+// Normal version: return all tweets
+function nextTweet() {
+	return tweets.shift();
+}
+
+//// Test version: return tweets of interest for a particular test
+//function nextTweet() {
+//	function interesting( tweet ) { return tweet.message.match( /&\w+;/ ); }
+//	do { var tweet = tweets.shift(); } while( tweet  &&  ! interesting(tweet) );
+//	return tweet;
+//}
 
 var tweetMarker;
 function addTweetMarker( tweet ) {
@@ -442,20 +471,20 @@ function tweetBubble( tweet ) {
 			'style="border:1px solid black; float:left; width:48px; height:48px; margin:0 6px 6px 0; vertical-align:top;" ',
 			'src="', tweet.image || '', '" />'
 	);
-	var author = ! tweet.author || tweet.author == tweet.user ? '' : S( '<div>', htmlEscape(tweet.author), '</div>' );
+	var author = ! tweet.author || tweet.author == tweet.user ? '' : S( '<div>', htmlClean(tweet.author), '</div>' );
 	return S(
 		'<div style="font-family: Arial,sans-serif; font-size: 10pt;">',
 			img,
 			'<div style="font-weight:bold;">',
-				'<a target="_new" href="http://twitter.com/', htmlEscape(tweet.user), '">', htmlEscape(tweet.user), '</a>',
+				'<a target="_new" href="http://twitter.com/', htmlClean(tweet.user), '">', htmlClean(tweet.user), '</a>',
 			'</div>',
 			author,
 			'<div>',
-				htmlEscape( tweet.where || '' ),
+				htmlClean( tweet.where || '' ),
 			'</div>',
 			'<div style="display: inline;">',
-				httpLinks( htmlEscape(tweet.message) ),
-				//atLinks( httpLinks( htmlEscape(tweet.message) ) ),
+				httpLinks( htmlClean(tweet.message) ),
+				//atLinks( httpLinks( htmlClean(tweet.message) ) ),
 			'</div>',
 			//'<div id="statusupdated">less than a minute ago in WWW</div>
 		'</div>'
