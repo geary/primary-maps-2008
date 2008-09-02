@@ -79,6 +79,7 @@ function S() {
 };
 
 function htmlClean( html ) {
+	if( html == null ) html = '';
 	return htmlEscape( htmlUnEntitize(html) );
 }
 
@@ -101,12 +102,12 @@ function htmlUnEntitize( html ) {
 		.replace( /&quot;/g, '"' );
 }
 
-//function atLinks( str ) {
-//	var replacement = '$1@<a href="$2" target="_blank">$2</a>$3';
-//	return str
-//		.replace( /(^|\s)@([^\s:]+)(:)/g, replacement )
-//		.replace( /(^|\s)@(\S+)(\s|$)/g, replacement );
-//}
+function atLinks( str ) {
+	return str.replace(
+		/(^|\s)@([\w_]+)/g,
+		'$1@<a target="_blank" href="http://twitter.com/$2">$2</a>'
+	);
+}
 
 function httpLinks( str ) {
 	return str.replace( /(http:\/\/\S+)/g, '<a href="$1" target="_blank">$1</a>' );
@@ -426,17 +427,9 @@ function showTweet() {
 		loadTwitter();
 }
 
-// Normal version: return all tweets
 function nextTweet() {
 	return tweets.shift();
 }
-
-//// Test version: return tweets of interest for a particular test
-//function nextTweet() {
-//	function interesting( tweet ) { return tweet.message.match( /&\w+;/ ); }
-//	do { var tweet = tweets.shift(); } while( tweet  &&  ! interesting(tweet) );
-//	return tweet;
-//}
 
 var tweetMarker;
 function addTweetMarker( tweet ) {
@@ -476,14 +469,14 @@ function tweetBubble( tweet ) {
 		'<div style="font-family: Arial,sans-serif; font-size: 10pt;">',
 			img,
 			'<div style="font-weight:bold;">',
-				'<a target="_new" href="http://twitter.com/', htmlClean(tweet.user), '">', htmlClean(tweet.user), '</a>',
+				'<a target="_blank" href="http://twitter.com/', htmlClean(tweet.user), '">', htmlClean(tweet.user), '</a>',
 			'</div>',
 			author,
 			'<div>',
-				htmlClean( tweet.where || '' ),
+				htmlClean(tweet.where),
 			'</div>',
 			'<div style="display: inline;">',
-				httpLinks( htmlClean(tweet.message) ),
+				atLinks( httpLinks( htmlClean(tweet.message) ) ),
 				//atLinks( httpLinks( htmlClean(tweet.message) ) ),
 			'</div>',
 			//'<div id="statusupdated">less than a minute ago in WWW</div>
