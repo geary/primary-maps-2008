@@ -441,39 +441,21 @@ function loadTwitter() {
 			tweets.index = Math.max( 0, tweets.index - cut );
 			tweets.array = tweets.array.slice( -tweets.max );
 		}
-		//var list = [], markers = [];
-		//tweets.forEach( function( tweet ) {
-		//	markers.push();
-		//});
 		openTweet();
 	}, {
 		refreshInterval: 120
 	});
 }
 
-var tweetMarker;
 function openTweet() {
 	var tweet = tweets.array[tweets.index];
-	//if( tweetMarker ) {
-	//	//map.closeInfoWindow();
-	//	map.removeOverlay( tweetMarker );
-	//	tweetMarker = null;
-	//}
-	
 	var latlng = new GLatLng( tweet.lat, tweet.lon );
-	if( ! tweetMarker ) {
-		tweetMarker = new GMarker( latlng/*, { icon:icons[color] }*/ );
-		map.addOverlay( tweetMarker );
-	}
-	else {
-		if( mapplet )
-			tweetMarker.setPoint( latlng );
-		else
-			tweetMarker.setLatLng( latlng );
-	}
-	//marker.openInfoWindowHtml( tweetBubble(tweet) );
 	var bubble = tweetBubble(tweet);
-	tweetMarker.openInfoWindowHtml( bubble, { maxWidth:300, disableGoogleLinks:true } );
+	map.openInfoWindowHtml( latlng, bubble, {
+		maxWidth: 300,
+		disableGoogleLinks: true,
+		noCloseOnClick: true
+	});
 	
 	tweets.setTimer();
 }
