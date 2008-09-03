@@ -36,11 +36,20 @@ $coder = HTMLEntities.new
 #	
 #end
 
+def readJSON( filename )
+	File.open( filename, 'r' ) { |f| JSON.parse(f.read) }
+end
+
+def writeJSON( filename, value )
+	File.open( filename, 'w' ) { |f| f.puts value.to_json }
+end
+
 class Updater
 	
 	def initialize
 		@ALLTWEETS = 'tweets-all.txt'
-		@JSON = 'tweets-latest.js'
+		@JSON = 'tweets-latest.json'
+		@USERS = 'users.json'
 		@TWEETMAX = 'tweets-max.txt'
 		@MAX_UPDATES = 50
 		@lastwrite = Time.now
@@ -61,33 +70,27 @@ class Updater
 	
 	def readupdates
 		#print "Loading old tweets\n"
-		File.open( @JSON, 'r' ) { |f|
-			data = f.read
-			oldUpdates = JSON.parse( data )
-			oldUpdates.each { |update|
-				if update
-					# temp
-					update['message'] = $coder.decode( update['message'] )
-					# TODO: make a user object
-					user = update.dup
-					user.delete 'message'
-					user.delete 'time'
-					@users[ update['user'] ] = user
-					add update, false
-				end
-			}
-			list = oldUpdates.map { |update| update ? update['message'] : '' }.join("\n")
-			#print "Loaded #{oldUpdates.length-1} tweets:\n#{list}\n"
-			print "Loaded #{oldUpdates.length-1} tweets\n"
-			sleep 2
+		now = Time.new.to_i
+		users = readJSON @USERS
+		users.each { |name,user|
+			@users[name] = user if now - user['time'] < 3600
 		}
+		oldUpdates = readJSON @JSON
+		oldUpdates.each { |update|
+			if update
+				# temp
+				update['message'] = $coder.decode( update['message'] )
+				add update, false
+			end
+		}
+		list = oldUpdates.map { |update| update ? update['message'] : '' }.join("\n")
+		#print "Loaded #{oldUpdates.length-1} tweets:\n#{list}\n"
+		print "Loaded #{oldUpdates.length-1} tweets\n"
+		sleep 2
 	end
 	
 	def writeupdates
-		#print "Writing updates\n"
-		# Add newlines to JSON output to make it more Subversion-friendly
-		json = @updatelist.to_json #.fix_json
-		File.open( @JSON, 'w' ) { |f| f.puts json }
+		writeJSON @JSON, @updatelist
 	end
 	
 	def checkin
@@ -101,27 +104,31 @@ class Updater
 	end
 	
 	def add( update, save )
-		@updates[ update['message'] ] = update
+		message = update['message']
+		return if update[message]
+		@updates[message] = update
 		@updatelist.push( update )
-		File.open( @ALLTWEETS, 'a' ) { |f| f.puts update.to_json } if save
+		writeJSON( @ALLTWEETS, update ) if save
 	end
 	
 	def onemsg( msg )
-		body = msg['text']
-		return if @updates[body]
+		text = msg['text']
+		return if @updates[text]
 		username = msg['from_user']
-		#print "#{msg.body}\n"
-		if Banned.banned(body) or Banned.banned(username)
+		#print "#{text}\n"
+		if Banned.banned(text) or Banned.banned(username)
 			@blocked += 1
-			print "Blocked: #{username}: #{body}\n"
+			print "Blocked: #{username}: #{text}\n"
 			return
 		end
 		# TODO: make a user object
 		user = getuser( username )
-		return if not user
+		return if not user or not user['status']
 		update = {
-			'message' => $coder.decode(body),
-			'time' => Time.rfc2822( msg['created_at'] ).to_i
+			'id' => msg['id'],
+			'message' => $coder.decode(text),
+			'time' => Time.rfc2822( msg['created_at'] ).to_i,
+			'image' => msg['profile_image_url']
 		}.merge( user )
 		if Banned.banned( update['where'] )
 			@blocked += 1
@@ -136,11 +143,13 @@ class Updater
 	end
 	
 	def getuser( username )
-		if not @users[username]
+		if @users[username]
+			print "Twittervision user #{username} from cache\n"
+		else
 			print "Getting twittervision user #{username}\n"
-			sleep 2
+			sleep 10
 			open "http://twittervision.com/user/current_status/#{username}.xml" do |f|
-				print "Received twittervision user #{username}, status = #{f.status.inspect}\n"
+				#print "Received twittervision user #{username}, status = #{f.status.inspect}\n"
 				if f.status[0] == '200'
 					xml = f.read
 					#print "#{xml}\n"
@@ -162,17 +171,27 @@ class Updater
 							'lat' => (loc/:latitude).text,
 							'lon' => (loc/:longitude).text,
 							'where' => (tv/'current-location').text,
-							'status' => 0
+							'status' => 0,
+							'time' => Time.new.to_i
 						}
 						print "image: #{ image == '' ? 'None' : image }\n"
 						user['image'] = image if image != ''
 					else
 						print "No lat/long for #{username}\n"
+						@users[username] = {
+							'user' => username,
+							'time' => Time.new.to_i
+						}
 					end
+					saveusers
 				end
 			end
 		end
 		@users[username]
+	end
+	
+	def saveusers
+		writeJSON @USERS, @users
 	end
 	
 	def receive
@@ -181,7 +200,7 @@ class Updater
 		max_id = open( @TWEETMAX ).gets.chomp.to_i
 		print "Starting max_id = #{max_id}\n"
 		queries do |query|
-			url = "http://search.twitter.com/search.json?rpp=100&since_id=#{max_id}&q=#{CGI.escape(query)}"
+			url = "http://search.twitter.com/search.json?lang=en&rpp=100&since_id=#{max_id}&q=#{CGI.escape(query)}"
 			print "#{query}\n#{url}\n"
 			open url do |f|
 				body = f.read
