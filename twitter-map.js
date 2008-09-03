@@ -382,6 +382,7 @@ function closeInfoTip() {
 			'#footer { width:', ww, 'px; height:', fh, 'px; text-align:center; padding-top:2px; background-color:#FBE6B6; overflow:hidden; }',
 			'#footer, #footer * { font-size:15px; }',
 			'#footer a { font-weight:bold; }',
+			'img[src="http://maps.google.com/intl/en_us/mapfiles/iw_close.gif"] { display:none; }',
 		'</style>',
 		'<div id="outer">',
 			'<div id="map">',
