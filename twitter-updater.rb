@@ -192,6 +192,7 @@ class Updater
 	end
 	
 	def saveusers
+		print "Saving #{@users.length} users\n"
 		writeJSON @USERS, @users
 	end
 	
