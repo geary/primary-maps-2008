@@ -73,7 +73,7 @@ class Updater
 		now = Time.new.to_i
 		users = readJSON @USERS
 		users.each { |name,user|
-			@users[name] = user if now - user['time'] < 3600
+			@users[name] = user if now - user['time'] < 60*60*4
 		}
 		oldUpdates = readJSON @JSON
 		oldUpdates.each { |update|
