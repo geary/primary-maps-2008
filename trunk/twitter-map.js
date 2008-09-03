@@ -467,25 +467,23 @@ function tweetBubble( tweet ) {
 	var img = ! tweet.image ? '' : S(
 		'<img ',
 			'style="border:1px solid black; float:left; width:48px; height:48px; margin:0 6px 6px 0; vertical-align:top;" ',
-			'src="', tweet.image || '', '" />'
+			'src="', tweet.image, '" />'
 	);
-	var author = ! tweet.author || tweet.author == tweet.user ? '' : S( '<div>', htmlClean(tweet.author), '</div>' );
+	var author = ! tweet.author || tweet.author == tweet.user ? '' : S( '<span>', htmlClean(tweet.author), '</span>' );
 	return S(
 		'<div style="font-family: Arial,sans-serif; font-size: 10pt;">',
 			img,
-			'<div style="font-weight:bold;">',
+			'<span style="font-weight:bold;">',
 				'<a target="_blank" href="http://twitter.com/', htmlClean(tweet.user), '">', htmlClean(tweet.user), '</a>',
-			'</div>',
-			author,
-			'<div>',
-				htmlClean(tweet.where),
-			'</div>',
+			'</span>',
+			' ', author, ' ',
+			htmlClean(tweet.where),
 			'<div>',
 				atLinks( httpLinks( htmlClean(tweet.message) ) ),
 				//atLinks( httpLinks( htmlClean(tweet.message) ) ),
 			'</div>',
 			//'<div id="statusupdated">less than a minute ago in WWW</div>
-			'<div style="margin-top:0.5em;">',
+			'<div style="margin-top:0.25em;">',
 				'<div style="float:left;">',
 					link( '&lt;&nbsp;Previous', 'previous', tweets.index > 0 ),
 				'</div>',
