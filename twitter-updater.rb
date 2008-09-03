@@ -49,7 +49,7 @@ class Updater
 	def initialize
 		@ALLTWEETS = 'tweets-all.txt'
 		@JSON = 'tweets-latest.json'
-		@USERS = 'users.json'
+		@USERS = 'tweets-users.json'
 		@TWEETMAX = 'tweets-max.txt'
 		@MAX_UPDATES = 50
 		@lastwrite = Time.now
