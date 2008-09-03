@@ -73,7 +73,7 @@ class Updater
 		now = Time.new.to_i
 		users = readJSON @USERS
 		users.each { |name,user|
-			@users[name] = user if now - user['time'] < 60*60*4
+			@users[name] = user if now - user['time'] < 60*60*24*7
 		}
 		print "Loaded #{@users.length} users from cache, discarded #{users.length-@users.length} users\n"
 		oldUpdates = readJSON @JSON
