@@ -16,14 +16,12 @@ election
 elections
 gop
 hillary
-huckabee
 libertarian
 mccain
 obama
 palin
 republican
 republicans
-romney
 "ron paul"
 END
 
