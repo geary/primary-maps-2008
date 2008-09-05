@@ -184,7 +184,6 @@ class Updater
 							'time' => Time.new.to_i
 						}
 					end
-					saveusers
 				end
 			end
 		end
@@ -212,9 +211,11 @@ class Updater
 				process JSON.parse( body )
 			end
 		end
+		saveusers
 		print "New max_id = #{@max_id}\n"
 		#msg = ", blocked #{@blocked}" if @blocked > 0
 		#print msg + "\n"
+		print "Exiting...\n"
 	end
 	
 	def process( json )
