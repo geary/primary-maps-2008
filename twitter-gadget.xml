@@ -17,6 +17,7 @@
 	scaling="false"
 	scrolling="false"
 >
+	<Require feature="com.google.gadgets.analytics" />
 </ModulePrefs>
 <Content type="html">
 <![CDATA[
