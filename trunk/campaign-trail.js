@@ -251,7 +251,6 @@ function percent( n ) {
 // http://www.google.com/calendar/feeds/{candidate.feed}%40group.calendar.google.com/public/basic
 
 var candidates = [
-	{ 'name': 'clinton', 'lastName': 'Clinton', 'fullName': 'Hillary Clinton', 'feed': '2jmb4ula0um5138qnfk621nagg' },
 	{ 'name': 'mccain', 'lastName': 'McCain', 'fullName': 'John McCain', 'feed': 'q1du1ju69m8jecsjkhjr538kbs' },
 	{ 'name': 'obama', 'lastName': 'Obama', 'fullName': 'Barack Obama', 'feed': 'nkt5atdq7cdbes3ehdfpendpnc' }
 ].index('name');
