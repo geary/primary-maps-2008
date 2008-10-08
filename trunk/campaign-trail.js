@@ -640,7 +640,7 @@ function load() {
 }
 
 function imgUrl( name ) {
-	return opt.imgUrl + name + '.png';
+	return cacheUrl( opt.imgUrl + name + '.png', 3600 );
 }
 
 function getCandidateCalendars() {
