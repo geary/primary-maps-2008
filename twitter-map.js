@@ -40,6 +40,17 @@ var mapplet = opt.mapplet;
 
 var imgBaseUrl = 'http://gmaps-samples.googlecode.com/svn/trunk/elections/2008/images/icons/';
 
+//var ga;
+//function analytics( path ) {
+//	if( ga == null )
+//		ga = window._IG_GA ? new _IG_GA('UA-5845354-3') : false;
+//	ga && ga.reportPageview( path );
+//}
+
+function analytics( path ) {
+	window._IG_Analytics && _IG_Analytics( 'UA-5845354-3', path );
+}
+
 function loadScript( url ) {
 	var script = document.createElement( 'script' );
 	script.type = 'text/javascript';
@@ -443,6 +454,7 @@ function loadTwitter() {
 			tweets.array = tweets.array.slice( -tweets.max );
 		}
 		openTweet();
+		analytics( '/gadget' );
 	}, {
 		refreshInterval: 120
 	});
