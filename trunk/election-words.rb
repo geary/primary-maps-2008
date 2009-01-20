@@ -16,6 +16,10 @@ election
 elections
 gop
 hillary
+inaugural
+inaugurate
+inaugurated
+inauguration
 libertarian
 mccain
 obama
