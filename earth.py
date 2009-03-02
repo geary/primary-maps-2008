@@ -14,9 +14,9 @@ from earth_candidates import candidates
 locale.setlocale( locale.LC_ALL, '' )
 
 def T( text, **values ):
-	'''	Interpolate the values hash into text, then remove newlines
-		and the whitespace following them. If you need whitespace between
-		two lines in the template text, add a trailing space or a blank line. '''
+	'''	Interpolate values into text, then remove newlines and the
+		whitespace following them. If you need whitespace between two
+		lines in the template text, add a trailing space or a blank line. '''
 	return re.sub( '(^\n*|\n+)[ \t]*', '', text % values )
 
 def readFile( filename ):
@@ -35,7 +35,7 @@ def writeFile( filename, data ):
 def readJSONP( path ):
 	'''	Read a file containing JSONP, e.g.
 			callback({ "a":"b", "c":"d" })
-		and return a hash of the JSON data. '''
+		and return the JSON data. '''
 	exec re.sub( '^.+\(', 'data = (', readFile(path) )
 	return data
 
@@ -49,8 +49,8 @@ def getIcon( candidate ):
 	return 'files/%s-border.png' % name
 	
 def getData( region, party ):
-	'''	Read the JSON data data for a region ('us' or state) and party,
-		return the places (shapes) and votes hashes. '''
+	'''	Read and return the JSON shape data for a region and
+		vote data for the region and party. '''
 	print 'Reading %s %s' %( region, party )
 	shapes = readJSONP( '%s/%s.js' %( shapespath, region ) )
 	places = shapes['places']
@@ -58,8 +58,8 @@ def getData( region, party ):
 	return places, votes
 
 def getCandidateAltitude( votes ):
-	'''	Given a votes tally hash, return the winning candidate and an
-		altitude calculated from the difference between the first and second
+	'''	Given a votes tally, return the winning candidate and an altitude
+		calculated from the difference between the first and second
 		place candidates. '''
 	first = votes['votes'][0]
 	second = votes['votes'][1]
